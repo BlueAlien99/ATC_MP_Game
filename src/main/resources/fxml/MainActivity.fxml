@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.StackPane?>
+
+
+<StackPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+           prefHeight="640.0" prefWidth="640.0" xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml" fx:controller="com.atc.client.controller.MainActivityController"/>
