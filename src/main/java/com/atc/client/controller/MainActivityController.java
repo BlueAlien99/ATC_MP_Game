@@ -18,7 +18,7 @@ public class MainActivityController extends GenericController{
         Button newGameButton = new Button("New Game");
         Button quitButton = new Button("Quit");
 
-        newGameButton.setOnAction(e -> windowController.loadAndSetScene("/fxml/someActivity.fxml"));
+        newGameButton.setOnAction(e -> windowController.loadAndSetScene("/fxml/GameActivity.fxml"));
         quitButton.setOnAction(e -> Platform.exit());
 
         VBox vbox = new VBox(10);
