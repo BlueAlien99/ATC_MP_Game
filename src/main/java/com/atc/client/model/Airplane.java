@@ -3,69 +3,142 @@ import java.util.*;
 
 public class Airplane {
     private String id;
-    private double curr_speed;
-    private double target_speed;
-    private double curr_heading;
-    private double target_heading;
-    private double curr_height;
-    private double target_height;
-    private double curr_pos_x;
-    private double curr_pos_y;
-    private double max_speed;
-    private double min_speed;
+    private double currSpeed;
+    private double targetSpeed;
+    private double currHeading;
+    private double targetHeading;
+    private double currHeight;
+    private double targetHeight;
+    private double currPosX;
+    private double currPosY;
+    private double maxSpeed;
+    private double minSpeed;
 
-    public String get_id(){ return this.id;}
-    public double get_curr_speed(){
-        return this.curr_speed;
+    Airplane(double initialMaxSpeed, double initialMinSpeed){
+        this.id = generateAirplaneId(1000,2);
+        this.currSpeed =0;
+        this.targetSpeed = 0;
+        this.currHeading = 0;
+        this.targetHeading = 0;
+        this.currHeight = 0;
+        this.targetHeading =0;
+        this.currPosX = 0;
+        this.currPosY = 0;
+        this.maxSpeed = initialMaxSpeed;
+        this.minSpeed = initialMinSpeed;
     }
-    public double get_target_speed(){return this.target_speed;}
-    public double get_curr_heading(){ return this.curr_heading; }
-    public double get_target_heading(){return this.target_heading;}
-    public double get_curr_height(){
-        return this.curr_height;
-    }
-    public double get_target_height(){ return this.target_height;}
-    public double get_position_x(){ return this.curr_pos_x; }
-    public double get_position_y(){
-        return this.curr_pos_y;
-    }
-    public double get_min_speed(){
-        return  this.min_speed;
-    }
-    public double get_max_speed(){return this.max_speed;}
 
-    public void set_id(String new_id){
-        this.id = new_id;
+
+    public void moveAirplane(){
+        setNewFlightParameters();
+        double currSpeed = getCurrSpeed();
+        double currPosX = getPositionX();
+        double currPosY = getPositionY();
+        double radians = Math.toRadians(getCurrHeading());
+        double xShift = Math.sin(radians) * currSpeed/10;
+        double yShift = Math.cos(radians)* currSpeed/10;
+        setCurrPosX(currPosX + xShift);
+        setCurrPosY(currPosY - yShift);
     }
-    public void set_curr_speed(double new_speed){
-        this.curr_speed = new_speed;
+
+    public void setNewFlightParameters(){
+
+        final int speedStep = 10;
+        final int headingStep = 5;
+        final int heightStep = 10;
+
+        //UPDATING SPEED
+        double currSpeed = getCurrSpeed();
+        double targetSpeed = getTargetSpeed();
+        double difference = targetSpeed - currSpeed;
+        if(difference > 0 && difference > speedStep) {
+            setCurrSpeed(currSpeed + speedStep);
+        }else if (difference < 0 && difference > speedStep){
+            setCurrSpeed(currSpeed - speedStep);
+        }
+        //UPDATING HEADING
+        double currHeading = getCurrHeading();
+        double targetHeading = getTargetHeading();
+        difference = targetHeading - currHeading;
+        if(difference > 0 && difference > headingStep){
+            setCurrHeading(currHeading + headingStep);
+        }else if (difference < 0 && difference > headingStep){
+            setCurrHeading((currHeading - headingStep));
+        }
+        //UPDATING HEIGHT
+        double currHeight = getCurrHeight();
+        double targetHeight = getTargetHeight();
+        difference = targetHeight - currHeight;
+        if(difference > 0 && difference > heightStep){
+            setCurrHeight(currHeight + heightStep);
+        }else if(difference < 0 && difference > heightStep){
+            setCurrHeight(currHeight + heightStep);
+        }
     }
-    public void set_target_speed(double new_target_speed){
-        this.target_speed = new_target_speed;
+    private String generateAirplaneId(int upper, int length){
+        //GENERATE TWO RANDOM NUMBERS
+        StringBuilder id = new StringBuilder();
+        Random r = new Random();
+        int bound = 26;
+        for(int i =0; i< length; i++){
+            id.append((char) (r.nextInt(bound) + 'A'));
+        }
+        id.append(" ");
+        id.append(r.nextInt(upper));
+        //GENERATE LETTERS IN AIRPLANE ID
+        return id.toString();
     }
-    public void set_curr_heading(double new_heading) {
-        this.curr_heading = new_heading;
+
+    public String getId(){ return this.id;}
+    public double getCurrSpeed(){
+        return this.currSpeed;
     }
-    public void set_target_heading(double new_target_heading){
-        this.target_heading = new_target_heading;
+    public double getTargetSpeed(){return this.targetSpeed;}
+    public double getCurrHeading(){ return this.currHeading; }
+    public double getTargetHeading(){return this.targetHeading;}
+    public double getCurrHeight(){ return this.currHeight; }
+    public double getTargetHeight(){ return this.targetHeight;}
+    public double getPositionX(){ return this.currPosX; }
+    public double getPositionY(){
+        return this.currPosY;
     }
-    public void set_curr_height(double new_curr_height){
-        this.curr_height = new_curr_height;
+    public double getMinSpeed(){
+        return  this.minSpeed;
     }
-    public void set_target_height(double new_target_height){
-        this.target_height = new_target_height;
+    public double getMaxSpeed(){return this.maxSpeed;}
+
+    public void setId(String newId){
+        this.id = newId;
     }
-    public void set_curr_pos_x(double new_pos_x) {
-        this.curr_pos_x = new_pos_x;
+    public void setCurrSpeed(double newSpeed){
+        this.currSpeed = newSpeed;
     }
-    public void set_curr_pos_y(double new_pos_y){
-        this.curr_pos_y = new_pos_y;
+    public void setTargetSpeed(double newTargetSpeed){
+        this.targetSpeed = newTargetSpeed;
     }
-    public void set_max_speed(double new_max_speed){
-        this.max_speed = new_max_speed;
+    public void setCurrHeading(double newHeading) {
+        this.currHeading = newHeading;
     }
-    public void set_min_speed(double new_min_speed){
-        this.min_speed = new_min_speed;
+    public void setTargetHeading(double newTargetHeading){
+        this.targetHeading = newTargetHeading;
+    }
+    public void setCurrHeight(double newCurrHeight){
+        this.currHeight = newCurrHeight;
+    }
+    public void setTargetHeight(double newTargetHeight){
+        this.targetHeight = newTargetHeight;
+    }
+    public void setCurrPosX(double newPosX) {
+        this.currPosX = newPosX;
+    }
+    public void setCurrPosY(double newPosY){
+        this.currPosY = newPosY;
+    }
+    public void setMaxSpeed(double newMaxSpeed){
+        this.maxSpeed = newMaxSpeed;
+    }
+    public void setMinSpeed(double newMinSpeed){
+        this.minSpeed = newMinSpeed;
     }
 
 }
