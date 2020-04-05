@@ -53,17 +53,27 @@ public class Airplane {
         double difference = targetSpeed - currSpeed;
         if(difference > 0 && difference > speedStep) {
             setCurrSpeed(currSpeed + speedStep);
-        }else if (difference < 0 && difference > speedStep){
+        }else if (difference < 0 && Math.abs(difference) > speedStep){
             setCurrSpeed(currSpeed - speedStep);
+        }else if (Math.abs((difference)) > 0){
+            setCurrSpeed(getTargetSpeed());
         }
         //UPDATING HEADING
         double currHeading = getCurrHeading();
         double targetHeading = getTargetHeading();
         difference = targetHeading - currHeading;
-        if(difference > 0 && difference > headingStep){
+        if(Math.abs(difference) > 180){
+            if(difference > 0){
+                setCurrHeading(currHeading - headingStep);
+            }else{
+                setCurrHeading(currHeading + headingStep);
+            }
+        }else if(difference > 0 && difference > headingStep){
             setCurrHeading(currHeading + headingStep);
-        }else if (difference < 0 && difference > headingStep){
+        }else if (difference < 0 && Math.abs(difference) > headingStep){
             setCurrHeading((currHeading - headingStep));
+        }else if (Math.abs(difference) > 0){
+            setCurrHeading(getTargetHeading());
         }
         //UPDATING HEIGHT
         double currHeight = getCurrHeight();
@@ -71,8 +81,10 @@ public class Airplane {
         difference = targetHeight - currHeight;
         if(difference > 0 && difference > heightStep){
             setCurrHeight(currHeight + heightStep);
-        }else if(difference < 0 && difference > heightStep){
-            setCurrHeight(currHeight + heightStep);
+        }else if(difference < 0 && Math.abs(difference) > heightStep){
+            setCurrHeight(currHeight - heightStep);
+        }else if (Math.abs((difference)) > 0){
+            setCurrHeading(getTargetHeading());
         }
     }
     private String generateAirplaneId(int upper, int length){
@@ -83,7 +95,6 @@ public class Airplane {
         for(int i =0; i< length; i++){
             id.append((char) (r.nextInt(bound) + 'A'));
         }
-        id.append(" ");
         id.append(r.nextInt(upper));
         //GENERATE LETTERS IN AIRPLANE ID
         return id.toString();
@@ -111,16 +122,28 @@ public class Airplane {
         this.id = newId;
     }
     public void setCurrSpeed(double newSpeed){
-        this.currSpeed = newSpeed;
+        if(newSpeed < getMaxSpeed() && newSpeed > getMinSpeed()) {
+            this.currSpeed = newSpeed;
+        }
     }
     public void setTargetSpeed(double newTargetSpeed){
-        this.targetSpeed = newTargetSpeed;
+        if (newTargetSpeed < getMaxSpeed() && newTargetSpeed > getMinSpeed()) {
+            this.targetSpeed = newTargetSpeed;
+        }
     }
     public void setCurrHeading(double newHeading) {
-        this.currHeading = newHeading;
+        if(newHeading > 360) {
+            this.currHeading = newHeading - 360;
+        }else if (newHeading < 0 ){
+            this.currHeading = newHeading + 360;
+        }
     }
     public void setTargetHeading(double newTargetHeading){
-        this.targetHeading = newTargetHeading;
+        if(newTargetHeading > 360) {
+            this.targetHeading = newTargetHeading - 360;
+        }else if (newTargetHeading < 0){
+            this.targetHeading = newTargetHeading + 360;
+        }
     }
     public void setCurrHeight(double newCurrHeight){
         this.currHeight = newCurrHeight;
