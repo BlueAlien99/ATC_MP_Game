@@ -4,10 +4,16 @@ import com.atc.client.controller.WindowController;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.net.Socket;
+
 public class Main extends Application {
 
     @Override
-    public void start(Stage primaryStage){
+    public void start(Stage primaryStage) throws IOException {
+
+        Socket socket = new Socket("localhost", 2137);
+        System.out.println("Connected!");
 
         WindowController mainWindowController = new WindowController(primaryStage);
         mainWindowController.loadAndSetScene("/fxml/MainActivity.fxml");
