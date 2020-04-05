@@ -78,7 +78,7 @@ public class Airplane {
             setCurrHeading(currHeading + headingStep);
         }else if (difference < 0 && Math.abs(difference) > headingStep){
             setCurrHeading((currHeading - headingStep));
-        }else if ((360 - Math.abs(difference)) < headingStep){
+        }else if ((360 - Math.abs(difference)) <= headingStep){
             setCurrHeading(getTargetHeading());
         }
     }
