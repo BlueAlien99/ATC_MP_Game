@@ -1,5 +1,6 @@
 package com.atc.client.model;
-import java.util.*;
+
+import java.util.Random;
 
 public class Airplane {
     private String id;
@@ -78,7 +79,7 @@ public class Airplane {
             setCurrHeading(currHeading + headingStep);
         }else if (difference < 0 && Math.abs(difference) > headingStep){
             setCurrHeading((currHeading - headingStep));
-        }else if ((360 - Math.abs(difference)) <= headingStep){
+        }else if ((360 - Math.abs(difference)) <= headingStep|| Math.abs(difference)<=headingStep){
             setCurrHeading(getTargetHeading());
         }
     }
