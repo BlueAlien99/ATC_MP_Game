@@ -61,6 +61,7 @@ public class GameActivityController extends GenericController {
 
                 airplane.moveAirplane();
             }
+            gameCanvas.resize_canvas(radar);
             gameCanvas.print_airplanes_array(airplanes, radar);
         }
         );

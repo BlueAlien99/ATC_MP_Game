@@ -6,39 +6,73 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.atc.client.Dimensions.*;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
+import static java.lang.System.currentTimeMillis;
 
 public class GameCanvas  {
         public Canvas radarAirplanes;
-        public ArrayList<Canvas> radarDotsArray;
+        public Canvas radarTrails;
+
+        private Map<UUID, ArrayList<TrailDot>> gameHistory;
+
+    class TrailDot{
+            public double xPos;
+            public double yPos;
+            public double heading;
+            public double altitude;
+            public double speed;
+
+            public long creationTime;
+
+            TrailDot(Airplane airplane){
+                xPos = airplane.getPositionX();
+                yPos = airplane.getPositionY();
+                heading = airplane.getCurrHeading();
+                altitude = airplane.getCurrHeight();
+                speed = airplane.getCurrSpeed();
+
+                creationTime = currentTimeMillis();
+            }
+    }
 
     public GameCanvas(){
         radarAirplanes = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-        radarDotsArray = new ArrayList<>();
-        for(int i = 0; i<RADAR_DOTS_LAYERS; i++){
-            radarDotsArray.add(new Canvas(CANVAS_WIDTH,CANVAS_HEIGHT));
-        }
-    }
-
-    public void rotate_dots(){
-        radarDotsArray.remove(0);
-        radarDotsArray.add(new Canvas(CANVAS_WIDTH,CANVAS_HEIGHT));
+        radarTrails = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+        gameHistory = new HashMap<>();
     }
 
     public void start_printing(){
         GraphicsContext gc = radarAirplanes.getGraphicsContext2D();
+        GraphicsContext gcDots = radarTrails.getGraphicsContext2D();
         gc.clearRect(0,0,800,800);
-        rotate_dots();
+        gcDots.clearRect(0,0,800,800);
     }
 
-    public void print_airplane(double x, double y,
-                               double hdg, double targetHdg,
-                               double level, double targetLevel,
-                               double speed, double targetSpeed,
-                               String callsign){
+    //this abomination of a function will need some thinking. It works though
+    public void print_airplane(Airplane airplane){
+        if(gameHistory.containsKey(airplane.getUid())) {
+            gameHistory.get(airplane.getUid()).add(new TrailDot(airplane));
+        }
+        else{
+            gameHistory.put(airplane.getUid(), new ArrayList<>());
+            gameHistory.get(airplane.getUid()).add(new TrailDot(airplane));
+        }
+
+        double level = airplane.getCurrHeight();
+        double targetLevel = airplane.getTargetHeight();
+        double speed = airplane.getCurrSpeed();
+        double targetSpeed = airplane.getTargetSpeed();
+        double hdg = airplane.getCurrHeading();
+        double targetHdg = airplane.getTargetHeading();
+        double x = airplane.getPositionX();
+        double y = airplane.getPositionY();
+        String callsign = airplane.getId();
 
         double x_line = LEADING_LINE_LENGTH*sin(Math.toRadians(hdg));
         double y_line = LEADING_LINE_LENGTH*cos(Math.toRadians(hdg));
@@ -59,10 +93,12 @@ public class GameCanvas  {
 
 
         GraphicsContext gc = radarAirplanes.getGraphicsContext2D();
-        GraphicsContext gc_dots = radarDotsArray.get(radarDotsArray.size() - 1).getGraphicsContext2D();
+        GraphicsContext gcDots = radarTrails.getGraphicsContext2D();
 
-        gc.setFill(Color.LIMEGREEN);
-        gc.setStroke(Color.LIMEGREEN);
+        gc.setFill(RADAR_COLOR);
+        gc.setStroke(RADAR_COLOR);
+
+        gcDots.setFill(RADAR_COLOR);
 
         gc.strokeText(callsign, x-15, y-43);
 
@@ -90,40 +126,33 @@ public class GameCanvas  {
         gc.setFill(Color.BLACK);
         gc.fillRect(x-3, y-3, 6, 6);
 
-        gc_dots.setFill(Color.LIMEGREEN);
-        gc_dots.fillOval(x, y, 2, 2);
+        int trailCounter = 0;
+
+        for(int j = gameHistory.get(airplane.getUid()).size()-1; trailCounter<=RADAR_DOTS_HISTORY && j>=0; trailCounter++, j--) {
+            x = gameHistory.get(airplane.getUid()).get(j).xPos;
+            y = gameHistory.get(airplane.getUid()).get(j).yPos;
+            gcDots.fillOval(x, y, 2, 2);
+        }
     }
 
     public void finish_printing(StackPane radar){
         radar.getChildren().clear();
-        radarAirplanes.setScaleX(radar.getWidth() / CANVAS_WIDTH);
-        radarAirplanes.setScaleY(radar.getHeight() / CANVAS_HEIGHT);
-        for (Canvas canvas : radarDotsArray) {
-            canvas.setScaleX(radar.getWidth() / CANVAS_WIDTH);
-            canvas.setScaleY(radar.getHeight() / CANVAS_HEIGHT);
-            radar.getChildren().add(canvas);
-        }
+        radar.getChildren().add(radarTrails);
         radar.getChildren().add(radarAirplanes);
     }
 
     public void resize_canvas(StackPane radar){
         radarAirplanes.setScaleX(radar.getWidth() / CANVAS_WIDTH);
         radarAirplanes.setScaleY(radar.getHeight() / CANVAS_HEIGHT);
-        for (Canvas canvas : radarDotsArray) {
-            canvas.setScaleX(radar.getWidth() / CANVAS_WIDTH);
-            canvas.setScaleY(radar.getHeight() / CANVAS_HEIGHT);
-        }
+        radarTrails.setScaleX(radar.getWidth() / CANVAS_WIDTH);
+        radarTrails.setScaleY(radar.getHeight() / CANVAS_HEIGHT);
 
     }
 
     public void print_airplanes_array(ArrayList<Airplane> airplanes, StackPane radar){
         start_printing();
         for(Airplane airplane : airplanes){
-            print_airplane(airplane.getPositionX(), airplane.getPositionY(),
-                    airplane.getCurrHeading(), airplane.getTargetHeading(),
-                    airplane.getCurrHeight(), airplane.getTargetHeight(),
-                    airplane.getCurrSpeed(), airplane.getTargetSpeed(),
-                    airplane.getId());
+            print_airplane(airplane);
         }
         finish_printing(radar);
     }

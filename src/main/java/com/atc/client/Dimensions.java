@@ -1,5 +1,8 @@
 package com.atc.client;
 
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+
 public class Dimensions {
 
     public static final int WINDOW_WIDTH = 1280;
@@ -13,6 +16,8 @@ public class Dimensions {
     public static final double LEADING_LINE_LENGTH = 20;
 
 
-    public static final int RADAR_DOTS_LAYERS = 6;
+    public static final int RADAR_DOTS_HISTORY = 5;
+
+    public static final Paint RADAR_COLOR = Color.LIMEGREEN;
 
 }
