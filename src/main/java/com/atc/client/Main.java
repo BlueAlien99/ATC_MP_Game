@@ -14,6 +14,7 @@ public class Main extends Application {
 
         Socket socket = new Socket("localhost", 2137);
         System.out.println("Connected!");
+        System.out.println(socket.toString());
 
         WindowController mainWindowController = new WindowController(primaryStage);
         mainWindowController.loadAndSetScene("/fxml/MainActivity.fxml");

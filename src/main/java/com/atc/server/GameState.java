@@ -32,6 +32,15 @@ public class GameState {
         }
     }
 
+    //TODO: Find a new way to generate planes!
+    public void generateNewAirplanes(int num, Socket socket){
+        String owner = socket.toString();
+        for(int i = 0; i < num; ++i){
+            Airplane airplane = new Airplane(owner, 112.5 + i*22.5);
+            airplanes.put(airplane.getId(), airplane);
+        }
+    }
+
     public void updateAirplane(Airplane airplane, Socket socket){
         Airplane airplaneInGame = airplanes.get(airplane.getId());
         if(airplaneInGame == null || !socket.toString().equals(airplaneInGame.getOwner())){
@@ -41,7 +50,7 @@ public class GameState {
         chatMessages.put(chatMessages.size(), chatMsg);
         airplaneInGame.setNewTargets(airplane.getTargetSpeed(), airplane.getTargetHeading(), airplane.getTargetHeight());
         synchronized (outputBufferLock){
-            notifyAll();
+            outputBufferLock.notifyAll();
         }
     }
 
@@ -55,7 +64,7 @@ public class GameState {
             }
         });
         synchronized (outputBufferLock){
-            notifyAll();
+            outputBufferLock.notifyAll();
         }
     }
 

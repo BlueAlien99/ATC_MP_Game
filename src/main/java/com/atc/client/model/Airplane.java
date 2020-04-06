@@ -30,6 +30,24 @@ public class Airplane implements Cloneable{
         this.minSpeed = initialMinSpeed;
     }
 
+    public Airplane(String owner, double heading){
+        this(100, 10);
+        this.owner = owner;
+        this.targetSpeed = 50;
+        this.targetHeight = 10000;
+        this.targetHeading = heading;
+    }
+
+    @Override
+    public String toString() {
+        return "Airplane{" +
+                "id='" + id + '\'' +
+                ", owner='" + owner + '\'' +
+                ", currSpeed=" + currSpeed +
+                ", currHeading=" + currHeading +
+                ", currHeight=" + currHeight +
+                '}';
+    }
 
     public void moveAirplane(){
         setNewFlightParameters();

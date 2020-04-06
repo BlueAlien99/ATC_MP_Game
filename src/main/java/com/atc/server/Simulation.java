@@ -23,7 +23,10 @@ public class Simulation implements Runnable{
                 e.printStackTrace();
                 return;
             }
-            airplanes.forEach((k, v) -> v.moveAirplane());
+            airplanes.forEach((k, v) -> {
+                v.moveAirplane();
+                System.out.println(v.toString());
+            });
             //TODO: Test deep copy!
             gameState.setNewAirplanesOutput();
             System.out.println("1s has passed");

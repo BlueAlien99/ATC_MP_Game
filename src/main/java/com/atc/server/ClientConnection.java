@@ -26,6 +26,7 @@ public class ClientConnection implements Runnable{
 
     @Override
     public void run() {
+        gameState.generateNewAirplanes(3, socket);
         try {
             Thread.sleep(6000);
             gameState.removeConnection(socket.toString());
