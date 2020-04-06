@@ -2,8 +2,9 @@ package com.atc.client.model;
 
 import java.util.Random;
 
-public class Airplane {
+public class Airplane implements Cloneable{
     private String id;
+    private String owner;
     private double currSpeed;
     private double targetSpeed;
     private double currHeading;
@@ -42,6 +43,7 @@ public class Airplane {
         setCurrPosY(currPosY - yShift);
     }
 
+    // TODO: Shouldn't this method be private?
     public void setNewFlightParameters(){
         updateSpeed();
         updateHeading();
@@ -181,4 +183,18 @@ public class Airplane {
         this.minSpeed = newMinSpeed;
     }
 
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setNewTargets(double speed, double heading, double height){
+        targetSpeed = speed;
+        targetHeading = heading;
+        targetHeight = height;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }

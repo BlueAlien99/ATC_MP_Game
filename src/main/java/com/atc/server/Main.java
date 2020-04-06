@@ -19,6 +19,7 @@ public class Main {
             ClientConnection connection = new ClientConnection(s, gameState);
             Thread connectionThread = new Thread(connection);
             connectionThread.start();
+            //TODO: Move addConnection to ClientConnection itself!
             gameState.addConnection(s.toString(), connection);
         }
     }

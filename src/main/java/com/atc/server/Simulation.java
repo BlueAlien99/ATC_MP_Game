@@ -1,11 +1,17 @@
 package com.atc.server;
 
+import com.atc.client.model.Airplane;
+
+import java.util.concurrent.ConcurrentHashMap;
+
 public class Simulation implements Runnable{
 
     private GameState gameState;
+    private ConcurrentHashMap<String, Airplane> airplanes;
 
     public Simulation(GameState gameState) {
         this.gameState = gameState;
+        this.airplanes = gameState.getAirplanes();
     }
 
     @Override
@@ -17,6 +23,9 @@ public class Simulation implements Runnable{
                 e.printStackTrace();
                 return;
             }
+            airplanes.forEach((k, v) -> v.moveAirplane());
+            //TODO: Test deep copy!
+            gameState.setNewAirplanesOutput();
             System.out.println("1s has passed");
         }
     }
