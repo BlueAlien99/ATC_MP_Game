@@ -2,6 +2,7 @@ package com.atc.client.model;
 import java.util.*;
 
 public class Airplane {
+    private UUID uid;
     private String id;
     private double currSpeed;
     private double targetSpeed;
@@ -15,6 +16,7 @@ public class Airplane {
     private double minSpeed;
 
     public Airplane(double initialMaxSpeed, double initialMinSpeed){
+        this.uid = UUID.randomUUID();
         this.id = generateAirplaneId(1000,2);
         this.currSpeed =0;
         this.targetSpeed = 0;
@@ -111,11 +113,9 @@ public class Airplane {
     }
 
 
-
+    public UUID getUid(){return this.uid; }
     public String getId(){ return this.id;}
-    public double getCurrSpeed(){
-        return this.currSpeed;
-    }
+    public double getCurrSpeed(){ return this.currSpeed; }
     public double getTargetSpeed(){return this.targetSpeed;}
     public double getCurrHeading(){ return this.currHeading; }
     public double getTargetHeading(){return this.targetHeading;}
