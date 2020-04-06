@@ -1,6 +1,7 @@
 package com.atc.client.model;
 
 import java.util.Random;
+import java.util.UUID;
 
 public class Airplane {
     private UUID uid;
