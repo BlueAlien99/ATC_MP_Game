@@ -1,7 +1,7 @@
 package com.atc.client.controller;
 
 import com.atc.client.model.Airplane;
-import com.atc.client.model.GameCanvas;
+import com.atc.client.model.GameActivity;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -13,15 +13,17 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 
-import java.util.ArrayList;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Random;
+
+import static com.atc.client.Dimensions.CANVAS_HEIGHT;
+import static com.atc.client.Dimensions.CANVAS_WIDTH;
 
 
 public class GameActivityController extends GenericController {
-
-    public GameCanvas gameCanvas;
-
-    public ArrayList<Airplane> airplanes = new ArrayList<>();
+    public GameActivity gameActivity;
 
 
     @FXML private Pane root;
@@ -37,52 +39,71 @@ public class GameActivityController extends GenericController {
     @FXML private TextField chatEnterSpeed;
     @FXML private TextField chatEnterLevel;
 
+
+    /*DEBUG_1*/
+
+    public class TimeMover_DEBUG implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Platform.runLater(() -> {
+                gameActivity.moveAirplanes_DEBUG();
+
+                gameActivity.wrapPrinting();
+
+                gameActivity.printAllDots();
+
+                gameActivity.gameCanvas.resize_canvas(radar);
+
+            });
+
+        }
+    }
+
+    public Timer t;
+    public ActionListener listener;
+
+    /*end of DEBUG_1*/
+
     @FXML
     public void initialize(){
-        gameCanvas = new GameCanvas();
+        gameActivity = new GameActivity();
+        gameActivity.setRadar(radar);
 
         Platform.runLater(this::resize);
         root.widthProperty().addListener((obs, oldVal, newVal) -> resize());
         root.heightProperty().addListener((obs, oldVal, newVal) -> resize());
-        root.setOnMouseClicked(e -> resize());
-
         chatHistory.heightProperty().addListener((obs, oldVal, newVal) -> chatScroll.setVvalue(1));
 
-        /*debug only*/
+        /*DEBUG_2*/
+        listener = new TimeMover_DEBUG();
+        t = new Timer(100, listener);
+        /*end of DEBUG_2*/
 
         chatSend.setOnAction(e -> {
             sendMessage();
             //gameCanvas.print_wrap_single(Integer.parseInt(chatEnterHeading.getText()), Integer.parseInt(chatEnterSpeed.getText()), Integer.parseInt(chatEnterLevel.getText()), 100, "GUWNO", radar);
-            for(Airplane airplane : airplanes){
-                //every circa 8 steps we change heading by -180, 0 or 180
-                if(new Random().nextBoolean() && new Random().nextBoolean() && new Random().nextBoolean()){
-                    airplane.setTargetHeading(airplane.getCurrHeading()+(new Random().nextInt(3)-1)*180);
-                }
-
-                airplane.moveAirplane();
+            /*DEBUG_3*/
+            t.start();
+            /*end of DEBUG_3*/
             }
-            gameCanvas.resize_canvas(radar);
-            gameCanvas.print_airplanes_array(airplanes, radar);
-        }
         );
 
+        /*DEBUG_4*/
         for(int i = 0; i<10; i++){
-            airplanes.add(new Airplane(300,300));
-        }
-
-
-        for(Airplane airplane : airplanes){
+            Airplane airplane = new Airplane(300,300);
             airplane.setMaxSpeed(1000);
             airplane.setMinSpeed(0);
             airplane.setCurrHeading(new Random().nextInt(360));
             airplane.setTargetHeading(airplane.getCurrHeading());
             airplane.setCurrHeight(new Random().nextInt(200)+200);
             airplane.setTargetHeight(airplane.getCurrHeight()+new Random().nextInt(400)-200);
-            airplane.setCurrPosX(200+new Random().nextInt(400));
-            airplane.setCurrPosY(200+new Random().nextInt(400));
+            airplane.setCurrPosX(CANVAS_WIDTH/4+new Random().nextInt((int)CANVAS_WIDTH/2));
+            airplane.setCurrPosY(CANVAS_HEIGHT/4+new Random().nextInt((int)CANVAS_HEIGHT/2));
             airplane.setCurrSpeed(200);
             airplane.setTargetSpeed(airplane.getCurrSpeed()+new Random().nextInt(100)-50);
+            gameActivity.addAirplane(airplane);
         }
+        /*end of DEBUG_4*/
 
         populateChoiceBox();
 
@@ -94,7 +115,7 @@ public class GameActivityController extends GenericController {
 
         chatRoot.setPrefSize(root.getWidth() - radarDimensions, 0);
 
-        gameCanvas.resize_canvas(radar);
+        gameActivity.resizeCanvas();
     }
 
     private void sendMessage(){

@@ -9,8 +9,11 @@ public class Dimensions {
     public static final int WINDOW_HEIGHT = 720;
 
 
-    public static final double CANVAS_HEIGHT = 800;
-    public static final double CANVAS_WIDTH = 800;
+    public static final double CANVAS_HEIGHT = 2000;
+    public static final double CANVAS_WIDTH = 2000;
+
+    public static final double DEFAULT_MIN_SPEED = 300;
+    public static final double DEFAULT_MAX_SPEED = 300;
 
 
     public static final double LEADING_LINE_LENGTH = 20;
