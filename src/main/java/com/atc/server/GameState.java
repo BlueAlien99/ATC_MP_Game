@@ -15,6 +15,8 @@ public class GameState {
     private ConcurrentHashMap<String, Airplane> airplanesOutput = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer, String> chatMessages = new ConcurrentHashMap<>();
 
+    private int tickCount = 0;
+
     private final Object outputBufferLock = new Object();
 
     public void addConnection(String key, ClientConnection value){
@@ -41,7 +43,12 @@ public class GameState {
         }
     }
 
+    //TODO: Use recently implemented UUID instead of String ID!
+    //TODO: Handle integer overflow in chatMessages and in ClientConnection!
     public void updateAirplane(Airplane airplane, Socket socket){
+        if(airplane == null || socket == null){
+            return;
+        }
         Airplane airplaneInGame = airplanes.get(airplane.getId());
         if(airplaneInGame == null || !socket.toString().equals(airplaneInGame.getOwner())){
             return;
@@ -63,6 +70,7 @@ public class GameState {
                 e.printStackTrace();
             }
         });
+        ++tickCount;
         synchronized (outputBufferLock){
             outputBufferLock.notifyAll();
         }
@@ -78,5 +86,13 @@ public class GameState {
 
     public ConcurrentHashMap<String, Airplane> getAirplanesOutput() {
         return airplanesOutput;
+    }
+
+    public int getTickCount() {
+        return tickCount;
+    }
+
+    public ConcurrentHashMap<Integer, String> getChatMessages() {
+        return chatMessages;
     }
 }

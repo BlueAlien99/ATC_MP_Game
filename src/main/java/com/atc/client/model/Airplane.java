@@ -1,8 +1,9 @@
 package com.atc.client.model;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class Airplane implements Cloneable{
+public class Airplane implements Cloneable, Serializable {
     private String id;
     private String owner;
     private double currSpeed;
