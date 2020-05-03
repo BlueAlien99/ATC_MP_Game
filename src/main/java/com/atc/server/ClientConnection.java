@@ -1,7 +1,5 @@
 package com.atc.server;
 
-import com.atc.client.model.Airplane;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -30,11 +28,17 @@ public class ClientConnection implements Runnable{
     @Override
     public void run() {
         try {
+            System.out.println("Streams being created! - " + socket.toString());
             this.outputStream = new ObjectOutputStream(socket.getOutputStream());
             this.inputStream = new ObjectInputStream(socket.getInputStream());
+            System.out.println("Streams created! - " + socket.toString());
         } catch(IOException e){
             e.printStackTrace();
         }
+        Thread input = new Thread(new Input());
+        input.start();
+        Thread output = new Thread(new Output());
+        output.start();
         gameState.generateNewAirplanes(3, socket);
 //        try {
 //            Thread.sleep(6000);
@@ -43,10 +47,6 @@ public class ClientConnection implements Runnable{
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
-        Thread input = new Thread(new Input());
-        input.start();
-        Thread output = new Thread(new Output());
-        output.start();
     }
 
     //TODO: Test syncing, eg. getTickCount()!

@@ -3,7 +3,11 @@ package com.atc.server;
 import com.atc.client.model.Airplane;
 
 import java.net.Socket;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.atc.client.Dimensions.CANVAS_HEIGHT;
+import static com.atc.client.Dimensions.CANVAS_WIDTH;
 
 public class GameState {
 
@@ -28,9 +32,9 @@ public class GameState {
     }
 
     public void removeConnection(String key){
-        connections.remove(key);
+        //connections.remove(key);
         if(connections.isEmpty()){
-            simulation.interrupt();
+            simulation.interrupt(); /*it won't work, Rafał, as interrupts don't work on threads that have to do with ObjectStreams*/
         }
     }
 
@@ -38,7 +42,18 @@ public class GameState {
     public void generateNewAirplanes(int num, Socket socket){
         String owner = socket.toString();
         for(int i = 0; i < num; ++i){
-            Airplane airplane = new Airplane(owner, 112.5 + i*22.5);
+            Airplane airplane = new Airplane(owner, 100);
+            airplane.setMaxSpeed(1000);
+            airplane.setMinSpeed(0);
+            airplane.setCurrHeading(new Random().nextInt(360));
+            airplane.setTargetHeading(airplane.getCurrHeading());
+            airplane.setCurrHeight(new Random().nextInt(200)+200);
+            airplane.setTargetHeight(airplane.getCurrHeight()+new Random().nextInt(400)-200);
+            airplane.setCurrPosX(CANVAS_WIDTH/4+new Random().nextInt((int)CANVAS_WIDTH/2));
+            airplane.setCurrPosY(CANVAS_HEIGHT/4+new Random().nextInt((int)CANVAS_HEIGHT/2));
+            airplane.setCurrSpeed(200);
+            airplane.setTargetSpeed(airplane.getCurrSpeed()+new Random().nextInt(100)-50);
+
             airplanes.put(airplane.getId(), airplane);
         }
     }

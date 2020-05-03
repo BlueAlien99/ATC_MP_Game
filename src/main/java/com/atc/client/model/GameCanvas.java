@@ -31,7 +31,12 @@ public class GameCanvas  {
     }
 
     //this abomination of a function will need some thinking. It works though
+
+
     public void print_airplane(Airplane airplane){
+        print_airplane(airplane, false);
+    }
+    public void print_airplane(Airplane airplane, Boolean active){
 
         double level = airplane.getCurrHeight();
         double targetLevel = airplane.getTargetHeight();
@@ -64,10 +69,10 @@ public class GameCanvas  {
         GraphicsContext gc = radarAirplanes.getGraphicsContext2D();
         GraphicsContext gcDots = radarTrails.getGraphicsContext2D();
 
-        gc.setFill(RADAR_COLOR);
-        gc.setStroke(RADAR_COLOR);
+        gc.setFill(active ? RADAR_ACTIVE_COLOR : RADAR_COLOR);
+        gc.setStroke(active ? RADAR_ACTIVE_COLOR : RADAR_COLOR);
 
-        gcDots.setFill(RADAR_COLOR);
+        gcDots.setFill(active ? RADAR_ACTIVE_COLOR : RADAR_COLOR);
 
         gc.strokeText(callsign, x-15, y-43);
 

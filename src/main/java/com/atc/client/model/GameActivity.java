@@ -21,6 +21,8 @@ public class GameActivity {
 
     public GameCanvas gameCanvas;
 
+    private UUID activeAirplane;
+
 
     static class TrailDot{
         public double xPos;
@@ -50,6 +52,8 @@ public class GameActivity {
         gameCanvas = new GameCanvas();
 
         gameStartedTime = currentTimeMillis();
+
+        activeAirplane = null;
     }
 
     public void setRadar(StackPane newRadar){
@@ -107,14 +111,16 @@ public class GameActivity {
     }
 
     public void printAirplane(Airplane airplane){
+        /*
         if(gameHistory.containsKey(airplane.getUid())) {
             gameHistory.get(airplane.getUid()).add(new TrailDot(airplane));
         }
         else{
             gameHistory.put(airplane.getUid(), new ArrayList<>());
             gameHistory.get(airplane.getUid()).add(new TrailDot(airplane));
-        }
-        gameCanvas.print_airplane(airplane);
+        }*/
+        gameCanvas.print_airplane(airplane, airplane.getUid()==activeAirplane);
+
     }
 
     public void resizeCanvas(){
@@ -134,7 +140,37 @@ public class GameActivity {
         gameAirplanes.forEach((k, airplane) -> airplane.moveAirplane());
     }
 
+    private UUID getClosest(double x, double y){
+        double min = Double.MAX_VALUE;
+        UUID ret = null;
+        for (Map.Entry<UUID, Airplane> pair: gameAirplanes.entrySet()) {
+            double val= (pair.getValue().getPositionY()-y)*(pair.getValue().getPositionY()-y)
+                    +(pair.getValue().getPositionX()-x)*(pair.getValue().getPositionX()-x);
+            if(val<min){
+                min = val;
+                ret = pair.getValue().getUid();
+            }
+        }
 
+
+        return ret;
+
+    }
+
+    public void setActive(double x, double y){
+        UUID uid=getClosest(x,y);
+        if(uid!=null){
+            activeAirplane=uid;
+        }
+    }
+
+    public UUID getActiveAirplane(){
+        return activeAirplane;
+    }
+
+    public Airplane getAirplaneByUUID(UUID uuid){
+        return gameAirplanes.get(uuid);
+    }
 
 
 }

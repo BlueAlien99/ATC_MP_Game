@@ -53,9 +53,9 @@
                    </Button>
                    <HBox prefHeight="100.0" prefWidth="300.0">
                        <ChoiceBox fx:id="chatEnterAircraft" minWidth="40.0" prefWidth="150.0"/>
-                       <TextField fx:id="chatEnterHeading" minWidth="40.0"/>
-                       <TextField fx:id="chatEnterSpeed" minWidth="40.0"/>
-                       <TextField fx:id="chatEnterLevel" minWidth="40.0"/>
+                       <TextField promptText="Heading" fx:id="chatEnterHeading" minWidth="40.0"/>
+                       <TextField promptText="Speed" fx:id="chatEnterSpeed" minWidth="40.0"/>
+                       <TextField promptText="Level" fx:id="chatEnterLevel" minWidth="40.0"/>
                    </HBox>
                </GridPane>
            </GridPane>

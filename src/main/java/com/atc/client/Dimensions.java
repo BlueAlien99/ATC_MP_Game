@@ -9,8 +9,8 @@ public class Dimensions {
     public static final int WINDOW_HEIGHT = 720;
 
 
-    public static final double CANVAS_HEIGHT = 2000;
-    public static final double CANVAS_WIDTH = 2000;
+    public static final double CANVAS_HEIGHT = 1500;
+    public static final double CANVAS_WIDTH = 1500;
 
     public static final double DEFAULT_MIN_SPEED = 300;
     public static final double DEFAULT_MAX_SPEED = 300;
@@ -22,5 +22,8 @@ public class Dimensions {
     public static final int RADAR_DOTS_HISTORY = 5;
 
     public static final Paint RADAR_COLOR = Color.LIMEGREEN;
+    public static final Paint RADAR_ACTIVE_COLOR = Color.BLUE;
 
+    //TODO: move IP address to somewhere more sensible
+    public static String ipAddressDim;
 }

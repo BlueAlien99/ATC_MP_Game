@@ -50,6 +50,8 @@ public class Airplane implements Cloneable, Serializable {
                 ", currSpeed=" + currSpeed +
                 ", currHeading=" + currHeading +
                 ", currHeight=" + currHeight +
+                ", xPos=" + currPosX +
+                ", yPos=" + currPosY +
                 '}';
     }
 

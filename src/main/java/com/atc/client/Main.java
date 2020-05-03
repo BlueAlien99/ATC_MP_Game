@@ -1,20 +1,16 @@
 package com.atc.client;
 
 import com.atc.client.controller.WindowController;
-import com.atc.server.Message;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
 
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException, ClassNotFoundException {
-
+        /*
         // HERE VVV
         Socket socket = new Socket("localhost", 2137);
         System.out.println("Connected!");
@@ -27,6 +23,9 @@ public class Main extends Application {
         for(int i = 0; i < 1000000; ++i) {
             Message msg = (Message) inputStream.readObject();
             System.out.println(msg.getAirplanes().size());
+            msg.getAirplanes().forEach((k, airplane) -> {
+               System.out.println(airplane.getUid());
+            });
         }
 
         outputStream.writeObject(new Message("test"));
@@ -34,7 +33,7 @@ public class Main extends Application {
         outputStream.writeObject(new Message("test"));
         System.out.println("cool");
         // HERE ^^^
-
+        */
         WindowController mainWindowController = new WindowController(primaryStage);
         mainWindowController.loadAndSetScene("/fxml/MainActivity.fxml");
 
