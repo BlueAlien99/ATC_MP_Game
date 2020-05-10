@@ -44,11 +44,15 @@ public class gameLog {
                 "TIME_IN_GAME DOUBLE DEFAULT 0)";
         String createEvents = "CREATE TABLE IF NOT EXISTS EVENTS" +
                 "(EVENT_ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "GAME_ID INTEGER NOT NULL," +
                 "EVENT_TYPE VARCHAR(255) NOT NULL," +
                 "TICK_TIME INTEGER NOT NULL," +
                 "PLAYER_ID INTEGER NOT NULL," +
-                "X_COOR DOUBLE NOT NULL," +
-                "Y_COOR DOUBLE NOT NULL," +
+                "X_COOR DOUBLE," +
+                "Y_COOR DOUBLE," +
+                "SPEED DOUBLE," +
+                "HEADING DOUBLE," +
+                "HEIGHT DOUBLE," +
                 "AIRPLANE_ID VARCHAR(255) NOT NULL," +
                 "FOREIGN KEY(PLAYER_ID) REFERENCES PLAYERS(PLAYER_ID))";
         try {
@@ -79,17 +83,21 @@ public class gameLog {
         return true;
     }
 
-    public boolean insertEvent(String eventType, int timeTick, int playerId, double xCoordinate, double yCoordinate,
-                               String airplaneId){
+    public boolean insertEvent(int gameId, String eventType, int timeTick, int playerId, double xCoordinate, double yCoordinate,
+                               double speed, double heading, double height,String airplaneId){
         try{
             PreparedStatement prepStmt = con.prepareStatement(
-                    "INSERT INTO EVENTS VALUES(NULL,?,?,?,?,?,?);");
-            prepStmt.setString(1,eventType);
-            prepStmt.setInt(2, timeTick);
-            prepStmt.setInt(3, playerId);
-            prepStmt.setDouble(4, xCoordinate);
-            prepStmt.setDouble(5, yCoordinate);
-            prepStmt.setString(6, airplaneId);
+                    "INSERT INTO EVENTS VALUES(NULL,?,?,?,?,?,?,?,?,?,?);");
+            prepStmt.setInt(1,gameId);
+            prepStmt.setString(2,eventType);
+            prepStmt.setInt(3, timeTick);
+            prepStmt.setInt(4, playerId);
+            prepStmt.setDouble(5, xCoordinate);
+            prepStmt.setDouble(6, yCoordinate);
+            prepStmt.setDouble(7, speed);
+            prepStmt.setDouble(8, heading);
+            prepStmt.setDouble(9, height);
+            prepStmt.setString(10, airplaneId);
             prepStmt.execute();
         }catch (SQLException e){
             System.err.println("ERROR: Cannot add event:" + eventType + ":" + timeTick);
@@ -145,12 +153,13 @@ public class gameLog {
         return Players;
     }
 
-    public List<Event> selectTimeTickEvents(int tick_time){
+    public List<Event> selectGameIdEvents(int gameId, int tick_time){
         List<Event> Events;
         try {
             PreparedStatement prepStmt = con.prepareStatement(
-                    "SELECT * FROM EVENTS WHERE TICK_TIME = ? ;");
-            prepStmt.setInt(1,tick_time);
+                    "SELECT * FROM EVENTS WHERE GAME_ID = ? AND TICK_TIME = ?;");
+            prepStmt.setInt(1,gameId);
+            prepStmt.setInt(2,tick_time);
             ResultSet result  = prepStmt.executeQuery();
             Events = getEventResults(result);
         } catch (SQLException e) {
@@ -162,19 +171,24 @@ public class gameLog {
     private List<Event> getEventResults(ResultSet result){
         try {
             List<Event> Events = new LinkedList<>();
-            int id, tickTime, playerId;
-            double xCoordinate, yCoordinate;
+            int id, gameId, tickTime, playerId;
+            double xCoordinate, yCoordinate, speed, heading, height;
             Event.eventType eventType;
             UUID airplaneUUID;
             while (result.next()) {
                 id = result.getInt("event_id");
+                gameId = result.getInt("game_id");
                 eventType = Event.eventType.valueOf(result.getString("event_type"));
                 tickTime = result.getInt("tick_time");
                 playerId = result.getInt("player_id");
                 xCoordinate = result.getDouble("x_coor");
                 yCoordinate = result.getDouble("y_coor");
+                speed = result.getDouble("speed");
+                heading = result.getDouble("heading");
+                height = result.getDouble("height");
                 airplaneUUID = UUID.fromString(result.getString("airplane_id"));
-                Events.add(new Event(id, eventType, tickTime, playerId, xCoordinate, yCoordinate, airplaneUUID));
+                Events.add(new Event(id, gameId, eventType, tickTime, playerId, xCoordinate, yCoordinate,speed,
+                        heading, height,airplaneUUID));
             }
             return Events;
         } catch (SQLException e){
@@ -183,11 +197,11 @@ public class gameLog {
         }
     }
 
-    public void deleteFromEvents(int tick_time){
+    public void deleteFromEvents(int game_id, int timeTick){
         try {
             PreparedStatement prepStmt = con.prepareStatement(
-                    "DELETE FROM EVENTS WHERE TICK_TIME = ? ;");
-            prepStmt.setInt(1,tick_time);
+                    "DELETE FROM EVENTS WHERE GAME_ID = ? ;");
+            prepStmt.setInt(1,game_id);
             prepStmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
