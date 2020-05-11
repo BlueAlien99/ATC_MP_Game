@@ -1,6 +1,7 @@
 package com.atc.server;
 
 import com.atc.client.model.Airplane;
+import com.atc.client.model.GameSettings;
 
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,10 +11,12 @@ public class Message implements Serializable {
     public static final int CHAT_MESSAGE = 1;
     public static final int AIRPLANE_COMMAND = 2;
     public static final int AIRPLANES_LIST = 3;
+    public static final int CLIENT_HELLO = 4;
 
     private ConcurrentHashMap<String, Airplane> airplanes;
     private Airplane updatedAirplane;
     private String chatMsg;
+    private GameSettings gameSettings;
 
     private int msgType;
 
@@ -32,6 +35,11 @@ public class Message implements Serializable {
         this.msgType = CHAT_MESSAGE;
     }
 
+    public Message(GameSettings gameSettings){
+        this.gameSettings = gameSettings;
+        this.msgType = CLIENT_HELLO;
+    }
+
     public int getMsgType() {
         return msgType;
     }
@@ -47,4 +55,6 @@ public class Message implements Serializable {
     public String getChatMsg() {
         return chatMsg;
     }
+
+    public GameSettings getGameSettings() {return gameSettings;}
 }

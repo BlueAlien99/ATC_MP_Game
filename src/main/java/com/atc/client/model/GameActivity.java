@@ -140,15 +140,17 @@ public class GameActivity {
         gameAirplanes.forEach((k, airplane) -> airplane.moveAirplane());
     }
 
-    private UUID getClosest(double x, double y){
+    private UUID getClosest(double x, double y, UUID clientUUID){
         double min = Double.MAX_VALUE;
         UUID ret = null;
         for (Map.Entry<UUID, Airplane> pair: gameAirplanes.entrySet()) {
-            double val= (pair.getValue().getPositionY()-y)*(pair.getValue().getPositionY()-y)
-                    +(pair.getValue().getPositionX()-x)*(pair.getValue().getPositionX()-x);
-            if(val<min){
-                min = val;
-                ret = pair.getValue().getUid();
+            if(pair.getValue().getOwner().equals(clientUUID)) {
+                double val = (pair.getValue().getPositionY() - y) * (pair.getValue().getPositionY() - y)
+                        + (pair.getValue().getPositionX() - x) * (pair.getValue().getPositionX() - x);
+                if (val < min) {
+                    min = val;
+                    ret = pair.getValue().getUid();
+                }
             }
         }
 
@@ -157,8 +159,8 @@ public class GameActivity {
 
     }
 
-    public void setActive(double x, double y){
-        UUID uid=getClosest(x,y);
+    public void setActive(double x, double y, UUID clientUUID){
+        UUID uid=getClosest(x,y,clientUUID);
         if(uid!=null){
             activeAirplane=uid;
         }

@@ -23,7 +23,4 @@ public class Dimensions {
 
     public static final Paint RADAR_COLOR = Color.LIMEGREEN;
     public static final Paint RADAR_ACTIVE_COLOR = Color.BLUE;
-
-    //TODO: move IP address to somewhere more sensible
-    public static String ipAddressDim;
 }
