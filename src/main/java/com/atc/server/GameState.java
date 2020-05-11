@@ -2,8 +2,8 @@ package com.atc.server;
 
 import com.atc.client.model.Airplane;
 
-import java.net.Socket;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.atc.client.Dimensions.CANVAS_HEIGHT;
@@ -28,19 +28,23 @@ public class GameState {
             simulation = new Thread(new Simulation(this));
             simulation.start();
         }
-        connections.put(key, value);
+        if(connections.get(key)!=null){
+
+        }
+        else{
+            connections.put(key, value);
+        }
     }
 
     public void removeConnection(String key){
-        //connections.remove(key);
+        connections.remove(key);
         if(connections.isEmpty()){
             simulation.interrupt(); /*it won't work, Rafał, as interrupts don't work on threads that have to do with ObjectStreams*/
         }
     }
 
     //TODO: Find a new way to generate planes!
-    public void generateNewAirplanes(int num, Socket socket){
-        String owner = socket.toString();
+    public void generateNewAirplanes(int num, UUID owner){
         for(int i = 0; i < num; ++i){
             Airplane airplane = new Airplane(owner, 100);
             airplane.setMaxSpeed(1000);
@@ -60,12 +64,12 @@ public class GameState {
 
     //TODO: Use recently implemented UUID instead of String ID!
     //TODO: Handle integer overflow in chatMessages and in ClientConnection!
-    public void updateAirplane(Airplane airplane, Socket socket){
-        if(airplane == null || socket == null){
+    public void updateAirplane(Airplane airplane, UUID clientUUID){
+        if(airplane == null || clientUUID == null){
             return;
         }
         Airplane airplaneInGame = airplanes.get(airplane.getId());
-        if(airplaneInGame == null || !socket.toString().equals(airplaneInGame.getOwner())){
+        if(airplaneInGame == null || !clientUUID.equals(airplaneInGame.getOwner())){
             return;
         }
         String chatMsg = ChatMsgParser.parseNewMsg(airplaneInGame, airplane);

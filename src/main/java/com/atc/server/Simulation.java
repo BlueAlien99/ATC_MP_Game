@@ -25,7 +25,7 @@ public class Simulation implements Runnable{
                 v.moveAirplane();
                 //This is just for testing, so that user does not loose airplanes
                 if(v.getPositionX()<0) v.setCurrPosX(CANVAS_WIDTH);
-                if(v.getPositionY()<0) v.setCurrPosX(CANVAS_HEIGHT);
+                if(v.getPositionY()<0) v.setCurrPosY(CANVAS_HEIGHT);
                 if(v.getPositionX()>CANVAS_WIDTH) v.setCurrPosX(0);
                 if(v.getPositionY()>CANVAS_HEIGHT) v.setCurrPosY(0);
                 System.out.println(v.toString());

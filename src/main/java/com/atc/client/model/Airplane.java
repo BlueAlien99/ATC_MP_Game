@@ -7,7 +7,7 @@ import java.util.UUID;
 public class Airplane implements Cloneable, Serializable {
     private UUID uid;
     private String id;
-    private String owner;
+    private UUID owner;
     private double currSpeed;
     private double targetSpeed;
     private double currHeading;
@@ -34,7 +34,7 @@ public class Airplane implements Cloneable, Serializable {
         this.minSpeed = initialMinSpeed;
     }
 
-    public Airplane(String owner, double heading){
+    public Airplane(UUID owner, double heading){
         this(100, 10);
         this.owner = owner;
         this.targetSpeed = 50;
@@ -46,7 +46,7 @@ public class Airplane implements Cloneable, Serializable {
     public String toString() {
         return "Airplane{" +
                 "id='" + id + '\'' +
-                ", owner='" + owner + '\'' +
+                ", owner='" + owner.toString() + '\'' +
                 ", currSpeed=" + currSpeed +
                 ", currHeading=" + currHeading +
                 ", currHeight=" + currHeight +
@@ -97,15 +97,23 @@ public class Airplane implements Cloneable, Serializable {
         double difference = targetHeading - currHeading;
         if(Math.abs(difference) > 180){
             if(difference > 0){
-                setCurrHeading(currHeading - headingStep);
+                if(difference>345){
+                    setCurrHeading(targetHeading);
+                }
+                else
+                    setCurrHeading(currHeading - headingStep);
             }else{
-                setCurrHeading(currHeading + headingStep);
+                if(difference<-345){
+                    setCurrHeading(targetHeading);
+                }
+                else
+                    setCurrHeading(currHeading + headingStep);
             }
         }else if(difference > 0 && difference > headingStep){
             setCurrHeading(currHeading + headingStep);
         }else if (difference < 0 && Math.abs(difference) > headingStep){
             setCurrHeading((currHeading - headingStep));
-        }else if ((360 - Math.abs(difference)) <= headingStep|| Math.abs(difference)<=headingStep){
+        }else if ((Math.abs(difference))%360 <= headingStep){
             setCurrHeading(getTargetHeading());
         }
     }
@@ -179,9 +187,9 @@ public class Airplane implements Cloneable, Serializable {
     }
     public void setTargetHeading(double newTargetHeading){
         if(newTargetHeading > 360) {
-            this.targetHeading = newTargetHeading - 360;
+            setTargetHeading(newTargetHeading-360);
         }else if (newTargetHeading < 0){
-            this.targetHeading = newTargetHeading + 360;
+            setTargetHeading(newTargetHeading+360);
         }else {
             this.targetHeading = newTargetHeading;
         }
@@ -205,7 +213,7 @@ public class Airplane implements Cloneable, Serializable {
         this.minSpeed = newMinSpeed;
     }
 
-    public String getOwner() {
+    public UUID getOwner() {
         return owner;
     }
 
