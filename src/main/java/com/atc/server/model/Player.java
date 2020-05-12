@@ -1,8 +1,10 @@
 package com.atc.server.model;
 
+import java.util.UUID;
+
 public class Player {
     int playerId;
-    String playerName;
+    UUID playerName;
     int points;
     int airplanesNum;
     double timeInGame;
@@ -15,11 +17,11 @@ public class Player {
         this.playerId = idPlayer;
     }
 
-    public String getPlayerName() {
+    public UUID getPlayerName() {
         return playerName;
     }
 
-    public void setPlayerName(String playerName) {
+    public void setPlayerName(UUID playerName) {
         this.playerName = playerName;
     }
 
@@ -50,14 +52,14 @@ public class Player {
     @Override
     public String toString() {
         String player = "["+ playerId + "]";
-        player += " " + playerName;
+        player += " " + playerName.toString();
         player += "(" + points +",";
         player += " " + airplanesNum + ",";
         player += " " + timeInGame + ")";
         return player;
     }
 
-    public Player(int playerId, String playerName, int points, int airplanesNum, double timeInGame) {
+    public Player(int playerId, UUID playerName, int points, int airplanesNum, double timeInGame) {
         this.playerId = playerId;
         this.playerName = playerName;
         this.points = points;

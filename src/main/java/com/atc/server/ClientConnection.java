@@ -71,6 +71,7 @@ public class ClientConnection implements Runnable{
                 }
                 if(message.getMsgType() == Message.CLIENT_HELLO){
                     gs = message.getGameSettings();
+                    gameState.getGameSettings(gs);
                     clientUUID = gs.getClientUUID();
                     clientName = gs.getClientName();
 

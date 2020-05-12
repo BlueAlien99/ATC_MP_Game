@@ -110,7 +110,7 @@ public class Event {
         this.airplaneId = airplaneId;
     }
 
-    public Event(int gameId, int eventId, eventType type, int timeTick, int playerId, double xCoordinate, double yCoordinate, double speed, double heading, double height, UUID airplaneId) {
+    public Event( int eventId, int gameId, eventType type, int timeTick, int playerId, double xCoordinate, double yCoordinate, double speed, double heading, double height, UUID airplaneId) {
         this.gameId = gameId;
         this.eventId = eventId;
         this.type = type;
