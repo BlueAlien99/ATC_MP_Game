@@ -86,10 +86,18 @@ public class GameState {
         String chatMsg = ChatMsgParser.parseNewMsg(airplaneInGame, airplane);
         chatMessages.put(chatMessages.size(), chatMsg);
         airplaneInGame.setNewTargets(airplane.getTargetSpeed(), airplane.getTargetHeading(), airplane.getTargetHeight());
+        sendCommandToDatabase(airplane, clientUUID);
         synchronized (outputBufferLock){
             outputBufferLock.notifyAll();
         }
     }
+
+    private void sendCommandToDatabase(Airplane airplane, UUID clientUUID){
+        log.insertEvent(gameCount, "COMMAND", tickCount, clientUUID, airplane.getPositionX(), airplane.getPositionY(),
+                airplane.getTargetSpeed(), airplane.getTargetHeading(), airplane.getTargetHeight(), airplane.getUid());
+        log.commit();
+    }
+
 
     public void setNewAirplanesOutput(){
         airplanesOutput = new ConcurrentHashMap<>();

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            maxHeight="-Infinity"
+            maxWidth="-Infinity"
+            minHeight="-Infinity"
+            minWidth="-Infinity"
+            fx:controller="com.atc.client.controller.GameHistoryController"
+            prefHeight="640.0" prefWidth="640.0">
+<top>
+    <HBox spacing="10">
+        <Button fx:id= "mainMenuButton" text="Main Menu" mnemonicParsing="false"/>
+        <Button fx:id="settingsButton" text = "Settings" mnemonicParsing="false"/>
+    </HBox>
+</top>
+    <left>
+        <ScrollPane fx:id="commandScrollPane" prefWidth="250">
+            <VBox prefWidth="200" alignment="CENTER_LEFT" fx:id="commandHistory"/>
+        </ScrollPane>
+    </left>
+    <right>
+        <HBox>
+        <ScrollPane fx:id="eventsScrollPane" prefWidth="250" >
+            <VBox prefWidth="200" alignment="CENTER_RIGHT" fx:id="eventsHistory"/>
+        </ScrollPane>
+    </HBox>
+    </right>
+    <center>
+        <BorderPane>
+            <top>
+                <HBox>
+                    <TextField fx:id="gameIdTextField" promptText="ID REPLAY GAME" minWidth="40"/>
+                    <Button fx:id="sendButton" text="Search!" mnemonicParsing="false"/>
+                </HBox>
+            </top>
+            <bottom>
+                    <Slider fx:id="mySlider"
+                            minWidth="700"
+                            blockIncrement="1.0"
+                            majorTickUnit="20"
+                            minorTickCount="4"
+                            showTickLabels="true"
+                            showTickMarks="true" />
+            </bottom>
+        </BorderPane>
+    </center>
+    <bottom>
+        <Label>ATC_MP_GAME by Majkowska, Kulus, Janowski. Made with ❤ in 2020</Label>
+    </bottom>
+</BorderPane>

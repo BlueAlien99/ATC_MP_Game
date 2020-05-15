@@ -24,6 +24,8 @@ public class MainActivityController extends GenericController{
     public void initialize(){
         gs = new GameSettings();
         Button newGameButton = new Button("New Game");
+        Button HistoryButton = new Button("Game History");
+        Button SettingsButton = new Button ("Settings");
         Button quitButton = new Button("Quit");
         TextField ipAddress = new TextField("IP address");
 
@@ -36,12 +38,14 @@ public class MainActivityController extends GenericController{
             gs.setIpAddress(ipAddress.getText());
             windowController.loadAndSetScene("/fxml/GameActivity.fxml", gs);
         });
-
+        HistoryButton.setOnAction(e -> {
+            windowController.loadAndSetScene("/fxml/GameHistory.fxml");
+        });
         quitButton.setOnAction(e -> Platform.exit());
 
         VBox vbox = new VBox(10);
         vbox.setAlignment(Pos.CENTER);
-        vbox.getChildren().addAll(newGameButton, quitButton, ipAddress, comboBox);
+        vbox.getChildren().addAll(newGameButton, HistoryButton, SettingsButton, quitButton, ipAddress, comboBox);
 
         BorderPane borderPane = new BorderPane();
         borderPane.setCenter(vbox);

@@ -15,11 +15,11 @@ public class testGameLog {
             System.out.println(p);
 
         log.insertEvent(1, "MOVEMENT", 1, UUID.randomUUID(), 10,10,100,
-                80,1200, UUID.randomUUID().toString());
+                80,1200, UUID.randomUUID());
         log.insertEvent(1, "COLLISION", 1, UUID.randomUUID(), 10,10,100,
-                80,1200, UUID.randomUUID().toString());
+                80,1200, UUID.randomUUID());
         log.insertEvent(4, "COMMAND", 4, UUID.randomUUID(), 10,10,100,
-                80,1200, UUID.randomUUID().toString());
+                80,1200, UUID.randomUUID());
 
         List<Event> Events = log.selectAllEvents();
         System.out.println("ALL EVENTS:");

@@ -3,6 +3,7 @@ package com.atc.server.gamelog;
 import com.atc.server.model.Event;
 import com.atc.server.model.Player;
 
+
 import java.sql.*;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -22,8 +23,8 @@ public class gameLog {
         try {
             Class.forName(gameLog.DRIVER);
             connect();
+            createTables();
             playersUUIDHashmap = selectPlayerUUIDs();
-            closeConnection();
         } catch (ClassNotFoundException e) {
             System.err.println("ERROR: missing JDBC driver.");
             e.printStackTrace();
@@ -70,7 +71,7 @@ public class gameLog {
                 "SPEED DOUBLE," +
                 "HEADING DOUBLE," +
                 "HEIGHT DOUBLE," +
-                "AIRPLANE_ID VARCHAR(255) NOT NULL," +
+                "AIRPLANE_UUID BLOB NOT NULL," +
                 "FOREIGN KEY(PLAYER_ID) REFERENCES PLAYERS(PLAYER_ID))";
         try {
             stat.execute(createPlayers);
@@ -116,13 +117,14 @@ public class gameLog {
     }
 
     public boolean insertEvent(int gameId, String eventType, int timeTick, UUID playerUUID, double xCoordinate, double yCoordinate,
-                               double speed, double heading, double height,String airplaneId){
+                               double speed, double heading, double height,UUID airplaneUUID){
         if (checkUUIDInDatabase(playerUUID) == false) {
             insertPlayer(playerUUID, 0, 0, 0);
             commit();
             playersUUIDHashmap.put(playerUUID, findPlayerId(playerUUID));
         }
         int playerId = playersUUIDHashmap.get(playerUUID);
+        System.out.println(playerId +" " + playerUUID.toString());
         try{
             PreparedStatement prepStmt = con.prepareStatement(
                     "INSERT INTO EVENTS VALUES(NULL,?,?,?,?,?,?,?,?,?,?);");
@@ -135,7 +137,7 @@ public class gameLog {
             prepStmt.setDouble(7, speed);
             prepStmt.setDouble(8, heading);
             prepStmt.setDouble(9, height);
-            prepStmt.setString(10, airplaneId);
+            prepStmt.setBytes(10, airplaneUUID.toString().getBytes());
             prepStmt.execute();
         }catch (SQLException e){
             System.err.println("ERROR: Cannot add event:" + eventType + ":" + timeTick);
@@ -271,7 +273,7 @@ public class gameLog {
                 speed = result.getDouble("speed");
                 heading = result.getDouble("heading");
                 height = result.getDouble("height");
-                airplaneUUID = UUID.fromString(result.getString("airplane_id"));
+                airplaneUUID = UUID.nameUUIDFromBytes(result.getBytes("airplane_UUID"));
                 Events.add(new Event(id, gameId, eventType, tickTime, playerId, xCoordinate, yCoordinate,speed,
                         heading, height,airplaneUUID));
             }
