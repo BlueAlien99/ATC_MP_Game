@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 public class GameSettings implements Serializable {
+
+    private static GameSettings singleton;
     public static final int SINGLE_PLAYER = 0;
     public static final int MULTI_NONPC = 1;
     public static final int MULTI_WNPC = 2;
@@ -14,6 +16,13 @@ public class GameSettings implements Serializable {
     String clientName = "Player";
     ConcurrentHashMap<UUID, Airplane> planesToSpawn;
     int gameMode = SINGLE_PLAYER;
+
+    public synchronized static GameSettings getInstance() {
+        if (singleton == null) {
+            singleton = new GameSettings();
+        }
+        return singleton;
+    }
 
     public String getIpAddress(){
         return ipAddress;
@@ -63,7 +72,7 @@ public class GameSettings implements Serializable {
         this.gameMode = gameMode;
     }
 
-    public GameSettings(){
+    private GameSettings(){
         clientUUID = UUID.randomUUID();
         planesToSpawn = null;
     }

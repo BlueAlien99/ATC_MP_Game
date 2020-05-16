@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
@@ -15,41 +16,34 @@ import javafx.scene.layout.VBox;
 
 public class MainActivityController extends GenericController{
 
-    private GameSettings gs;
 
-    @FXML
-    private StackPane root;
+    @FXML private Button singlePlayerGameButton;
+    @FXML private Button multiPlayerGameButton;
+    @FXML private Button gameHistoryButton;
+    @FXML private Button settingsButton;
+    @FXML private Button quitButton;
 
     @FXML
     public void initialize(){
-        gs = new GameSettings();
-        Button newGameButton = new Button("New Game");
-        Button HistoryButton = new Button("Game History");
-        Button SettingsButton = new Button ("Settings");
-        Button quitButton = new Button("Quit");
-        TextField ipAddress = new TextField("IP address");
 
-        ObservableList<Integer> options =
-                FXCollections.observableArrayList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-        ComboBox comboBox = new ComboBox(options);
+        multiPlayerGameButton.setOnAction(e -> {
+            if(gameSettings.getIpAddress() == null && gameSettings.getPlaneNum()!=0) {
+                System.out.println(gameSettings.getClientUUID().toString() + " MAC multiplayer");
+                windowController.loadAndSetScene("/fxml/GameActivity.fxml", gameSettings);
+            }else{
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("ERROR!");
+                alert.setHeaderText("Not initialized IP address!");
+                alert.setContentText("Specify IP address of your server.");
+                alert.showAndWait();
 
-        newGameButton.setOnAction(e -> {
-            gs.setPlaneNum((Integer) comboBox.getValue());
-            gs.setIpAddress(ipAddress.getText());
-            windowController.loadAndSetScene("/fxml/GameActivity.fxml", gs);
+            }
         });
-        HistoryButton.setOnAction(e -> {
-            windowController.loadAndSetScene("/fxml/GameHistory.fxml");
+        gameHistoryButton.setOnAction(e -> {
+            windowController.loadAndSetScene("/fxml/GameHistory.fxml",gameSettings);
         });
+        settingsButton.setOnAction(e->
+                windowController.loadAndSetScene("/fxml/GameSettings.fxml",gameSettings));
         quitButton.setOnAction(e -> Platform.exit());
-
-        VBox vbox = new VBox(10);
-        vbox.setAlignment(Pos.CENTER);
-        vbox.getChildren().addAll(newGameButton, HistoryButton, SettingsButton, quitButton, ipAddress, comboBox);
-
-        BorderPane borderPane = new BorderPane();
-        borderPane.setCenter(vbox);
-
-        root.getChildren().add(borderPane);
     }
 }

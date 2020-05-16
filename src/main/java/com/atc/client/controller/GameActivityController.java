@@ -6,20 +6,17 @@ import com.atc.server.Message;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
-
+import com.atc.server.model.streamReader;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.net.SocketException;
 import java.util.UUID;
 
 
@@ -40,85 +37,10 @@ public class GameActivityController extends GenericController {
     @FXML private TextField chatEnterHeading;
     @FXML private TextField chatEnterSpeed;
     @FXML private TextField chatEnterLevel;
-
-    public class streamReader extends Thread {
-
-        protected ObjectInputStream in;
-        public ObjectOutputStream out;
-        protected Socket socket;
-
-        @Override
-        public void run()  {
-            try {
-                System.out.println(gameSettings.getClientUUID().toString());
-                socket = new Socket(gameSettings.getIpAddress(), 2137);
-                System.out.println("Connected!");
-                System.out.println(socket.toString());
-                in = new ObjectInputStream(socket.getInputStream());
-                out  = new ObjectOutputStream(socket.getOutputStream());
-            }
-            catch (IOException ex){
-                ex.printStackTrace();
-            }
-
-            try {
-                out.writeObject(new Message(gameSettings));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            while(true){
-                Message msg = null;
-                try {
-                    msg = (Message) in.readObject();
-                    switch (msg.getMsgType()){
-                        case 3:
-                            msg.getAirplanes().forEach((k, airplane) -> gameActivity.updateAirplane(airplane));
-                            break;
-                        case 1:
-                            Label msgLabel = new Label(msg.getChatMsg());
-                            msgLabel.setFont(new Font("Comic Sans MS", 14));
-                            msgLabel.setTextFill(Color.GREEN);
-                            Platform.runLater(
-                                    () -> chatHistory.getChildren().add(msgLabel)
-                            );
-                    }
-                    System.out.println("received data");
-                }
-                catch (SocketException sex){
-                    try {
-                        socket.close();
-                    } catch (IOException e) {
-                        System.out.println("Can't close socket");
-                    }
-                    try {
-                        socket = new Socket(gameSettings.getIpAddress(), 2137);
-                        System.out.println("Connected!");
-                        System.out.println(socket.toString());
-                        in = new ObjectInputStream(socket.getInputStream());
-                        out  = new ObjectOutputStream(socket.getOutputStream());
-                    }
-                    catch (IOException e){
-                        System.out.println("Can't reconnect");
-                        break;
-                    }
-                }
-                catch (IOException | ClassNotFoundException | NullPointerException ex) {
-                    ex.printStackTrace();
-                }
-                Platform.runLater(
-                        () -> gameActivity.wrapPrinting());
-            }
-        }
-    }
-
-
     @FXML
     public void initialize(){
         gameActivity = new GameActivity();
         gameActivity.setRadar(radar);
-
-        UUID activePlane = null;
 
         gameActivity.gameCanvas.radarAirplanes.setOnMouseClicked(e -> {
             double xPos = e.getX();
@@ -155,9 +77,11 @@ public class GameActivityController extends GenericController {
         root.heightProperty().addListener((obs, oldVal, newVal) -> resize());
         chatHistory.heightProperty().addListener((obs, oldVal, newVal) -> chatScroll.setVvalue(1));
 
-        s = new streamReader();
-        s.start();
-
+        //TODO: The MAIN (i.e. this of running app instance) GameSettings should probably be static and in scope for all WindowControllers, however this also works for now lmao ~BJ
+        Platform.runLater(()->{
+            s = new streamReader(gameSettings, gameActivity, chatHistory);
+            s.start();
+        });
 
         chatSend.setOnAction(e -> {
 //            sendMessage();

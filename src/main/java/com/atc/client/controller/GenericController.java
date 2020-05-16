@@ -7,11 +7,13 @@ public class GenericController {
 
     protected WindowController windowController;
 
-    protected GameSettings gameSettings;
+    public GameSettings gameSettings;
 
     public void setGameSettings(GameSettings gameSettings){this.gameSettings = gameSettings;}
 
     public void setWindowController(WindowController windowController) {
         this.windowController = windowController;
     }
+
+
 }

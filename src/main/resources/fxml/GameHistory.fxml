@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
 <BorderPane
             xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -14,6 +15,7 @@
 <top>
     <HBox spacing="10">
         <Button fx:id= "mainMenuButton" text="Main Menu" mnemonicParsing="false"/>
+        <Button fx:id="newGameButton" text="New Game" mnemonicParsing="false"/>
         <Button fx:id="settingsButton" text = "Settings" mnemonicParsing="false"/>
     </HBox>
 </top>
@@ -38,6 +40,23 @@
                 </HBox>
             </top>
             <bottom>
+                <fx:define>
+                    <Image fx:id="playImage" url="/images/play.png" />
+                </fx:define>
+                <HBox spacing="3">
+                    <Button fx:id="playButton">
+                            <graphic>
+                                <ImageView image="$playImage" />
+                            </graphic>
+                    </Button>
+                    <fx:define>
+                        <Image fx:id="stopImage" url="/images/stop.png" />
+                    </fx:define>
+                    <Button fx:id="stopButton">
+                        <graphic>
+                            <ImageView image="$stopImage" />
+                        </graphic>
+                    </Button>
                     <Slider fx:id="mySlider"
                             minWidth="700"
                             blockIncrement="1.0"
@@ -45,6 +64,8 @@
                             minorTickCount="4"
                             showTickLabels="true"
                             showTickMarks="true" />
+                </HBox>
+
             </bottom>
         </BorderPane>
     </center>

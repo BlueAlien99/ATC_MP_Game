@@ -48,7 +48,7 @@ public class WindowController {
     }
 
     public GenericController loadAndSetScene(String layout){
-        GameSettings gameSettings = new GameSettings();
+        GameSettings gameSettings = GameSettings.getInstance();
         return loadAndSetScene(layout, Dimensions.WINDOW_WIDTH, Dimensions.WINDOW_HEIGHT, gameSettings);
     }
 
