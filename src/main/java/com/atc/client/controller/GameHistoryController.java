@@ -23,17 +23,11 @@ public class GameHistoryController  extends GenericController{
 
     @FXML
     public void initialize(){
-
-        newGameButton.setOnAction(e->{
-            windowController.loadAndSetScene("/fxml/GameActivity.fxml",gameSettings);
-        });
-        mainMenuButton.setOnAction(e ->{
-            windowController.loadAndSetScene("/fxml/MainActivity.fxml",gameSettings);
-        });
-
-        settingsButton.setOnAction(e->{
-            windowController.loadAndSetScene("/fxml/GameSettings.fxml",gameSettings);
-        });
-            }
-
+        newGameButton.setOnAction(e ->
+            windowController.loadAndSetScene("/fxml/GameActivity.fxml", gameSettings));
+        mainMenuButton.setOnAction(e ->
+            windowController.loadAndSetScene("/fxml/MainActivity.fxml", gameSettings));
+        settingsButton.setOnAction(e ->
+            windowController.loadAndSetScene("/fxml/GameSettings.fxml", gameSettings));
+    }
 }

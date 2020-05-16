@@ -15,7 +15,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
-public class streamReader extends Thread {
+public class StreamReader extends Thread {
 
     protected ObjectInputStream in;
     public ObjectOutputStream out;
@@ -24,7 +24,7 @@ public class streamReader extends Thread {
     private GameActivity gameActivity;
     private VBox chatHistory;
 
-    public streamReader(GameSettings gs, GameActivity gameActivity, VBox chatHistory){
+    public StreamReader(GameSettings gs, GameActivity gameActivity, VBox chatHistory){
         this.chatHistory = chatHistory;
         this.gameActivity= gameActivity;
         this.gameSettings = gs;
@@ -51,7 +51,7 @@ public class streamReader extends Thread {
         }
 
         while(true){
-            Message msg = null;
+            Message msg;
             try {
                 msg = (Message) in.readObject();
                 switch (msg.getMsgType()){

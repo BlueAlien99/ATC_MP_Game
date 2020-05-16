@@ -44,8 +44,6 @@ public class GameActivity {
         }
     }
 
-
-
     public GameActivity(){
         gameHistory = new ConcurrentHashMap<>();
         gameAirplanes = new ConcurrentHashMap<>();
@@ -67,7 +65,6 @@ public class GameActivity {
     public void addAirplane(Airplane airplane){
         gameAirplanes.put(airplane.getUid(), airplane);
     }
-
 
     public void updateAirplane(Airplane airplane){
         if (!gameAirplanes.containsKey(airplane.getUid())){
@@ -173,6 +170,5 @@ public class GameActivity {
     public Airplane getAirplaneByUUID(UUID uuid){
         return gameAirplanes.get(uuid);
     }
-
 
 }

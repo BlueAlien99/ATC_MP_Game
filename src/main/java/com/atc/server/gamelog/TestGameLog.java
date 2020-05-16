@@ -3,9 +3,9 @@ import com.atc.server.model.*;
 import java.util.List;
 import java.util.UUID;
 
-public class testGameLog {
+public class TestGameLog {
     public static void main(String[] args){
-        gameLog log = new gameLog();
+        GameLog log = new GameLog();
         System.out.println("Before connecting to database.");
         log.connect();
         System.out.println("After connecting to database.");

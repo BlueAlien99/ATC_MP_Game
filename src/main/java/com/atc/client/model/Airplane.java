@@ -67,8 +67,7 @@ public class Airplane implements Cloneable, Serializable {
         setCurrPosY(currPosY - yShift);
     }
 
-    // TODO: Shouldn't this method be private?
-    public void setNewFlightParameters(){
+    private void setNewFlightParameters(){
         updateSpeed();
         updateHeading();
         updateHeight();

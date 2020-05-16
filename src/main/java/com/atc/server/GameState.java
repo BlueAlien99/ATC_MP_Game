@@ -5,7 +5,7 @@ import com.atc.client.model.Airplane;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import com.atc.server.gamelog.gameLog;
+import com.atc.server.gamelog.GameLog;
 
 import static com.atc.client.Dimensions.CANVAS_HEIGHT;
 import static com.atc.client.Dimensions.CANVAS_WIDTH;
@@ -20,7 +20,7 @@ public class GameState {
     private ConcurrentHashMap<String, Airplane> airplanes = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, Airplane> airplanesOutput = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer, String> chatMessages = new ConcurrentHashMap<>();
-    private gameLog log = new gameLog();
+    private GameLog log = new GameLog();
     private int tickCount = 0;
 
     private final Object outputBufferLock = new Object();
@@ -40,7 +40,7 @@ public class GameState {
             simulation.start();
         }
         if(connections.get(key)!=null){
-
+            //TODO: Warning:(42, 9) 'if' statement has empty body
         }
         else{
             connections.put(key, value);
@@ -133,6 +133,6 @@ public class GameState {
     public ConcurrentHashMap<Integer, String> getChatMessages() {
         return chatMessages;
     }
-    public gameLog getLog() {return log;}
+    public GameLog getLog() {return log;}
     public int getGameCount() {return gameCount;}
 }

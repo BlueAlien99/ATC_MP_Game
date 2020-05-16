@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-public class gameLog {
+public class GameLog {
     public static final String DRIVER = "org.sqlite.JDBC";
     public static final String DB_URL = "jdbc:sqlite:gamelog.db";
 
@@ -19,9 +19,9 @@ public class gameLog {
     private Connection con;
     private Statement stat;
 
-    public gameLog(){
+    public GameLog(){
         try {
-            Class.forName(gameLog.DRIVER);
+            Class.forName(GameLog.DRIVER);
             connect();
             createTables();
             playersUUIDHashmap = selectPlayerUUIDs();
@@ -111,14 +111,13 @@ public class gameLog {
         return 0;
     }
     private void printHashmap(){
-        playersUUIDHashmap.entrySet().forEach(entry->{
-            System.out.println(entry.getKey() + " " + entry.getValue());
-        });
+        playersUUIDHashmap.entrySet().forEach(entry ->
+            System.out.println(entry.getKey() + " " + entry.getValue()));
     }
 
     public boolean insertEvent(int gameId, String eventType, int timeTick, UUID playerUUID, double xCoordinate, double yCoordinate,
                                double speed, double heading, double height,UUID airplaneUUID){
-        if (checkUUIDInDatabase(playerUUID) == false) {
+        if (!checkUUIDInDatabase(playerUUID)) {
             insertPlayer(playerUUID, 0, 0, 0);
             commit();
             playersUUIDHashmap.put(playerUUID, findPlayerId(playerUUID));

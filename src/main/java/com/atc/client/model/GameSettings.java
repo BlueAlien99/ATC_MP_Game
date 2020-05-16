@@ -11,7 +11,7 @@ public class GameSettings implements Serializable {
     public static final int MULTI_WNPC = 2;
 
     String ipAddress = "localhost";
-    int planeNum = 0;
+    int planeNum = 3;
     UUID clientUUID;
     String clientName = "Player";
     ConcurrentHashMap<UUID, Airplane> planesToSpawn;

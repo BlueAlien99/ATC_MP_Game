@@ -15,14 +15,13 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
-import com.atc.server.model.streamReader;
+import com.atc.server.model.StreamReader;
 import java.io.IOException;
-import java.util.UUID;
 
 
 public class GameActivityController extends GenericController {
     public GameActivity gameActivity;
-    public streamReader s;
+    public StreamReader s;
 
 
     @FXML private Pane root;
@@ -79,7 +78,7 @@ public class GameActivityController extends GenericController {
 
         //TODO: The MAIN (i.e. this of running app instance) GameSettings should probably be static and in scope for all WindowControllers, however this also works for now lmao ~BJ
         Platform.runLater(()->{
-            s = new streamReader(gameSettings, gameActivity, chatHistory);
+            s = new StreamReader(gameSettings, gameActivity, chatHistory);
             s.start();
         });
 
@@ -104,9 +103,9 @@ public class GameActivityController extends GenericController {
                 } catch (CloneNotSupportedException ex) {
                     ex.printStackTrace();
                 }
-                if(targetHeading!=-1)  changed.setTargetHeading(targetHeading);
-                if(targetSpeed!=-1)  changed.setTargetSpeed(targetSpeed);
-                if(targetLevel!=-1)  changed.setTargetHeight(targetLevel);
+                if(changed != null && targetHeading!=-1)  changed.setTargetHeading(targetHeading);
+                if(changed != null && targetSpeed!=-1)  changed.setTargetSpeed(targetSpeed);
+                if(changed != null && targetLevel!=-1)  changed.setTargetHeight(targetLevel);
                 Message msgout = new Message(changed);
                 try {
                     s.out.writeObject(msgout);
