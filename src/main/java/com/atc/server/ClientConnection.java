@@ -1,12 +1,15 @@
 package com.atc.server;
 
 import com.atc.client.model.GameSettings;
+import com.atc.server.model.Event;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,7 +26,8 @@ public class ClientConnection implements Runnable{
     private int currentTick = 0;
     private int currentChatMsg = 0;
 
-    private boolean passedData = false;
+    private boolean clientHello = false;
+    private boolean passedGameSettings = false;
     private UUID clientUUID;
     private String clientName;
     private GameSettings gs;
@@ -60,26 +64,74 @@ public class ClientConnection implements Runnable{
     //TODO: Test syncing, eg. getTickCount()!
     //TODO: Validate and improve connection loss detection!
     private class Input implements Runnable{
-        @Override
-        public void run() {
+
+        private void chooseGameMode(){
             Message message = null;
-            while(!passedData){
+            try {
+                message = (Message) inputStream.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            if (message.getMsgType() == Message.CLIENT_SETTINGS){
+                clientPassedSettings(message);
+            } else if(message.getMsgType() == Message.GAME_HISTORY){
+                clientWantsData(message);
+            }
+
+        }
+
+        private void clientSaidHello(Message message){
+            while(!clientHello){
                 try {
                     message = (Message) inputStream.readObject();
                 } catch (IOException | ClassNotFoundException e) {
                     e.printStackTrace();
                 }
                 if(message.getMsgType() == Message.CLIENT_HELLO){
-                    gs = message.getGameSettings();
-                    gameState.getGameSettings(gs);
-                    clientUUID = gs.getClientUUID();
-                    clientName = gs.getClientName();
-
-                    passedData = true;
+                    clientHello = true;
                 }
             }
+        }
+        private void clientPassedSettings(Message message){
+            gs = message.getGameSettings();
+            gameState.getGameSettings(gs);
+            clientUUID = gs.getClientUUID();
+            clientName = gs.getClientName();
+            gameState.addPlayerLogin(clientUUID, clientName);
+            passedGameSettings = true;
+            System.out.println("Client passed settings!");
             gameState.generateNewAirplanes(gs.getPlaneNum(), clientUUID);
-            while(passedData){
+        }
+
+        private void clientWantsData(Message message){
+                System.out.println("Client wants data!");
+                int searchedGameId = message.getGameid();
+                List<Event> Events = gameState.getLog().selectGameIdEvents(searchedGameId);
+                HashMap<Integer, String> Logins = gameState.getLog().selectPlayerLogin(searchedGameId);
+                HashMap<UUID, String> Callsigns = gameState.getLog().selectAirplaneCallsigns(searchedGameId);
+                System.out.println("Got data from database!");
+                Message eventMessage = new Message(searchedGameId, Events, Callsigns, Logins);
+                try {
+                    outputStream.writeObject(eventMessage);
+                    System.out.println("Sent data to client!");
+                }
+                catch(SocketException sex){
+                    try{socket.close();}
+                    catch(Exception es) {System.out.println("Can't close connection");}
+                    System.out.println("Closing socket to "+ clientUUID.toString());
+                    gameState.removeConnection(socket.toString());
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+        }
+        @Override
+        public void run() {
+            Message message = null;
+            clientSaidHello(message);
+            System.out.println("Client said hello!");
+            chooseGameMode();
+            while(passedGameSettings){
                 try{
                     message = (Message) inputStream.readObject();
                 }

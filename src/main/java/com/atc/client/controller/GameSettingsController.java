@@ -10,6 +10,7 @@ import javafx.scene.control.TextField;
 
 public class GameSettingsController extends GenericController{
 
+    @FXML TextField loginTextField;
     @FXML TextField ipAddressTextField;
     @FXML ComboBox<Integer> airplanesComboBox;
     @FXML Button applyButton;
@@ -24,6 +25,7 @@ public class GameSettingsController extends GenericController{
             windowController.loadAndSetScene("/fxml/MainActivity.fxml", gameSettings));
 
         Platform.runLater(() -> {
+            loginTextField.setText(gameSettings.getClientName());
             ipAddressTextField.setText(gameSettings.getIpAddress());
             airplanesComboBox.getSelectionModel().select(gameSettings.getPlaneNum() - 1);
         });
@@ -31,6 +33,7 @@ public class GameSettingsController extends GenericController{
         applyButton.setOnAction(e->{
             gameSettings.setPlaneNum(airplanesComboBox.getValue());
             gameSettings.setIpAddress(ipAddressTextField.getText());
+            gameSettings.setClientName(loginTextField.getText());
             windowController.loadAndSetScene("/fxml/MainActivity.fxml", gameSettings);
         });
 

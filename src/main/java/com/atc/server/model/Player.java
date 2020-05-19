@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public class Player {
     int playerId;
-    UUID playerName;
+    UUID playerUUID;
     int points;
     int airplanesNum;
     double timeInGame;
@@ -18,11 +18,11 @@ public class Player {
     }
 
     public UUID getPlayerName() {
-        return playerName;
+        return playerUUID;
     }
 
     public void setPlayerName(UUID playerName) {
-        this.playerName = playerName;
+        this.playerUUID = playerName;
     }
 
     public int getPoints() {
@@ -52,7 +52,7 @@ public class Player {
     @Override
     public String toString() {
         String player = "["+ playerId + "]";
-        player += " " + playerName.toString();
+        player += " " + playerUUID.toString();
         player += "(" + points +",";
         player += " " + airplanesNum + ",";
         player += " " + timeInGame + ")";
@@ -61,7 +61,7 @@ public class Player {
 
     public Player(int playerId, UUID playerName, int points, int airplanesNum, double timeInGame) {
         this.playerId = playerId;
-        this.playerName = playerName;
+        this.playerUUID = playerName;
         this.points = points;
         this.airplanesNum = airplanesNum;
         this.timeInGame = timeInGame;

@@ -20,6 +20,7 @@ public class GameState {
     private ConcurrentHashMap<String, Airplane> airplanes = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, Airplane> airplanesOutput = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer, String> chatMessages = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<UUID, String> playersLogins = new ConcurrentHashMap<>();
     private GameLog log = new GameLog();
     private int tickCount = 0;
 
@@ -70,6 +71,7 @@ public class GameState {
             airplane.setTargetSpeed(airplane.getCurrSpeed()+new Random().nextInt(100)-50);
 
             airplanes.put(airplane.getId(), airplane);
+            log.insertCallsign(gameCount,airplane.getUid(), airplane.getId());
         }
     }
 
@@ -93,9 +95,9 @@ public class GameState {
     }
 
     private void sendCommandToDatabase(Airplane airplane, UUID clientUUID){
-        log.insertEvent(gameCount, "COMMAND", tickCount, clientUUID, airplane.getPositionX(), airplane.getPositionY(),
+        log.insertEvent(gameCount, "COMMAND", tickCount, clientUUID, playersLogins.get(clientUUID), airplane.getPositionX(), airplane.getPositionY(),
                 airplane.getTargetSpeed(), airplane.getTargetHeading(), airplane.getTargetHeight(), airplane.getUid());
-        log.commit();
+//        log.commit();
     }
 
 
@@ -135,4 +137,10 @@ public class GameState {
     }
     public GameLog getLog() {return log;}
     public int getGameCount() {return gameCount;}
+    public void addPlayerLogin(UUID playerUUID, String playerLogin){
+        playersLogins.put(playerUUID, playerLogin);
+    }
+    public String searchPlayerLogin(UUID playerUUID){
+        return playersLogins.get(playerUUID);
+    }
 }

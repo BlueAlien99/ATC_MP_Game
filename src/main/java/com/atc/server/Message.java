@@ -5,7 +5,9 @@ import com.atc.client.model.GameSettings;
 import com.atc.server.model.Event;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Message implements Serializable {
@@ -14,23 +16,35 @@ public class Message implements Serializable {
     public static final int AIRPLANE_COMMAND = 2;
     public static final int AIRPLANES_LIST = 3;
     public static final int CLIENT_HELLO = 4;
-    public static final int EVENTS_LIST = 5;
+    public static final int CLIENT_SETTINGS = 5;
+    public static final int GAME_HISTORY = 6;
 
     private int gameid;
     List<Event> eventsList;
     private ConcurrentHashMap<String, Airplane> airplanes;
+    private HashMap<UUID, String> Callsigns;
+    private HashMap<Integer, String> Logins;
     private Airplane updatedAirplane;
     private String chatMsg;
     private GameSettings gameSettings;
 
     private int msgType;
 
+    public Message(){
+        this.msgType = CLIENT_HELLO;
+    }
+
     public Message(int gameid){
+        this.msgType = GAME_HISTORY;
         this.gameid = gameid;
     }
-    public Message(int gameid, List<Event> eventsList){
+    public Message(int gameid, List<Event> eventsList, HashMap<UUID, String> Callsigns,
+                   HashMap<Integer, String> Logins){
+        this.msgType = GAME_HISTORY;
         this.gameid = gameid;
         this.eventsList = eventsList;
+        this.Callsigns = Callsigns;
+        this.Logins = Logins;
     }
 
     public Message(ConcurrentHashMap<String, Airplane> airplanes) {
@@ -50,8 +64,12 @@ public class Message implements Serializable {
 
     public Message(GameSettings gameSettings){
         this.gameSettings = gameSettings;
-        this.msgType = CLIENT_HELLO;
+        this.msgType = CLIENT_SETTINGS;
     }
+
+    public int getGameid() {return gameid;}
+
+    public List<Event> getEventsList() { return eventsList; }
 
     public int getMsgType() {
         return msgType;
@@ -70,4 +88,12 @@ public class Message implements Serializable {
     }
 
     public GameSettings getGameSettings() {return gameSettings;}
+
+    public HashMap<UUID, String> getCallsigns() {
+        return Callsigns;
+    }
+
+    public HashMap<Integer, String> getLogins() {
+        return Logins;
+    }
 }

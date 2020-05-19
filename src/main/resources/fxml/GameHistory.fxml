@@ -20,14 +20,15 @@
     </HBox>
 </top>
     <left>
-        <ScrollPane fx:id="commandScrollPane" prefWidth="250">
+        <ScrollPane fx:id="commandScrollPane" minWidth="250">
             <VBox prefWidth="200" alignment="CENTER_LEFT" fx:id="commandHistory"/>
         </ScrollPane>
     </left>
     <right>
         <HBox>
-        <ScrollPane fx:id="eventsScrollPane" prefWidth="250" >
-            <VBox prefWidth="200" alignment="CENTER_RIGHT" fx:id="eventsHistory"/>
+        <ScrollPane fx:id="eventsScrollPane" minWidth="250" >
+            <VBox prefWidth="200" alignment="CENTER_LEFT" fx:id="eventsHistory"
+            fillWidth="true"/>
         </ScrollPane>
     </HBox>
     </right>

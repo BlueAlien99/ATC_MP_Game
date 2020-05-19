@@ -37,7 +37,6 @@ public class GameLog {
             con.createStatement().execute("PRAGMA foreign_keys = ON");
             stat = con.createStatement();
             createTables();
-            con.setAutoCommit(false);
         } catch (SQLException e) {
             System.err.println("ERROR: cannot open connection.");
             e.printStackTrace();
@@ -73,9 +72,23 @@ public class GameLog {
                 "HEIGHT DOUBLE," +
                 "AIRPLANE_UUID BLOB NOT NULL," +
                 "FOREIGN KEY(PLAYER_ID) REFERENCES PLAYERS(PLAYER_ID))";
+        String createLogins ="CREATE TABLE IF NOT EXISTS LOGINS" +
+                "(LOGIN_ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "GAME_ID INTEGER NOT NULL," +
+                "PLAYER_ID INTEGER NOT NULL," +
+                "PLAYER_LOGIN VARCHAR(255) NOT NULL)";
+
+        String createCallsigns = "CREATE TABLE IF NOT EXISTS CALLSIGNS" +
+                "(CALLSIGN_ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "GAME_ID INTEGER NOT NULL," +
+                "AIRPLANE_UUID BLOB NOT NULL," +
+                "AIRPLANE_CALLSIGN VARCHAR(255) NOT NULL)";
+
         try {
             stat.execute(createPlayers);
             stat.execute(createEvents);
+            stat.execute(createLogins);
+            stat.execute(createCallsigns);
         } catch (SQLException e) {
             System.err.println("ERROR: Cannot create tables");
             e.printStackTrace();
@@ -84,7 +97,35 @@ public class GameLog {
         return true;
     }
 
-    private boolean insertPlayer(UUID playerUUID, int points, int airplanesNum, double timeInGame){
+    private void insertLogin(int gameId,int playerId, String login){
+        try{
+            PreparedStatement prepStmt = con.prepareStatement(
+                    "INSERT INTO LOGINS VALUES(NULL,?,?,?);");
+            prepStmt.setInt(1,gameId);
+            prepStmt.setInt(2, playerId);
+            prepStmt.setString(3,login);
+            prepStmt.execute();
+        }catch (SQLException e){
+            System.err.println("ERROR: Cannot add login for :" + playerId);
+            e.printStackTrace();
+        }
+    }
+
+    public void  insertCallsign(int game_id, UUID airplaneUUID, String callsign){
+        try{
+            PreparedStatement prepStmt = con.prepareStatement(
+                    "INSERT INTO CALLSIGNS VALUES(NULL,?,?,?);");
+            prepStmt.setInt(1,game_id);
+            prepStmt.setBytes(2, airplaneUUID.toString().getBytes());
+            prepStmt.setString(3,callsign);
+            prepStmt.execute();
+        }catch (SQLException e){
+            System.err.println("ERROR: Cannot add callsign for:" + airplaneUUID);
+            e.printStackTrace();
+        }
+    }
+
+    private boolean insertPlayer(int gameId, UUID playerUUID, int points, int airplanesNum, double timeInGame){
         try{
             PreparedStatement prepStmt = con.prepareStatement(
                     "INSERT INTO PLAYERS VALUES(NULL,?,?,?,?);");
@@ -115,12 +156,14 @@ public class GameLog {
             System.out.println(entry.getKey() + " " + entry.getValue()));
     }
 
-    public boolean insertEvent(int gameId, String eventType, int timeTick, UUID playerUUID, double xCoordinate, double yCoordinate,
+    public boolean insertEvent(int gameId, String eventType, int timeTick, UUID playerUUID, String login, double xCoordinate, double yCoordinate,
                                double speed, double heading, double height,UUID airplaneUUID){
         if (!checkUUIDInDatabase(playerUUID)) {
-            insertPlayer(playerUUID, 0, 0, 0);
-            commit();
-            playersUUIDHashmap.put(playerUUID, findPlayerId(playerUUID));
+            insertPlayer(gameId,playerUUID, 0, 0, 0);
+            int playerIdinDatabese = findPlayerId(playerUUID);
+            insertLogin(gameId,playerIdinDatabese, login);
+//            commit();
+            playersUUIDHashmap.put(playerUUID, playerIdinDatabese);
         }
         int playerId = playersUUIDHashmap.get(playerUUID);
         System.out.println(playerId +" " + playerUUID.toString());
@@ -224,13 +267,12 @@ public class GameLog {
         }
         return playerId;
     }
-    public List<Event> selectGameIdEvents(int gameId, int tick_time){
+    public List<Event> selectGameIdEvents(int gameId){
         List<Event> Events;
         try {
             PreparedStatement prepStmt = con.prepareStatement(
-                    "SELECT * FROM EVENTS WHERE GAME_ID = ? AND TICK_TIME = ?;");
+                    "SELECT * FROM EVENTS WHERE GAME_ID = ?;");
             prepStmt.setInt(1,gameId);
-            prepStmt.setInt(2,tick_time);
             ResultSet result  = prepStmt.executeQuery();
             Events = getEventResults(result);
         } catch (SQLException e) {
@@ -253,6 +295,49 @@ public class GameLog {
         }
         return numberOfGames;
     }
+
+    public HashMap<Integer, String> selectPlayerLogin(int gameId){
+        HashMap<Integer, String> logins = new HashMap<>();
+        try {
+            int playerId;
+            String login;
+            PreparedStatement prepStmt = con.prepareStatement(
+                    "SELECT PLAYER_ID, PLAYER_LOGIN FROM LOGINS WHERE GAME_ID = ?;");
+            prepStmt.setInt(1,gameId);
+            ResultSet result  = prepStmt.executeQuery();
+            while(result.next()){
+                playerId = result.getInt(1);
+                login = result.getString(2);
+                logins.put(playerId,login);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return logins;
+    }
+
+    public HashMap<UUID, String> selectAirplaneCallsigns(int gameId){
+        HashMap<UUID, String> callsigns = new HashMap<>();
+        try {
+            UUID airplaneUUID;
+            String callsign;
+            PreparedStatement prepStmt = con.prepareStatement(
+                    "SELECT AIRPLANE_UUID, AIRPLANE_CALLSIGN FROM CALLSIGNS WHERE GAME_ID = ?;");
+            prepStmt.setInt(1,gameId);
+            ResultSet result  = prepStmt.executeQuery();
+            while(result.next()){
+                airplaneUUID = UUID.nameUUIDFromBytes(result.getBytes(1));
+                callsign = result.getString(2);
+                callsigns.put(airplaneUUID,callsign);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return callsigns;
+    }
+
 
     private List<Event> getEventResults(ResultSet result){
         try {

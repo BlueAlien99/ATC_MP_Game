@@ -2,6 +2,7 @@ package com.atc.client;
 
 import com.atc.client.controller.WindowController;
 import javafx.application.Application;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -38,6 +39,7 @@ public class Main extends Application {
         mainWindowController.loadAndSetScene("/fxml/MainActivity.fxml");
 
         primaryStage.setTitle("ATC Client");
+        primaryStage.getIcons().add(new Image("images/airplane.png"));
         primaryStage.show();
     }
 

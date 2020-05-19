@@ -45,6 +45,7 @@ public class StreamReader extends Thread {
         }
 
         try {
+            out.writeObject(new Message());
             out.writeObject(new Message(gameSettings));
         } catch (IOException e) {
             e.printStackTrace();

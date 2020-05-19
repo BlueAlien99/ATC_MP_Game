@@ -1,9 +1,8 @@
 package com.atc.server.model;
-
-
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Event {
+public class Event implements Serializable {
     public enum eventType {
         COLLISION, COMMAND,
         CHECKPOINT, MOVEMENT
@@ -18,7 +17,7 @@ public class Event {
     private double speed;
     private double heading;
     private double height;
-    private UUID airplaneId;
+    private UUID airplaneUUID;
 
 
     public double getSpeed() {
@@ -102,15 +101,15 @@ public class Event {
         this.yCoordinate = yCoordinate;
     }
 
-    public UUID getAirplaneId() {
-        return airplaneId;
+    public UUID getAirplaneUUID() {
+        return airplaneUUID;
     }
 
-    public void setAirplaneId(UUID airplaneId) {
-        this.airplaneId = airplaneId;
+    public void setAirplaneUUID(UUID airplaneUUID) {
+        this.airplaneUUID = airplaneUUID;
     }
 
-    public Event( int eventId, int gameId, eventType type, int timeTick, int playerId, double xCoordinate, double yCoordinate, double speed, double heading, double height, UUID airplaneId) {
+    public Event( int eventId, int gameId, eventType type, int timeTick, int playerId, double xCoordinate, double yCoordinate, double speed, double heading, double height, UUID airplaneUUID) {
         this.gameId = gameId;
         this.eventId = eventId;
         this.type = type;
@@ -121,7 +120,7 @@ public class Event {
         this.speed = speed;
         this.heading = heading;
         this.height = height;
-        this.airplaneId = airplaneId;
+        this.airplaneUUID = airplaneUUID;
     }
 
     @Override
@@ -131,7 +130,7 @@ public class Event {
         message += " " + type;
         message += "["+ xCoordinate+"," + yCoordinate + "] ";
         message += "Speed: " + speed + ", Heading: " + heading + ", Height: " + height;
-        message += " " + airplaneId +":";
+        message += " " + airplaneUUID +":";
         message += "[PLAYER] " + playerId;
         return message;
     }

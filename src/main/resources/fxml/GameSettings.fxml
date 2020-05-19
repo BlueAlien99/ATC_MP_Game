@@ -23,11 +23,13 @@
             </font>
 
             </Text>
-            <Label text="IP address of multiplayer server:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-            <TextField fx:id="ipAddressTextField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Label text="Number of airplanes:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-            <ComboBox fx:id="airplanesComboBox" promptText="Choose" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <Button fx:id="applyButton" mnemonicParsing="false" text="Apply" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+            <Label text="Your login: " GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <TextField fx:id="loginTextField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label text="IP address of multiplayer server:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+            <TextField fx:id="ipAddressTextField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label text="Number of airplanes:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+            <ComboBox fx:id="airplanesComboBox" promptText="Choose" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <Button fx:id="applyButton" mnemonicParsing="false" text="Apply" GridPane.columnIndex="2" GridPane.rowIndex="4" />
          <columnConstraints>
             <ColumnConstraints />
             <ColumnConstraints />

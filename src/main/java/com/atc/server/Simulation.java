@@ -30,10 +30,12 @@ public class Simulation implements Runnable{
                 if(v.getPositionY()>CANVAS_HEIGHT) v.setCurrPosY(0);
                 gameState.getLog().insertEvent(
                         gameState.getGameCount(), "MOVEMENT", gameState.getTickCount(), v.getOwner(),
-                        v.getPositionX(), v.getPositionY(), v.getCurrSpeed(), v.getCurrHeading(), v.getCurrHeight(), v.getUid());
+                        gameState.searchPlayerLogin(v.getOwner()),
+                        v.getPositionX(), v.getPositionY(), v.getCurrSpeed(), v.getCurrHeading(),
+                        v.getCurrHeight(), v.getUid());
                 System.out.println(v.toString());
             });
-            gameState.getLog().commit();
+//            gameState.getLog().commit();
             gameState.setNewAirplanesOutput();
             System.out.println("1s has passed");
         }
