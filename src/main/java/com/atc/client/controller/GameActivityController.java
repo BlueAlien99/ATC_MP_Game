@@ -10,6 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -23,7 +24,6 @@ public class GameActivityController extends GenericController {
     public GameActivity gameActivity;
     public StreamReader s;
 
-
     @FXML private Pane root;
     @FXML private GridPane centerGrid;
     @FXML private StackPane radar;
@@ -35,10 +35,10 @@ public class GameActivityController extends GenericController {
     @FXML private ChoiceBox<String> chatEnterAircraft;
     @FXML private TextField chatEnterHeading;
     @FXML private TextField chatEnterSpeed;
-    @FXML private TextField chatEnterLevel;
+    @FXML private TextField chatEnterAltitude;
     @FXML
     public void initialize(){
-        gameActivity = new GameActivity();
+        gameActivity = new GameActivity(this);
         gameActivity.setRadar(radar);
 
         gameActivity.gameCanvas.radarAirplanes.setOnMouseClicked(e -> {
@@ -76,6 +76,15 @@ public class GameActivityController extends GenericController {
         root.heightProperty().addListener((obs, oldVal, newVal) -> resize());
         chatHistory.heightProperty().addListener((obs, oldVal, newVal) -> chatScroll.setVvalue(1));
 
+        TextField[] chatEnter = {chatEnterHeading, chatEnterAltitude, chatEnterSpeed};
+        for(int i = 0; i < chatEnter.length; ++i){
+            chatEnter[i].setOnKeyPressed(key -> {
+                if(key.getCode().equals(KeyCode.ENTER)){
+                    chatSend.fire();
+                }
+            });
+        }
+
         //TODO: The MAIN (i.e. this of running app instance) GameSettings should probably be static and in scope for all WindowControllers, however this also works for now lmao ~BJ
         Platform.runLater(()->{
             s = new StreamReader(gameSettings, gameActivity, chatHistory);
@@ -93,7 +102,7 @@ public class GameActivityController extends GenericController {
             catch(NumberFormatException ignored){}
             try {targetSpeed = Integer.parseInt(chatEnterSpeed.getText());}
             catch(NumberFormatException ignored){}
-            try {targetLevel = Integer.parseInt(chatEnterLevel.getText());}
+            try {targetLevel = Integer.parseInt(chatEnterAltitude.getText());}
             catch(NumberFormatException ignored){}
 
             if(gameActivity.getActiveAirplane() != null){
@@ -112,10 +121,11 @@ public class GameActivityController extends GenericController {
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
-
+                if(changed != null) {
+                    updateChatBoxes(changed.getTargetHeading(), changed.getTargetSpeed(), changed.getTargetHeight());
+                }
             }
-            }
-        );
+        });
 
         populateChoiceBox();
     }
@@ -139,4 +149,14 @@ public class GameActivityController extends GenericController {
     public void populateChoiceBox(){
         chatEnterAircraft.setItems(FXCollections.observableArrayList("Boeing", "Airbus", "Cessna"));
     }
+
+    public void updateChatBoxes(double heading, double speed, double altitude){
+        chatEnterHeading.clear();
+        chatEnterSpeed.clear();
+        chatEnterAltitude.clear();
+        chatEnterHeading.setPromptText(heading + " deg");
+        chatEnterSpeed.setPromptText(speed + " kts");
+        chatEnterAltitude.setPromptText(altitude + " ft");
+    }
+
 }

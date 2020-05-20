@@ -1,5 +1,6 @@
 package com.atc.client.model;
 
+import com.atc.client.controller.GameActivityController;
 import javafx.scene.layout.StackPane;
 
 import java.util.ArrayList;
@@ -23,6 +24,8 @@ public class GameActivity {
 
     private UUID activeAirplane;
 
+    private GameActivityController gameActivityController;
+
 
     static class TrailDot{
         public double xPos;
@@ -44,7 +47,7 @@ public class GameActivity {
         }
     }
 
-    public GameActivity(){
+    public GameActivity(GameActivityController controller){
         gameHistory = new ConcurrentHashMap<>();
         gameAirplanes = new ConcurrentHashMap<>();
         gameCanvas = new GameCanvas();
@@ -52,6 +55,8 @@ public class GameActivity {
         gameStartedTime = currentTimeMillis();
 
         activeAirplane = null;
+
+        gameActivityController = controller;
     }
 
     public void setRadar(StackPane newRadar){
@@ -94,6 +99,7 @@ public class GameActivity {
             }
         });
         gameCanvas.finish_printing(radar);
+
     }
 
     public void printAllDots(){
@@ -138,7 +144,7 @@ public class GameActivity {
     }
 
     private UUID getClosest(double x, double y, UUID clientUUID){
-        double min = Double.MAX_VALUE;
+        double min = 2048;
         UUID ret = null;
         for (Map.Entry<UUID, Airplane> pair: gameAirplanes.entrySet()) {
             if(pair.getValue().getOwner().equals(clientUUID)) {
@@ -157,9 +163,14 @@ public class GameActivity {
     }
 
     public void setActive(double x, double y, UUID clientUUID){
-        UUID uid=getClosest(x,y,clientUUID);
-        if(uid!=null){
-            activeAirplane=uid;
+        activeAirplane = getClosest(x,y,clientUUID);
+        updateChatBoxes();
+    }
+
+    public void updateChatBoxes(){
+        if(activeAirplane != null){
+            Airplane plane = gameAirplanes.get(activeAirplane);
+            gameActivityController.updateChatBoxes(plane.getTargetHeading(), plane.getTargetSpeed(), plane.getTargetHeight());
         }
     }
 

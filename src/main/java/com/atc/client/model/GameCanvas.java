@@ -4,6 +4,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 import java.util.ArrayList;
 
@@ -47,9 +48,20 @@ public class GameCanvas  {
         double x = airplane.getPositionX();
         double y = airplane.getPositionY();
         String callsign = airplane.getId();
+        //TODO: Make it depend on player, only player's own planes should turn red
+        boolean collisionCourse = airplane.getCollisionCourse();
 
-        double x_line = LEADING_LINE_LENGTH*sin(Math.toRadians(hdg));
-        double y_line = LEADING_LINE_LENGTH*cos(Math.toRadians(hdg));
+//        double x_line = LEADING_LINE_LENGTH*sin(Math.toRadians(hdg));
+//        double y_line = LEADING_LINE_LENGTH*cos(Math.toRadians(hdg));
+
+        double x_line = speed*sin(Math.toRadians(hdg));
+        double y_line = speed*cos(Math.toRadians(hdg));
+
+        if(active){
+            System.out.println("x = " + airplane.getPositionX());
+            System.out.println("y = " + airplane.getPositionY());
+            System.out.println("y = " + airplane.getColAParam() + " x + " + airplane.getColBParam());
+        }
 
         String alt_symbol = "=";
         if(level < targetLevel) alt_symbol="↑";
@@ -69,8 +81,10 @@ public class GameCanvas  {
         GraphicsContext gc = radarAirplanes.getGraphicsContext2D();
         GraphicsContext gcDots = radarTrails.getGraphicsContext2D();
 
-        gc.setFill(active ? RADAR_ACTIVE_COLOR : RADAR_COLOR);
-        gc.setStroke(active ? RADAR_ACTIVE_COLOR : RADAR_COLOR);
+        Paint radarPaint = active ? RADAR_ACTIVE_COLOR : collisionCourse ? RADAR_COLLISION_COLOR : RADAR_COLOR;
+
+        gc.setFill(radarPaint);
+        gc.setStroke(radarPaint);
 
         gcDots.setFill(active ? RADAR_ACTIVE_COLOR : RADAR_COLOR);
 
@@ -79,7 +93,7 @@ public class GameCanvas  {
         gc.strokeText(String.format("%03d",Math.round(level))
                         + alt_symbol +
                         String.format("%03d",Math.round(targetLevel))
-                        + "FL",
+                        + "FT",
                 x-15, y-32);
 
         gc.strokeText(String.format("%03d",Math.round(speed))
@@ -118,7 +132,6 @@ public class GameCanvas  {
         radarAirplanes.setScaleY(radar.getHeight() / CANVAS_HEIGHT);
         radarTrails.setScaleX(radar.getWidth() / CANVAS_WIDTH);
         radarTrails.setScaleY(radar.getHeight() / CANVAS_HEIGHT);
-
     }
 
     public void print_airplanes_array(ArrayList<Airplane> airplanes, StackPane radar){
