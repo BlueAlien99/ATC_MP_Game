@@ -5,6 +5,8 @@ import javafx.scene.paint.Paint;
 
 public class Dimensions {
 
+    public static final boolean DEBUGGING_MODE = false;
+
     public static final int WINDOW_WIDTH = 1280;
     public static final int WINDOW_HEIGHT = 720;
 

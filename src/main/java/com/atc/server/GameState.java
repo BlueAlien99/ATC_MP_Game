@@ -87,6 +87,9 @@ public class GameState {
             return;
         }
         String chatMsg = ChatMsgParser.parseNewMsg(airplaneInGame, airplane);
+        if(chatMsg == null){
+            return;
+        }
         chatMessages.put(chatMessages.size(), chatMsg);
         airplaneInGame.setNewTargets(airplane.getTargetSpeed(), airplane.getTargetHeading(), airplane.getTargetHeight());
         sendCommandToDatabase(airplane, clientUUID);
