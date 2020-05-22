@@ -2,6 +2,9 @@ package com.atc.client.model;
 
 import com.atc.server.model.Event;
 import com.atc.server.model.Login;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -14,45 +17,27 @@ import java.util.UUID;
 public class GameHistory {
     int currentGameId;
     List<Event> Events;
+    List<Integer> availableReplayGames;
     HashMap<UUID, String> Callsigns;
     HashMap<Integer, String> Logins;
+    HistoryStream stream=null;
 
-    public void populateVBoxes(VBox eventsVBox, VBox commandVBox) {
-        Logins.entrySet().forEach(entry->{
-            System.out.println(entry.getKey() + " " + entry.getValue());
-        });
-        for (Event event : Events) {
-            if (event.getType() != Event.eventType.COMMAND) {
-                StringBuilder eventString = new StringBuilder();
-                eventString.append(event.getTimeTick());
-                eventString.append(": ");
-                eventString.append(Callsigns.get(event.getAirplaneUUID()));
-                eventString.append("→ (");
-                eventString.append(Math.round(event.getxCoordinate()));
-                eventString.append("," + Math.round(event.getyCoordinate()));
-                eventString.append(")");
-                Label msgLabel = new Label(eventString.toString());
-                msgLabel.setFont(new Font("Comic Sans MS", 14));
-                msgLabel.setTextFill(Color.GREEN);
-                eventsVBox.getChildren().add(msgLabel);
-            }else {
-                StringBuilder commandString = new StringBuilder();
-                commandString.append(event.getTimeTick());
-                commandString.append(": ");
-                commandString.append(Logins.get(event.getPlayerId()));
-                commandString.append(" → ");
-                commandString.append(Callsigns.get(event.getAirplaneUUID()));
-                commandString.append("(" + event.getHeading());
-                commandString.append(", "+event.getSpeed());
-                commandString.append(", " +event.getHeight() + ")");
-                Label msgLabel = new Label(commandString.toString());
-                msgLabel.setFont(new Font("Comic Sans MS", 14));
-                msgLabel.setTextFill(Color.GREEN);
-                commandVBox.getChildren().add(msgLabel);
+    public void getDataFromStream(){
 
-            }
-        }
+    }
 
+
+
+    public void setAvailableReplayGames(List<Integer> availableReplayGames) {
+        this.availableReplayGames = availableReplayGames;
+    }
+
+    public HistoryStream getStream() {
+        return stream;
+    }
+
+    public void setStream(HistoryStream stream) {
+        this.stream = stream;
     }
 
     public List<Event> getEvents() {
@@ -77,5 +62,17 @@ public class GameHistory {
 
     public void setLogins(HashMap<Integer, String> logins) {
         Logins = logins;
+    }
+
+    public List<Integer> getAvailableReplayGames() {
+        return availableReplayGames;
+    }
+
+    public HashMap<UUID, String> getCallsigns() {
+        return Callsigns;
+    }
+
+    public HashMap<Integer, String> getLogins() {
+        return Logins;
     }
 }

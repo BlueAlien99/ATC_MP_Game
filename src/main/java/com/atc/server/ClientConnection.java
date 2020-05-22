@@ -6,11 +6,13 @@ import com.atc.server.model.Event;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 //TODO: Safe casting and proper connection closing!
@@ -74,7 +76,7 @@ public class ClientConnection implements Runnable{
             }
             if (message.getMsgType() == Message.CLIENT_SETTINGS){
                 clientPassedSettings(message);
-            } else if(message.getMsgType() == Message.GAME_HISTORY){
+            } else if(message.getMsgType() == Message.GAME_HISTORY) {
                 clientWantsData(message);
             }
 
@@ -103,27 +105,55 @@ public class ClientConnection implements Runnable{
             gameState.generateNewAirplanes(gs.getPlaneNum(), clientUUID);
         }
 
+        private Message sendAvailableReplays(){
+;           List<Integer> availableGames = gameState.getLog().selectAvailableGameId();
+            System.out.println("Got data from database!");
+            return new Message(availableGames);
+        }
+
+        private Message sendDataAboutEvents(int searchedGameId){
+            List<Event> Events = gameState.getLog().selectGameIdEvents(searchedGameId);
+            HashMap<Integer, String> Logins = gameState.getLog().selectPlayerLogin(searchedGameId);
+            HashMap<UUID, String> Callsigns = gameState.getLog().selectAirplaneCallsigns(searchedGameId);
+            System.out.println("Got data from database!");
+            return new Message(searchedGameId, Events, Callsigns, Logins);
+        }
+
         private void clientWantsData(Message message){
+            while(message.getMsgType() != Message.GAME_HISTORY_END){
+                Message  gameHistoryMessage;
                 System.out.println("Client wants data!");
                 int searchedGameId = message.getGameid();
-                List<Event> Events = gameState.getLog().selectGameIdEvents(searchedGameId);
-                HashMap<Integer, String> Logins = gameState.getLog().selectPlayerLogin(searchedGameId);
-                HashMap<UUID, String> Callsigns = gameState.getLog().selectAirplaneCallsigns(searchedGameId);
-                System.out.println("Got data from database!");
-                Message eventMessage = new Message(searchedGameId, Events, Callsigns, Logins);
+                if(searchedGameId < 0)
+                    gameHistoryMessage = sendAvailableReplays();
+                else
+                    gameHistoryMessage = sendDataAboutEvents(searchedGameId);
                 try {
-                    outputStream.writeObject(eventMessage);
+                    outputStream.writeObject(gameHistoryMessage);
                     System.out.println("Sent data to client!");
-                }
-                catch(SocketException sex){
-                    try{socket.close();}
-                    catch(Exception es) {System.out.println("Can't close connection");}
-                    System.out.println("Closing socket to "+ clientUUID.toString());
+                    message = (Message) inputStream.readObject();
+
+                } catch (SocketException sex) {
+                    try {
+                        socket.close();
+                    } catch (Exception es) {
+                        System.out.println("Can't close connection");
+                    }
+                    System.out.println("Closing socket to " + clientUUID.toString());
                     gameState.removeConnection(socket.toString());
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
+            }
+            //END OF WHILE WE HAVE TO SAY GOODBYE TO CLIENT
+            try {
+                outputStream.writeObject(new Message('c'));
+                System.out.println("Stopped exchanging data with client");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         @Override
         public void run() {

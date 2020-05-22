@@ -3,6 +3,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import javafx.geometry.Insets?>
 <BorderPane
             xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -13,31 +16,45 @@
             fx:controller="com.atc.client.controller.GameHistoryController"
             prefHeight="640.0" prefWidth="640.0">
 <top>
-    <HBox spacing="10">
+    <HBox spacing="40">
         <Button fx:id= "mainMenuButton" text="Main Menu" mnemonicParsing="false"/>
         <Button fx:id="newGameButton" text="New Game" mnemonicParsing="false"/>
         <Button fx:id="settingsButton" text = "Settings" mnemonicParsing="false"/>
     </HBox>
 </top>
     <left>
-        <ScrollPane fx:id="commandScrollPane" minWidth="250">
-            <VBox prefWidth="200" alignment="CENTER_LEFT" fx:id="commandHistory"/>
-        </ScrollPane>
+        <VBox alignment="TOP_CENTER" spacing="10">
+            <Label alignment="CENTER" text="COMMANDS" textAlignment="CENTER">
+                <padding>
+                    <Insets bottom="5.0" left="5.0" right="5.0" top="15.0" />
+                </padding>
+                <font>
+                    <Font name="System Bold" size="20.0" />
+                </font>
+            </Label>
+            <ListView fx:id="commandsList" prefWidth="250" prefHeight="600"/>
+        </VBox>
     </left>
     <right>
-        <HBox>
-        <ScrollPane fx:id="eventsScrollPane" minWidth="250" >
-            <VBox prefWidth="200" alignment="CENTER_LEFT" fx:id="eventsHistory"
-            fillWidth="true"/>
-        </ScrollPane>
-    </HBox>
+        <VBox alignment="TOP_CENTER" spacing="10">
+            <Label alignment="CENTER" text="EVENTS" textAlignment="CENTER">
+                <padding>
+                    <Insets bottom="5.0" left="5.0" right="5.0" top="15.0" />
+                </padding>
+                <font>
+                    <Font name="System Bold" size="20.0" />
+                </font>
+            </Label>
+            <ListView fx:id="eventsList" prefWidth="250" prefHeight="600"/>
+    </VBox>
     </right>
     <center>
         <BorderPane>
             <top>
-                <HBox>
-                    <TextField fx:id="gameIdTextField" promptText="ID REPLAY GAME" minWidth="40"/>
-                    <Button fx:id="sendButton" text="Search!" mnemonicParsing="false"/>
+                <HBox spacing="20">
+                    <padding><Insets top="25" right="100" bottom="25" left="100"/></padding>
+                    <ComboBox fx:id="gameIdComboBox" promptText="ID REPLAY GAME" minWidth="40" visible="false"/>
+                    <Button fx:id="sendButton" text="Search for games!" minWidth="30" mnemonicParsing="false"/>
                 </HBox>
             </top>
             <bottom>
@@ -45,7 +62,10 @@
                     <Image fx:id="playImage" url="/images/play.png" />
                 </fx:define>
                 <HBox spacing="3">
-                    <Button fx:id="playButton">
+                    <padding>
+                        <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
+                    </padding>
+                    <Button fx:id="playButton" visible="false">
                             <graphic>
                                 <ImageView image="$playImage" />
                             </graphic>
@@ -53,7 +73,7 @@
                     <fx:define>
                         <Image fx:id="stopImage" url="/images/stop.png" />
                     </fx:define>
-                    <Button fx:id="stopButton">
+                    <Button fx:id="stopButton" visible="false">
                         <graphic>
                             <ImageView image="$stopImage" />
                         </graphic>
@@ -61,10 +81,12 @@
                     <Slider fx:id="mySlider"
                             minWidth="700"
                             blockIncrement="1.0"
-                            majorTickUnit="20"
-                            minorTickCount="4"
+                            majorTickUnit="10"
+                            minorTickCount="5"
                             showTickLabels="true"
-                            showTickMarks="true" />
+                            showTickMarks="true"
+                            visible="false"
+                    />
                 </HBox>
 
             </bottom>
