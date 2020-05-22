@@ -3,7 +3,6 @@ package com.atc.client.model;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
 import java.util.ArrayList;
@@ -12,7 +11,7 @@ import static com.atc.client.Dimensions.*;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
-public class GameCanvas  {
+public class GameCanvas extends StackPane {
     public Canvas radarAirplanes;
     public Canvas radarTrails;
 
@@ -22,17 +21,26 @@ public class GameCanvas  {
 
         /*DEBUG*/
         radarAirplanes.setOnMousePressed(e->System.out.println(e.getX() +" "+e.getY()));
+
     }
+
+    @Override
+    public void setPrefSize(double prefWidth, double prefHeight){
+        super.setPrefSize(prefWidth, prefHeight);
+        resize_canvas();
+    }
+
+
 
     public void start_printing(){
         GraphicsContext gc = radarAirplanes.getGraphicsContext2D();
         GraphicsContext gcDots = radarTrails.getGraphicsContext2D();
         gc.clearRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
-        gcDots.clearRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+        gcDots.setFill(RADAR_BACKGROUND);
+        gcDots.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
     }
 
-    //this abomination of a function will need some thinking. It works though
-
+    //TODO: this abomination of a function will need some thinking. It works though
 
     public void print_airplane(Airplane airplane){
         print_airplane(airplane, false);
@@ -111,27 +119,37 @@ public class GameCanvas  {
         gc.strokeLine(x, y, x+x_line, y-y_line);
         gc.fillRect(x-5,y-5,10,10);
 
-        gc.setFill(Color.BLACK);
+        gc.setFill(RADAR_BACKGROUND);
         gc.fillRect(x-3, y-3, 6, 6);
     }
 
     void printDot(double x, double y){
+        printDot(x, y, RADAR_COLOR);
+    }
+
+    void printDot(double x, double y, Paint dotColor){
         GraphicsContext gcDots = radarTrails.getGraphicsContext2D();
-        gcDots.setFill(RADAR_COLOR);
+        gcDots.setFill(dotColor);
         gcDots.fillOval(x, y, 2, 2);
     }
 
-    public void finish_printing(StackPane radar){
-        radar.getChildren().clear();
-        radar.getChildren().add(radarTrails);
-        radar.getChildren().add(radarAirplanes);
+    public void finish_printing(){
+        this.getChildren().clear();
+        this.getChildren().add(radarTrails);
+        this.getChildren().add(radarAirplanes);
     }
 
-    public void resize_canvas(StackPane radar){
-        radarAirplanes.setScaleX(radar.getWidth() / CANVAS_WIDTH);
-        radarAirplanes.setScaleY(radar.getHeight() / CANVAS_HEIGHT);
-        radarTrails.setScaleX(radar.getWidth() / CANVAS_WIDTH);
-        radarTrails.setScaleY(radar.getHeight() / CANVAS_HEIGHT);
+    public void resize_canvas(){
+        radarAirplanes.setScaleX(xCoeff());
+        radarAirplanes.setScaleY(yCoeff());
+        radarTrails.setScaleX(xCoeff());
+        radarTrails.setScaleY(yCoeff());
+    }
+
+    public double xCoeff(){ return this.getPrefWidth() / CANVAS_WIDTH; }
+
+    public double yCoeff(){
+        return this.getPrefHeight() / CANVAS_HEIGHT;
     }
 
     public void print_airplanes_array(ArrayList<Airplane> airplanes, StackPane radar){
@@ -139,7 +157,7 @@ public class GameCanvas  {
         for(Airplane airplane : airplanes){
             print_airplane(airplane);
         }
-        finish_printing(radar);
+        finish_printing();
     }
 
 }

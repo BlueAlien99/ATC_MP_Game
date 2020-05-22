@@ -1,7 +1,6 @@
 package com.atc.client.model;
 
 import com.atc.client.controller.GameActivityController;
-import javafx.scene.layout.StackPane;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -18,9 +17,7 @@ public class GameActivity {
     private Map<UUID, ArrayList<TrailDot>> gameHistory;
     private Map<UUID, Airplane> gameAirplanes;
 
-    public StackPane radar;
-
-    public GameCanvas gameCanvas;
+    public GameCanvas radar;
 
     private UUID activeAirplane;
 
@@ -50,7 +47,7 @@ public class GameActivity {
     public GameActivity(GameActivityController controller){
         gameHistory = new ConcurrentHashMap<>();
         gameAirplanes = new ConcurrentHashMap<>();
-        gameCanvas = new GameCanvas();
+        radar = new GameCanvas();
 
         gameStartedTime = currentTimeMillis();
 
@@ -59,7 +56,7 @@ public class GameActivity {
         gameActivityController = controller;
     }
 
-    public void setRadar(StackPane newRadar){
+    public void setRadar(GameCanvas newRadar){
         radar = newRadar;
     }
 
@@ -85,7 +82,7 @@ public class GameActivity {
     }
 
     public void wrapPrinting(){
-        gameCanvas.start_printing();
+        radar.start_printing();
         gameAirplanes.forEach((k, airplane)-> printAirplane(airplane));
         gameHistory.forEach((k, trailDot)-> {
             int trailCounter = 0;
@@ -95,10 +92,10 @@ public class GameActivity {
                  trailCounter++, j--) {
                 x = trailDot.get(j).xPos;
                 y = trailDot.get(j).yPos;
-                gameCanvas.printDot(x, y);
+                radar.printDot(x, y);
             }
         });
-        gameCanvas.finish_printing(radar);
+        radar.finish_printing();
 
     }
 
@@ -108,7 +105,7 @@ public class GameActivity {
             for (TrailDot trailDot : trailDots) {
                 x = trailDot.xPos;
                 y = trailDot.yPos;
-                gameCanvas.printDot(x, y);
+                radar.printDot(x, y);
             }
         });
     }
@@ -122,12 +119,12 @@ public class GameActivity {
             gameHistory.put(airplane.getUid(), new ArrayList<>());
             gameHistory.get(airplane.getUid()).add(new TrailDot(airplane));
         }*/
-        gameCanvas.print_airplane(airplane, airplane.getUid()==activeAirplane);
+        radar.print_airplane(airplane, airplane.getUid()==activeAirplane);
 
     }
 
     public void resizeCanvas(){
-        gameCanvas.resize_canvas(radar);
+        radar.resize_canvas();
     }
 
     public void moveAirplanes_DEBUG(){
@@ -157,7 +154,7 @@ public class GameActivity {
             }
         }
 
-
+        System.out.println(x+" "+y+" "+ret);
         return ret;
 
     }

@@ -2,7 +2,9 @@ package com.atc.client.controller;
 
 import com.atc.client.model.Airplane;
 import com.atc.client.model.GameActivity;
+import com.atc.client.model.GameCanvas;
 import com.atc.server.Message;
+import com.atc.server.model.StreamReader;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -13,10 +15,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
-import com.atc.server.model.StreamReader;
+
 import java.io.IOException;
 
 
@@ -26,8 +26,9 @@ public class GameActivityController extends GenericController {
 
     @FXML private Pane root;
     @FXML private GridPane centerGrid;
-    @FXML private StackPane radar;
-    @FXML private Rectangle rectRadarBg;
+
+    @FXML private GameCanvas radar;
+
     @FXML private Pane chatRoot;
     @FXML private ScrollPane chatScroll;
     @FXML private VBox chatHistory;
@@ -41,9 +42,9 @@ public class GameActivityController extends GenericController {
         gameActivity = new GameActivity(this);
         gameActivity.setRadar(radar);
 
-        gameActivity.gameCanvas.radarAirplanes.setOnMouseClicked(e -> {
-            double xPos = e.getX();
-            double yPos = e.getY();
+        radar.setOnMouseClicked(e -> {
+            double xPos = e.getX()/radar.xCoeff();
+            double yPos = e.getY()/radar.yCoeff();
             gameActivity.setActive(xPos, yPos, gameSettings.getClientUUID());
         });
 
@@ -71,15 +72,14 @@ public class GameActivityController extends GenericController {
 //            gameActivity.gameCanvas.radarAirplanes.setTranslateY(gameActivity.gameCanvas.radarAirplanes.getTranslateY()-f*dy);
 //        });
 
-        Platform.runLater(this::resize);
-        root.widthProperty().addListener((obs, oldVal, newVal) -> resize());
-        root.heightProperty().addListener((obs, oldVal, newVal) -> resize());
+        root.widthProperty().addListener((obs) -> resize());
+        root.heightProperty().addListener((obs) -> resize());
         chatHistory.heightProperty().addListener((obs, oldVal, newVal) -> chatScroll.setVvalue(1));
 
         TextField[] chatEnter = {chatEnterHeading, chatEnterAltitude, chatEnterSpeed};
-        for(int i = 0; i < chatEnter.length; ++i){
-            chatEnter[i].setOnKeyPressed(key -> {
-                if(key.getCode().equals(KeyCode.ENTER)){
+        for (TextField textField : chatEnter) {
+            textField.setOnKeyPressed(key -> {
+                if (key.getCode().equals(KeyCode.ENTER)) {
                     chatSend.fire();
                 }
             });
@@ -128,15 +128,21 @@ public class GameActivityController extends GenericController {
         });
 
         populateChoiceBox();
+        System.out.println("GAC end of Initialzie");
+        Platform.runLater(this::resize);
     }
 
+
     private void resize(){
+
         int radarDimensions = Math.min((int)centerGrid.getHeight(), (int)centerGrid.getWidth());
         radar.setPrefSize(radarDimensions, radarDimensions);
 
+        System.out.println("RadarDims: "+radarDimensions);
+
         chatRoot.setPrefSize(root.getWidth() - radarDimensions, 0);
 
-        gameActivity.resizeCanvas();
+        //gameActivity.resizeCanvas();
     }
 
 //    private void sendMessage(){
