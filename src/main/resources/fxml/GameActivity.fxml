@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.atc.client.model.GameCanvas?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -55,15 +56,15 @@
                        <ChoiceBox fx:id="chatEnterAircraft" minWidth="40.0" prefWidth="150.0"/>
                        <TextField promptText="Heading" fx:id="chatEnterHeading" minWidth="40.0"/>
                        <TextField promptText="Speed" fx:id="chatEnterSpeed" minWidth="40.0"/>
-                       <TextField promptText="Level" fx:id="chatEnterLevel" minWidth="40.0"/>
+                       <TextField promptText="Level" fx:id="chatEnterAltitude" minWidth="40.0"/>
                    </HBox>
                </GridPane>
            </GridPane>
 
-           <StackPane fx:id="radar" minHeight="8.0" minWidth="8.0" prefHeight="400.0"
+           <GameCanvas fx:id="radar" minHeight="8.0" minWidth="8.0" prefHeight="400.0"
                       prefWidth="400.0"  GridPane.columnIndex="0"
                       style="-fx-background-color: black;">
-           </StackPane>
+           </GameCanvas>
 
        </GridPane>
    </center>

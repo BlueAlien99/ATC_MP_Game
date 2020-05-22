@@ -30,6 +30,7 @@ public class GameState {
     private int gameCount = log.selectGameId();
 
 
+    //TODO: get or set?
     public void getGameSettings(GameSettings gs){
         this.gs = gs;
     }
@@ -51,7 +52,7 @@ public class GameState {
     public void removeConnection(String key){
         connections.remove(key);
         if(connections.isEmpty()){
-            simulation.interrupt(); /*it won't work, Rafał, as interrupts don't work on threads that have to do with ObjectStreams*/
+            simulation.interrupt(); /*TODO: it won't work, Rafał, as interrupts don't work on threads that have to do with ObjectStreams*/
         }
     }
 

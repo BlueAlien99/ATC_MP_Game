@@ -1,10 +1,15 @@
 package com.atc.client.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.UUID;
 
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+
 public class Airplane implements Cloneable, Serializable {
+
     private UUID uid;
     private String id;
     private UUID owner;
@@ -19,6 +24,10 @@ public class Airplane implements Cloneable, Serializable {
     private double maxSpeed;
     private double minSpeed;
 
+    private boolean collisionCourse;
+    private double colAParam;
+    private double colBParam;
+
     public Airplane(double initialMaxSpeed, double initialMinSpeed){
         this.uid = UUID.randomUUID();
         this.id = generateAirplaneId(1000,2);
@@ -32,6 +41,7 @@ public class Airplane implements Cloneable, Serializable {
         this.currPosY = 0;
         this.maxSpeed = initialMaxSpeed;
         this.minSpeed = initialMinSpeed;
+//        this.collisionCourse = new ArrayList<Airplane>();
     }
 
     public Airplane(UUID owner, double heading){
@@ -40,6 +50,7 @@ public class Airplane implements Cloneable, Serializable {
         this.targetSpeed = 50;
         this.targetHeight = 10000;
         this.targetHeading = heading;
+//        this.collisionCourse = new ArrayList<Airplane>();
     }
 
     @Override
@@ -56,6 +67,7 @@ public class Airplane implements Cloneable, Serializable {
     }
 
     public void moveAirplane(){
+        collisionCourse = false;
         setNewFlightParameters();
         double currSpeed = getCurrSpeed();
         double currPosX = getPositionX();
@@ -71,6 +83,7 @@ public class Airplane implements Cloneable, Serializable {
         updateSpeed();
         updateHeading();
         updateHeight();
+        calculateABParams();
     }
 
     private void updateSpeed(){
@@ -94,28 +107,37 @@ public class Airplane implements Cloneable, Serializable {
         double currHeading = getCurrHeading();
         double targetHeading = getTargetHeading();
         double difference = targetHeading - currHeading;
-        if(Math.abs(difference) > 180){
-            if(difference > 0){
-                if(difference>345){
-                    setCurrHeading(targetHeading);
+        if(difference != 0) {
+            if (Math.abs(difference) > 180) {
+                if (difference > 0) {
+                    if (difference > 345) {
+                        setCurrHeading(targetHeading);
+                    } else
+                        setCurrHeading(currHeading - headingStep);
+                } else {
+                    if (difference < -345) {
+                        setCurrHeading(targetHeading);
+                    } else
+                        setCurrHeading(currHeading + headingStep);
                 }
-                else
-                    setCurrHeading(currHeading - headingStep);
-            }else{
-                if(difference<-345){
-                    setCurrHeading(targetHeading);
-                }
-                else
-                    setCurrHeading(currHeading + headingStep);
+            } else if (difference > 0 && difference > headingStep) {
+                setCurrHeading(currHeading + headingStep);
+            } else if (difference < 0 && Math.abs(difference) > headingStep) {
+                setCurrHeading((currHeading - headingStep));
+            } else if ((Math.abs(difference)) % 360 <= headingStep) {
+                setCurrHeading(getTargetHeading());
             }
-        }else if(difference > 0 && difference > headingStep){
-            setCurrHeading(currHeading + headingStep);
-        }else if (difference < 0 && Math.abs(difference) > headingStep){
-            setCurrHeading((currHeading - headingStep));
-        }else if ((Math.abs(difference))%360 <= headingStep){
-            setCurrHeading(getTargetHeading());
+            calculateABParams();
         }
     }
+
+    public void calculateABParams(){
+        double x1 = currPosX + currSpeed*sin(Math.toRadians(currHeading));
+        double y1 = currPosY + currSpeed*cos(Math.toRadians(currHeading));
+        colAParam = (y1 - currPosY) / (x1 - currPosX);
+        colBParam = currPosY - (colAParam * currPosX);
+    }
+
     private void updateHeight(){
         final int heightStep = 10;
 
@@ -220,6 +242,22 @@ public class Airplane implements Cloneable, Serializable {
         targetSpeed = speed;
         targetHeading = heading;
         targetHeight = height;
+    }
+
+    public void setCollisionCourse(){
+        collisionCourse = true;
+    }
+
+    public boolean getCollisionCourse(){
+        return collisionCourse;
+    }
+
+    public double getColAParam() {
+        return colAParam;
+    }
+
+    public double getColBParam() {
+        return colBParam;
     }
 
     @Override

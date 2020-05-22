@@ -9,6 +9,8 @@ import java.io.IOException;
 
 public class Main extends Application {
 
+    //TODO: close game after user closes its window
+
     @Override
     public void start(Stage primaryStage) throws IOException, ClassNotFoundException {
         /*
@@ -39,7 +41,7 @@ public class Main extends Application {
         mainWindowController.loadAndSetScene("/fxml/MainActivity.fxml");
 
         primaryStage.setTitle("ATC Client");
-        primaryStage.getIcons().add(new Image("images/airplane.png"));
+        //primaryStage.getIcons().add(new Image("images/airplane.png"));
         primaryStage.show();
     }
 
