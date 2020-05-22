@@ -80,8 +80,10 @@ public class Airplane implements Cloneable, Serializable {
     }
 
     private void setNewFlightParameters(){
-        updateSpeed();
-        updateHeading();
+        //updateSpeed();
+        //updateHeading();
+        currSpeed = targetSpeed;
+        currHeading = targetHeading;
         updateHeight();
         calculateABParams();
     }
@@ -134,7 +136,8 @@ public class Airplane implements Cloneable, Serializable {
     public void calculateABParams(){
         double x1 = currPosX + currSpeed*sin(Math.toRadians(currHeading));
         double y1 = currPosY + currSpeed*cos(Math.toRadians(currHeading));
-        colAParam = (y1 - currPosY) / (x1 - currPosX);
+        // mathematically speaking, in the expression below there should not be - sign, but strangely enough JavaFX's canvas has mirrored y axis
+        colAParam = - (y1 - currPosY) / (x1 - currPosX);
         colBParam = currPosY - (colAParam * currPosX);
     }
 

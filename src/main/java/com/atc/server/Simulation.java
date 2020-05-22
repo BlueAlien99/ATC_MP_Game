@@ -1,6 +1,7 @@
 package com.atc.server;
 
 import com.atc.client.model.Airplane;
+import javafx.util.Pair;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -41,19 +42,80 @@ public class Simulation implements Runnable{
                 System.out.println(v.toString());
             });
 
+            //TCAS
+            //TODO: it doesnt take altitude into calculations, but its easy peasy to implement
+            //TODO: too sensitive to speed
+            //TODO: add collision detection, just calculate distance between two aircrafts
+            //TODO: add detection, when two aircrafts are just too close to each other
             ArrayList<Airplane> airList = new ArrayList<>(airplanes.values());
+            double tooClose = 256;
+            double criticallyClose = 64;
             for(int i = 0; i < airList.size(); ++i){
+                Airplane iel = airList.get(i);
+                char ielCase = getTcasCase(iel.getCurrHeading());
                 for(int j = i+1; j < airList.size(); ++j){
-                    Airplane iel = airList.get(i);
                     Airplane jel = airList.get(j);
+                    char jelCase = getTcasCase(jel.getCurrHeading());
+                    boolean collision = false;
 
-                    double x = (jel.getColBParam() - iel.getColBParam()) / (iel.getColAParam() - jel.getColAParam());
-                    double y = iel.getColAParam() * x + iel.getColBParam();
+                    if((ielCase == '8' || ielCase == '2') && (jelCase == '8' || jelCase == '2') && Math.abs(iel.getPositionX() - jel.getPositionX()) < tooClose){
+                        if(ielCase != jelCase){
+                            double coordFar = ielCase == '8' ? iel.getPositionY() : jel.getPositionY();
+                            double coordClose = ielCase == '8' ? jel.getPositionY() : iel.getPositionY();
+                            if(coordFar - coordClose > 0 && Math.abs(coordFar - coordClose) < iel.getCurrSpeed() + jel.getCurrSpeed()){
+                                collision = true;
+                            }
+                        }
+                    }
 
-                    double disi = Math.sqrt(Math.pow(x - iel.getPositionX(), 2) + Math.pow(y - iel.getPositionY(), 2));
-                    double disj = Math.sqrt(Math.pow(x - jel.getPositionX(), 2) + Math.pow(y - jel.getPositionY(), 2));
+                    else if((ielCase == '6' || ielCase == '4') && (jelCase == '6' || jelCase == '4') && Math.abs(iel.getPositionY() - jel.getPositionY()) < tooClose){
+                        if(ielCase != jelCase){
+                            double coordFar = ielCase == '6' ? iel.getPositionX() : jel.getPositionX();
+                            double coordClose = ielCase == '6' ? jel.getPositionX() : iel.getPositionX();
+                            if(coordFar - coordClose < 0 && Math.abs(coordFar - coordClose) < iel.getCurrSpeed() + jel.getCurrSpeed()){
+                                collision = true;
+                            }
+                        }
+                    }
 
-                    if(disi < iel.getCurrSpeed() && disj < jel.getCurrSpeed()){
+                    else {
+                        if (jelCase == '8' || jelCase == '2') {
+                            char temp = jelCase;
+                            jelCase = ielCase;
+                            ielCase = temp;
+                            Airplane templane = jel;
+                            jel = iel;
+                            iel = templane;
+                        }
+
+                        double colx, coly;
+
+                        if((ielCase == '8' || ielCase == '2') && (jelCase == '4' || jelCase == '6')){
+                            colx = iel.getPositionX();
+                            coly = jel.getPositionY();
+                        }
+                        else if(ielCase == '8' || ielCase == '2'){
+                            colx = iel.getPositionX();
+                            coly = jel.getColAParam() * colx + jel.getColBParam();
+                        }
+                        else{
+                            colx = (jel.getColBParam() - iel.getColBParam()) / (iel.getColAParam() - jel.getColAParam());
+                            coly = iel.getColAParam() * colx + iel.getColBParam();
+                        }
+
+                        double disi = Math.sqrt(Math.pow(colx - iel.getPositionX(), 2) + Math.pow(coly - iel.getPositionY(), 2));
+                        double disj = Math.sqrt(Math.pow(colx - jel.getPositionX(), 2) + Math.pow(coly - jel.getPositionY(), 2));
+
+                        // check if collision point is in front of a plane
+                        boolean ieldir = (ielCase == '8' && coly < iel.getPositionY()) || (ielCase == '2' && coly > iel.getPositionY()) || ((ielCase == '9' || ielCase == '6' || ielCase == '3') && colx > iel.getPositionX()) || ((ielCase == '1' || ielCase == '4' || ielCase == '7') && colx < iel.getPositionX());
+                        boolean jeldir = (jelCase == '8' && coly < jel.getPositionY()) || (jelCase == '2' && coly > jel.getPositionY()) || ((jelCase == '9' || jelCase == '6' || jelCase == '3') && colx > jel.getPositionX()) || ((jelCase == '1' || jelCase == '4' || jelCase == '7') && colx < jel.getPositionX());
+
+                        if(ieldir && jeldir && disi < iel.getCurrSpeed() && disj < jel.getCurrSpeed()){
+                            collision = true;
+                        }
+                    }
+
+                    if(collision){
                         iel.setCollisionCourse();
                         jel.setCollisionCourse();
                     }
@@ -64,6 +126,29 @@ public class Simulation implements Runnable{
             gameState.setNewAirplanesOutput();
             System.out.println("1s has passed");
         }
+    }
+
+    //TODO: all tcas methods should probably be moved to a separate static class
+    private char getTcasCase(double heading){
+        double delta = 2.5;
+        if(heading < delta || heading > 360-delta){
+            return '8';
+        } else if(heading >= delta && heading <= 90-delta){
+            return '9';
+        } else if(heading > 90-delta && heading < 90+delta){
+            return '6';
+        } else if(heading >= 90+delta && heading <= 180-delta){
+            return '3';
+        } else if(heading > 180-delta && heading < 180+delta){
+            return '2';
+        } else if(heading >= 180+delta && heading <= 270-delta){
+            return '1';
+        } else if(heading > 270-delta && heading < 270+delta){
+            return '4';
+        } else if(heading >= 270+delta && heading <= 360-delta){
+            return '7';
+        }
+        return 0;
     }
 
     public Simulation(GameState gameState) {
