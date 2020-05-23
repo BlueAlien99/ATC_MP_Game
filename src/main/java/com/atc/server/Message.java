@@ -1,6 +1,7 @@
 package com.atc.server;
 
 import com.atc.client.model.Airplane;
+import com.atc.client.model.GameHistory;
 import com.atc.client.model.GameSettings;
 import com.atc.server.model.Event;
 
@@ -18,9 +19,11 @@ public class Message implements Serializable {
     public static final int CLIENT_HELLO = 4;
     public static final int CLIENT_SETTINGS = 5;
     public static final int GAME_HISTORY = 6;
+    public static final int GAME_HISTORY_END = 7;
 
     private int gameid;
     List<Event> eventsList;
+    List<Integer> availableGameId;
     private ConcurrentHashMap<String, Airplane> airplanes;
     private HashMap<UUID, String> Callsigns;
     private HashMap<Integer, String> Logins;
@@ -32,6 +35,12 @@ public class Message implements Serializable {
 
     public Message(){
         this.msgType = CLIENT_HELLO;
+    }
+    public Message(char c){this.msgType = GAME_HISTORY_END;}
+
+    public Message(List<Integer> availableGameId){
+        this.msgType = GAME_HISTORY;
+        this.availableGameId = availableGameId;
     }
 
     public Message(int gameid){
@@ -95,5 +104,9 @@ public class Message implements Serializable {
 
     public HashMap<Integer, String> getLogins() {
         return Logins;
+    }
+
+    public List<Integer> getAvailableGameId() {
+        return availableGameId;
     }
 }

@@ -5,10 +5,7 @@ import com.atc.server.model.Player;
 
 
 import java.sql.*;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class GameLog {
     public static final String DRIVER = "org.sqlite.JDBC";
@@ -294,6 +291,20 @@ public class GameLog {
             return 0;
         }
         return numberOfGames;
+    }
+    public Vector<Integer> selectAvailableGameId (){
+        Vector<Integer> availableGames = new Vector<>();
+        try {
+            PreparedStatement prepStmt = con.prepareStatement(
+                    "SELECT DISTINCT GAME_ID FROM EVENTS;");
+            ResultSet result  = prepStmt.executeQuery();
+            while(result.next()){
+                availableGames.add(result.getInt(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return availableGames;
     }
 
     public HashMap<Integer, String> selectPlayerLogin(int gameId){
