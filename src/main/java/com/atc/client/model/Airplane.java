@@ -28,6 +28,18 @@ public class Airplane implements Cloneable, Serializable {
     private double colAParam;
     private double colBParam;
 
+    public Airplane(UUID uid, String id, double speed, double heading, double height, double posX, double posY){
+        this.uid = uid;
+        this.id = id;
+        this.currSpeed = this.targetSpeed = speed;
+        this.currHeading = this.targetHeading = heading;
+        this.currHeight = this.targetHeight = height;
+        this.currPosX = posX;
+        this.currPosY = posY;
+        this.minSpeed = 100;
+        this.maxSpeed = 999;
+    }
+
     public Airplane(double initialMaxSpeed, double initialMinSpeed){
         this.uid = UUID.randomUUID();
         this.id = generateAirplaneId(1000,2);

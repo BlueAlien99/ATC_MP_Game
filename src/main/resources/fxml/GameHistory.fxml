@@ -6,6 +6,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 <?import javafx.geometry.Insets?>
+<?import com.atc.client.model.GameCanvas?>
 <BorderPane
             xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -49,19 +50,22 @@
     </VBox>
     </right>
     <center>
-        <BorderPane>
+        <BorderPane fx:id="centerPane">
             <top>
-                <HBox spacing="20">
+                <HBox spacing="20" fx:id="centerTop">
                     <padding><Insets top="25" right="100" bottom="25" left="100"/></padding>
                     <ComboBox fx:id="gameIdComboBox" promptText="ID REPLAY GAME" minWidth="40" visible="false"/>
                     <Button fx:id="sendButton" text="Search for games!" minWidth="30" mnemonicParsing="false"/>
                 </HBox>
             </top>
+            <center>
+                <GameCanvas fx:id="radar" minHeight="8.0" minWidth="8.0" prefHeight="400.0" prefWidth="400.0"/>
+            </center>
             <bottom>
                 <fx:define>
                     <Image fx:id="playImage" url="/images/play.png" />
                 </fx:define>
-                <HBox spacing="3">
+                <HBox spacing="3" fx:id="centerBottom">
                     <padding>
                         <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
                     </padding>

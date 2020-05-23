@@ -21,5 +21,5 @@ public class Dimensions {
     public static final Paint RADAR_COLOR = Color.LIMEGREEN;
     public static final Paint RADAR_ACTIVE_COLOR = Color.BLUE;
     public static final Paint RADAR_COLLISION_COLOR = Color.RED;
-    public static final Paint RADAR_BACKGROUND = Color.DARKBLUE;
+    public static final Paint RADAR_BACKGROUND = Color.BLACK;
 }
