@@ -13,6 +13,10 @@ import static java.lang.Math.sin;
 
 public class Airplane implements Cloneable, Serializable {
 
+	private static final double climbAccStep = 10;
+	private static final double turnAccStep = 0.8;
+	private static final double speedAccStep = 0.6;
+
 	private static int numOfAirlines;
 
 	private String callsign;
@@ -42,14 +46,6 @@ public class Airplane implements Cloneable, Serializable {
 	private double colBParam;
 	private boolean collisionCourse;
 
-/*
-	private UUID owner;
-
-	private double minSpeed;
-	private double maxSpeed;
-
-	*/
-
 	static{
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		InputStream is = classLoader.getResourceAsStream(Dimensions.AIRLINES_FILE);
@@ -60,6 +56,56 @@ public class Airplane implements Cloneable, Serializable {
 			sc.nextLine();
 			++numOfAirlines;
 		}
+	}
+
+	public Airplane(UUID owner, double posX, double posY, double altitude, double heading, double speed){
+		registerAircraft();
+		this.owner = owner;
+
+		this.minSpeed = Dimensions.DEFAULT_MIN_SPEED;
+		this.maxSpeed = Dimensions.DEFAULT_MAX_SPEED;
+
+		this.posX = posX;
+		this.posY = posY;
+
+		setTargetAltitude(altitude);
+		setTargetHeading(heading);
+		setTargetSpeed(speed);
+
+		this.altitude = this.targetAltitude;
+		this.heading = this.targetHeading;
+		this.speed = this.targetSpeed;
+
+		this.altitudeAcceleration = 0;
+		this.headingAcceleration = 0;
+		this.speedAcceleration = 0;
+
+		this.collisionCourse = false;
+		calculateABParams();
+	}
+
+	//TODO: it should depend on time
+	public void moveAirplane(){
+		collisionCourse = false;
+
+		if(Dimensions.DEBUGGING_MODE){
+			altitude = targetAltitude;
+			heading = targetHeading;
+			speed = targetSpeed;
+		} else{
+			updateAltitude();
+			updateHeading();
+			updateSpeed();
+		}
+
+		calculateABParams();
+
+		double headingRad = Math.toRadians(heading);
+		double xShift = Math.sin(headingRad) * speed/10;
+		double yShift = Math.cos(headingRad) * speed/10;
+
+		posX += xShift;
+		posY -= yShift;
 	}
 
 	public String getCallsign() {
@@ -107,6 +153,9 @@ public class Airplane implements Cloneable, Serializable {
 	}
 
 	public double getHeading() {
+		if(heading == 0){
+			return 360;
+		}
 		return heading;
 	}
 
@@ -119,6 +168,9 @@ public class Airplane implements Cloneable, Serializable {
 	}
 
 	public double getTargetHeading() {
+		if(targetHeading == 0){
+			return 360;
+		}
 		return targetHeading;
 	}
 
@@ -135,12 +187,8 @@ public class Airplane implements Cloneable, Serializable {
 	public void setTargetAltitude(double altitude){
 		if(altitude < Dimensions.AIRPLANE_MIN_ALTITUDE){
 			targetAltitude = Dimensions.AIRPLANE_MIN_ALTITUDE;
-		}
-		else if(altitude > Dimensions.AIRPLANE_MAX_ALTITUDE){
-			targetAltitude = Dimensions.AIRPLANE_MAX_ALTITUDE;
-		}
-		else{
-			targetAltitude = altitude;
+		} else{
+			targetAltitude = Math.min(altitude, Dimensions.AIRPLANE_MAX_ALTITUDE);
 		}
 	}
 
@@ -157,12 +205,8 @@ public class Airplane implements Cloneable, Serializable {
 	public void setTargetSpeed(double speed){
 		if(speed < minSpeed){
 			targetSpeed = minSpeed;
-		}
-		else if(speed > maxSpeed){
-			targetSpeed = maxSpeed;
-		}
-		else{
-			targetSpeed = speed;
+		} else{
+			targetSpeed = Math.min(speed, maxSpeed);
 		}
 	}
 
@@ -189,6 +233,71 @@ public class Airplane implements Cloneable, Serializable {
 
 	public void setCollisionCourse() {
 		this.collisionCourse = true;
+	}
+
+	private void updateAltitude(){
+		double diff = targetAltitude - altitude;
+
+		if(diff == 0){
+			return;
+		}
+
+		double absDiff = Math.abs(diff);
+		altitudeAcceleration = Math.abs(altitudeAcceleration);
+
+		altitudeAcceleration = Math.min(altitudeAcceleration + climbAccStep, absDiff);
+		altitudeAcceleration = Math.min(altitudeAcceleration, Dimensions.AIRPLANE_MAX_CLIMB_RATE);
+		altitudeAcceleration *= diff / absDiff;
+
+		altitude += altitudeAcceleration;
+	}
+
+	private void updateSpeed(){
+		double diff = targetSpeed - speed;
+
+		if(diff == 0){
+			return;
+		}
+
+		double absDiff = Math.abs(diff);
+		speedAcceleration = Math.abs(speedAcceleration);
+
+		speedAcceleration = Math.min(speedAcceleration + speedAccStep, absDiff);
+		speedAcceleration = Math.min(speedAcceleration, Dimensions.AIRPLANE_MAX_ACCELERATION);
+		speedAcceleration *= diff / absDiff;
+
+		speed += speedAcceleration;
+	}
+
+	private void updateHeading(){
+		double diff = targetHeading - heading;
+
+		if(diff == 0){
+			return;
+		}
+
+		if(diff > 180){
+			diff -= 360;
+		}
+		if(diff < -180){
+			diff += 360;
+		}
+
+		double absDiff = Math.abs(diff);
+		headingAcceleration = Math.abs(headingAcceleration);
+
+		headingAcceleration = Math.min(headingAcceleration + turnAccStep, absDiff);
+		headingAcceleration = Math.min(headingAcceleration, Dimensions.AIRPLANE_MAX_TURN_RATE);
+		headingAcceleration *= diff / absDiff;
+
+		heading += headingAcceleration;
+
+		if(heading < 0){
+			heading += 360;
+		}
+		if(heading > 360){
+			heading -= 360;
+		}
 	}
 
 	private void registerAircraft() {
@@ -218,123 +327,4 @@ public class Airplane implements Cloneable, Serializable {
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
 	}
-
-	// OLD CODE - OLD CODE - OLD CODE
-	// OLD CODE - OLD CODE - OLD CODE
-	// OLD CODE - OLD CODE - OLD CODE
-	// OLD CODE - OLD CODE - OLD CODE
-	// OLD CODE - OLD CODE - OLD CODE
-	// OLD CODE - OLD CODE - OLD CODE
-	// OLD CODE - OLD CODE - OLD CODE
-	// OLD CODE - OLD CODE - OLD CODE
-	// OLD CODE - OLD CODE - OLD CODE
-
-	public Airplane(double initialMaxSpeed, double initialMinSpeed){
-		this.uuid = UUID.randomUUID();
-//		this.callsign = generateAirplaneId(1000,2);
-		registerAircraft();
-		this.speed =0;
-		this.targetSpeed = 0;
-		this.heading = 0;
-		this.targetHeading = 0;
-		this.altitude = 0;
-		this.targetHeading =0;
-		this.posX = 0;
-		this.posY = 0;
-		this.maxSpeed = initialMaxSpeed;
-		this.minSpeed = initialMinSpeed;
-	}
-
-	public Airplane(UUID owner, double heading){
-		this(100, 10);
-		this.owner = owner;
-		this.targetSpeed = 50;
-		this.targetAltitude = 10000;
-		this.targetHeading = heading;
-	}
-
-	public Airplane(UUID owner, double heading, double mins, double maxs, double pox, double poy){
-		this(owner, heading);
-		this.maxSpeed = maxs;
-		this.minSpeed = mins;
-		this.posX = pox;
-		this.posY = poy;
-	}
-
-	public void moveAirplane(){
-		collisionCourse = false;
-		setNewFlightParameters();
-		double radians = Math.toRadians(heading);
-		double xShift = Math.sin(radians) * speed/10;
-		double yShift = Math.cos(radians)* speed/10;
-		posX += xShift;
-		posY -= yShift;
-	}
-
-	private void setNewFlightParameters(){
-		//updateSpeed();
-		//updateHeading();
-		speed = targetSpeed;
-		heading = targetHeading;
-		altitude = targetAltitude;
-//		updateHeight();
-		calculateABParams();
-	}
-
-	private void updateSpeed(){
-		final int speedStep = 10;
-
-		//UPDATING SPEED
-		double difference = targetSpeed - speed;
-		if(difference > 0 && difference > speedStep) {
-			speed += speedStep;
-		}else if (difference < 0 && Math.abs(difference) > speedStep){
-			speed -= speedStep;
-		}else if (Math.abs((difference)) > 0){
-			speed = targetSpeed;
-		}
-	}
-	private void updateHeading(){
-		final int headingStep = 15;
-
-		double difference = targetHeading - heading;
-		if(difference != 0) {
-			if (Math.abs(difference) > 180) {
-				if (difference > 0) {
-					if (difference > 345) {
-						heading = targetHeading;
-					} else
-						heading -= headingStep;
-				} else {
-					if (difference < -345) {
-						heading = targetHeading;
-					} else
-						heading += headingStep;
-				}
-			} else if (difference > 0 && difference > headingStep) {
-				heading += headingStep;
-			} else if (difference < 0 && Math.abs(difference) > headingStep) {
-				heading -= headingStep;
-			} else if ((Math.abs(difference)) % 360 <= headingStep) {
-				heading = targetHeading;
-			}
-			calculateABParams();
-		}
-	}
-
-
-
-	private void updateHeight(){
-		final int heightStep = 10;
-
-		double difference = targetAltitude - altitude;
-		if(difference > 0 && difference > heightStep){
-			altitude += heightStep;
-		}else if(difference < 0 && Math.abs(difference) > heightStep){
-			altitude -= heightStep;
-		}else if (Math.abs((difference)) > 0){
-			altitude = targetAltitude;
-		}
-	}
-
 }

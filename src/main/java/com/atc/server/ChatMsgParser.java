@@ -17,15 +17,15 @@ public class ChatMsgParser {
         String msg = newPlane.getCallsign();
 
         if(headingDiff != 0){
-            msg += ", fly heading " + newPlane.getTargetHeading();
+            msg += ", fly heading " + (int)newPlane.getTargetHeading();
         }
         if(altitudeDiff < 0){
-            msg += ", descend to " + newPlane.getTargetAltitude() + " feet";
+            msg += ", descend to " + (int)newPlane.getTargetAltitude() + " feet";
         } else if(altitudeDiff > 0){
-            msg += ", climb to " + newPlane.getTargetAltitude() + " feet";
+            msg += ", climb to " + (int)newPlane.getTargetAltitude() + " feet";
         }
         if(speedDiff != 0){
-            msg += ", speed " + newPlane.getTargetSpeed() + " knots";
+            msg += ", speed " + (int)newPlane.getTargetSpeed() + " knots";
         }
 
         msg = msg + '.';

@@ -60,10 +60,6 @@ public class GameActivity {
         radar = newRadar;
     }
 
-    public void addAirplane(){
-        addAirplane(new Airplane(DEFAULT_MAX_SPEED, DEFAULT_MIN_SPEED));
-    }
-
     public void addAirplane(Airplane airplane){
         gameAirplanes.put(airplane.getUuid(), airplane);
     }

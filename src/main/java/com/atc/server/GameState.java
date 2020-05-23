@@ -58,10 +58,10 @@ public class GameState {
         for(int i = 0; i < num; ++i){
             double pox = CANVAS_WIDTH / 4 + new Random().nextInt((int) CANVAS_WIDTH / 2);
             double poy = CANVAS_HEIGHT / 4 + new Random().nextInt((int) CANVAS_HEIGHT / 2);
-            Airplane airplane = new Airplane(owner, 100, 0, 1000, pox, poy);
-            airplane.setTargetHeading(new Random().nextInt(360));
-            airplane.setTargetAltitude(new Random().nextInt(200)+1500);
-            airplane.setTargetSpeed(new Random().nextInt(100) + 100);
+            double alt = new Random().nextInt(200)+1500;
+            double head = new Random().nextInt(360);
+            double speed = new Random().nextInt(100) + 100;
+            Airplane airplane = new Airplane(owner, pox, poy, alt, head, speed);
 
             airplanes.put(airplane.getCallsign(), airplane);
             log.insertCallsign(gameCount,airplane.getUuid(), airplane.getCallsign());
