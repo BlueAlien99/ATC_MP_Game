@@ -206,6 +206,7 @@ public class GameHistoryController  extends GenericController {
             }
 
         });
+        //TODO: stream throws null pointer exception, so the buttons doesnt work at all
         newGameButton.setOnAction(e -> {
             stream.sayGoodbye();
             windowController.loadAndSetScene("/fxml/GameActivity.fxml", gameSettings);
@@ -242,8 +243,9 @@ public class GameHistoryController  extends GenericController {
             if(e.getTimeTick() == activeTimeTick){
                 airplaneVector.put(e.getAirplaneUUID(),new Airplane(e.getAirplaneUUID(),
                         gameHistory.getCallsigns().get(e.getAirplaneUUID()),
-                        e.getSpeed(), e.getHeading(), e.getHeight(),
-                        e.getxCoordinate(), e.getyCoordinate()));
+                        gameHistory.getCallsigns().get(e.getAirplaneUUID()),
+                        e.getxCoordinate(), e.getyCoordinate(),
+                        e.getHeight(), e.getHeading(), e.getSpeed()));
             } else if (e.getTimeTick()> activeTimeTick){
                 break;
             }
@@ -262,7 +264,7 @@ public class GameHistoryController  extends GenericController {
     private void drawAirplanes(Event event){
         chooseAirplanes(event);
         radar.start_printing();
-        airplaneVector.forEach((key, value) -> radar.print_airplane(value, value.getUid() == event.getAirplaneUUID()));
+        airplaneVector.forEach((key, value) -> radar.print_airplane(value, value.getUuid() == event.getAirplaneUUID()));
         radar.finish_printing();
     }
 
@@ -298,9 +300,9 @@ public class GameHistoryController  extends GenericController {
         commandString.append(Logins.get(event.getPlayerId()));
         commandString.append(" → ");
         commandString.append(Callsigns.get(event.getAirplaneUUID()));
-        commandString.append("(" + event.getHeading());
-        commandString.append(", " + event.getSpeed());
-        commandString.append(", " + event.getHeight() + ")");
+        commandString.append("(").append(event.getHeading());
+        commandString.append(", ").append(event.getSpeed());
+        commandString.append(", ").append(event.getHeight()).append(")");
         return commandString.toString();
     }
 
@@ -311,7 +313,7 @@ public class GameHistoryController  extends GenericController {
         eventString.append(Callsigns.get(event.getAirplaneUUID()));
         eventString.append("→ (");
         eventString.append(Math.round(event.getxCoordinate()));
-        eventString.append("," + Math.round(event.getyCoordinate()));
+        eventString.append(",").append(Math.round(event.getyCoordinate()));
         eventString.append(")");
         return eventString.toString();
     }

@@ -84,6 +84,13 @@ public class Airplane implements Cloneable, Serializable {
 		calculateABParams();
 	}
 
+	public Airplane(UUID uuid, String callsign, String radarsign, double posX, double posY, double altitude, double heading, double speed){
+		this(null, posX, posY, altitude, heading, speed);
+		this.uuid = uuid;
+		this.callsign = callsign;
+		this.radarsign = radarsign;
+	}
+
 	//TODO: it should depend on time
 	public void moveAirplane(){
 		collisionCourse = false;
