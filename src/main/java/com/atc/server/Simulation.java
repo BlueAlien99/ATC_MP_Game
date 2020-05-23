@@ -1,13 +1,11 @@
 package com.atc.server;
 
 import com.atc.client.model.Airplane;
-import javafx.util.Pair;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.atc.client.Dimensions.CANVAS_HEIGHT;
@@ -27,18 +25,23 @@ public class Simulation implements Runnable{
             airplanes.forEach((k, v) -> {
                 v.moveAirplane();
                 //This is just for testing, so that user does not loose airplanes
-                if(v.getPositionX()<0) v.setCurrPosX(CANVAS_WIDTH);
-                if(v.getPositionY()<0) v.setCurrPosY(CANVAS_HEIGHT);
-                if(v.getPositionX()>CANVAS_WIDTH) v.setCurrPosX(0);
-                if(v.getPositionY()>CANVAS_HEIGHT) v.setCurrPosY(0);
-                //used for collision detection, remove when 4 ifs above are removed
-                v.calculateABParams();
+                try {
+                    if (v.getPosX() < 0) v.setPosX(CANVAS_WIDTH);
+                    if (v.getPosY() < 0) v.setPosY(CANVAS_HEIGHT);
+                    if (v.getPosX() > CANVAS_WIDTH) v.setPosX(0);
+                    if (v.getPosY() > CANVAS_HEIGHT) v.setPosY(0);
+                    //used for collision detection, remove when 4 ifs above are removed
+                    v.calculateABParams();
+                } catch (Exception ex){
+                    //TODO: todo
+                }
+
 
                 gameState.getLog().insertEvent(
                         gameState.getGameCount(), "MOVEMENT", gameState.getTickCount(), v.getOwner(),
                         gameState.searchPlayerLogin(v.getOwner()),
-                        v.getPositionX(), v.getPositionY(), v.getCurrSpeed(), v.getCurrHeading(),
-                        v.getCurrHeight(), v.getUid());
+                        v.getPosX(), v.getPosY(), v.getSpeed(), v.getHeading(),
+                        v.getAltitude(), v.getUuid());
                 System.out.println(v.toString());
             });
 
@@ -52,27 +55,27 @@ public class Simulation implements Runnable{
             double criticallyClose = 64;
             for(int i = 0; i < airList.size(); ++i){
                 Airplane iel = airList.get(i);
-                char ielCase = getTcasCase(iel.getCurrHeading());
+                char ielCase = getTcasCase(iel.getHeading());
                 for(int j = i+1; j < airList.size(); ++j){
                     Airplane jel = airList.get(j);
-                    char jelCase = getTcasCase(jel.getCurrHeading());
+                    char jelCase = getTcasCase(jel.getHeading());
                     boolean collision = false;
 
-                    if((ielCase == '8' || ielCase == '2') && (jelCase == '8' || jelCase == '2') && Math.abs(iel.getPositionX() - jel.getPositionX()) < tooClose){
+                    if((ielCase == '8' || ielCase == '2') && (jelCase == '8' || jelCase == '2') && Math.abs(iel.getPosX() - jel.getPosX()) < tooClose){
                         if(ielCase != jelCase){
-                            double coordFar = ielCase == '8' ? iel.getPositionY() : jel.getPositionY();
-                            double coordClose = ielCase == '8' ? jel.getPositionY() : iel.getPositionY();
-                            if(coordFar - coordClose > 0 && Math.abs(coordFar - coordClose) < iel.getCurrSpeed() + jel.getCurrSpeed()){
+                            double coordFar = ielCase == '8' ? iel.getPosY() : jel.getPosY();
+                            double coordClose = ielCase == '8' ? jel.getPosY() : iel.getPosY();
+                            if(coordFar - coordClose > 0 && Math.abs(coordFar - coordClose) < iel.getSpeed() + jel.getSpeed()){
                                 collision = true;
                             }
                         }
                     }
 
-                    else if((ielCase == '6' || ielCase == '4') && (jelCase == '6' || jelCase == '4') && Math.abs(iel.getPositionY() - jel.getPositionY()) < tooClose){
+                    else if((ielCase == '6' || ielCase == '4') && (jelCase == '6' || jelCase == '4') && Math.abs(iel.getPosY() - jel.getPosY()) < tooClose){
                         if(ielCase != jelCase){
-                            double coordFar = ielCase == '6' ? iel.getPositionX() : jel.getPositionX();
-                            double coordClose = ielCase == '6' ? jel.getPositionX() : iel.getPositionX();
-                            if(coordFar - coordClose < 0 && Math.abs(coordFar - coordClose) < iel.getCurrSpeed() + jel.getCurrSpeed()){
+                            double coordFar = ielCase == '6' ? iel.getPosX() : jel.getPosX();
+                            double coordClose = ielCase == '6' ? jel.getPosX() : iel.getPosX();
+                            if(coordFar - coordClose < 0 && Math.abs(coordFar - coordClose) < iel.getSpeed() + jel.getSpeed()){
                                 collision = true;
                             }
                         }
@@ -91,11 +94,11 @@ public class Simulation implements Runnable{
                         double colx, coly;
 
                         if((ielCase == '8' || ielCase == '2') && (jelCase == '4' || jelCase == '6')){
-                            colx = iel.getPositionX();
-                            coly = jel.getPositionY();
+                            colx = iel.getPosX();
+                            coly = jel.getPosY();
                         }
                         else if(ielCase == '8' || ielCase == '2'){
-                            colx = iel.getPositionX();
+                            colx = iel.getPosX();
                             coly = jel.getColAParam() * colx + jel.getColBParam();
                         }
                         else{
@@ -103,14 +106,14 @@ public class Simulation implements Runnable{
                             coly = iel.getColAParam() * colx + iel.getColBParam();
                         }
 
-                        double disi = Math.sqrt(Math.pow(colx - iel.getPositionX(), 2) + Math.pow(coly - iel.getPositionY(), 2));
-                        double disj = Math.sqrt(Math.pow(colx - jel.getPositionX(), 2) + Math.pow(coly - jel.getPositionY(), 2));
+                        double disi = Math.sqrt(Math.pow(colx - iel.getPosX(), 2) + Math.pow(coly - iel.getPosY(), 2));
+                        double disj = Math.sqrt(Math.pow(colx - jel.getPosX(), 2) + Math.pow(coly - jel.getPosY(), 2));
 
                         // check if collision point is in front of a plane
-                        boolean ieldir = (ielCase == '8' && coly < iel.getPositionY()) || (ielCase == '2' && coly > iel.getPositionY()) || ((ielCase == '9' || ielCase == '6' || ielCase == '3') && colx > iel.getPositionX()) || ((ielCase == '1' || ielCase == '4' || ielCase == '7') && colx < iel.getPositionX());
-                        boolean jeldir = (jelCase == '8' && coly < jel.getPositionY()) || (jelCase == '2' && coly > jel.getPositionY()) || ((jelCase == '9' || jelCase == '6' || jelCase == '3') && colx > jel.getPositionX()) || ((jelCase == '1' || jelCase == '4' || jelCase == '7') && colx < jel.getPositionX());
+                        boolean ieldir = (ielCase == '8' && coly < iel.getPosY()) || (ielCase == '2' && coly > iel.getPosY()) || ((ielCase == '9' || ielCase == '6' || ielCase == '3') && colx > iel.getPosX()) || ((ielCase == '1' || ielCase == '4' || ielCase == '7') && colx < iel.getPosX());
+                        boolean jeldir = (jelCase == '8' && coly < jel.getPosY()) || (jelCase == '2' && coly > jel.getPosY()) || ((jelCase == '9' || jelCase == '6' || jelCase == '3') && colx > jel.getPosX()) || ((jelCase == '1' || jelCase == '4' || jelCase == '7') && colx < jel.getPosX());
 
-                        if(ieldir && jeldir && disi < iel.getCurrSpeed() && disj < jel.getCurrSpeed()){
+                        if(ieldir && jeldir && disi < iel.getSpeed() && disj < jel.getSpeed()){
                             collision = true;
                         }
                     }

@@ -47,17 +47,17 @@ public class GameCanvas extends StackPane {
     }
     public void print_airplane(Airplane airplane, Boolean active){
 
-        double level = airplane.getCurrHeight();
-        double targetLevel = airplane.getTargetHeight();
-        double speed = airplane.getCurrSpeed();
+        double level = airplane.getAltitude();
+        double targetLevel = airplane.getTargetAltitude();
+        double speed = airplane.getSpeed();
         double targetSpeed = airplane.getTargetSpeed();
-        double hdg = airplane.getCurrHeading();
+        double hdg = airplane.getHeading();
         double targetHdg = airplane.getTargetHeading();
-        double x = airplane.getPositionX();
-        double y = airplane.getPositionY();
-        String callsign = airplane.getId();
+        double x = airplane.getPosX();
+        double y = airplane.getPosY();
+        String callsign = airplane.getCallsign();
         //TODO: Make it depend on player, only player's own planes should turn red
-        boolean collisionCourse = airplane.getCollisionCourse();
+        boolean collisionCourse = airplane.isCollisionCourse();
 
 //        double x_line = LEADING_LINE_LENGTH*sin(Math.toRadians(hdg));
 //        double y_line = LEADING_LINE_LENGTH*cos(Math.toRadians(hdg));
@@ -66,8 +66,8 @@ public class GameCanvas extends StackPane {
         double y_line = speed*cos(Math.toRadians(hdg));
 
         if(active){
-            System.out.println("x = " + airplane.getPositionX());
-            System.out.println("y = " + airplane.getPositionY());
+            System.out.println("x = " + airplane.getPosX());
+            System.out.println("y = " + airplane.getPosY());
             System.out.println("y = " + airplane.getColAParam() + " x + " + airplane.getColBParam());
         }
 
