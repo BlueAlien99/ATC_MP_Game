@@ -55,7 +55,7 @@ public class GameCanvas extends StackPane {
         double targetHdg = airplane.getTargetHeading();
         double x = airplane.getPosX();
         double y = airplane.getPosY();
-        String callsign = airplane.getCallsign();
+        String callsign = airplane.getRadarsign();
         //TODO: Make it depend on player, only player's own planes should turn red
         boolean collisionCourse = airplane.isCollisionCourse();
 
@@ -65,11 +65,11 @@ public class GameCanvas extends StackPane {
         double x_line = speed*sin(Math.toRadians(hdg));
         double y_line = speed*cos(Math.toRadians(hdg));
 
-        if(active){
+/*        if(active){
             System.out.println("x = " + airplane.getPosX());
             System.out.println("y = " + airplane.getPosY());
             System.out.println("y = " + airplane.getColAParam() + " x + " + airplane.getColBParam());
-        }
+        }*/
 
         String alt_symbol = "=";
         if(level < targetLevel) alt_symbol="↑";

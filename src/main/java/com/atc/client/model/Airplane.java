@@ -13,6 +13,8 @@ import static java.lang.Math.sin;
 
 public class Airplane implements Cloneable, Serializable {
 
+	private static int numOfAirlines;
+
 	private String callsign;
 	private String radarsign;
 	private UUID uuid;
@@ -48,6 +50,17 @@ public class Airplane implements Cloneable, Serializable {
 
 	*/
 
+	static{
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		InputStream is = classLoader.getResourceAsStream(Dimensions.AIRLINES_FILE);
+		Scanner sc = new Scanner(is);
+
+		numOfAirlines = 0;
+		while(sc.hasNextLine()){
+			sc.nextLine();
+			++numOfAirlines;
+		}
+	}
 
 	public String getCallsign() {
 		return callsign;
@@ -178,6 +191,29 @@ public class Airplane implements Cloneable, Serializable {
 		this.collisionCourse = true;
 	}
 
+	private void registerAircraft() {
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		InputStream is = classLoader.getResourceAsStream(Dimensions.AIRLINES_FILE);
+		Scanner sc = new Scanner(is);
+
+		Random rand = new Random();
+		int currentLine = 1;
+		int targetLine = rand.nextInt(numOfAirlines) + 1;
+
+		while (currentLine != targetLine) {
+			sc.nextLine();
+			++currentLine;
+		}
+
+		String line = sc.nextLine();
+		int commaIndex = line.indexOf(',');
+		int ident = rand.nextInt(10000);
+		radarsign = line.substring(0, commaIndex) + ident;
+		callsign = line.substring(commaIndex + 1) + ' ' + ident;
+
+		uuid = UUID.randomUUID();
+	}
+
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
@@ -195,7 +231,8 @@ public class Airplane implements Cloneable, Serializable {
 
 	public Airplane(double initialMaxSpeed, double initialMinSpeed){
 		this.uuid = UUID.randomUUID();
-		this.callsign = generateAirplaneId(1000,2);
+//		this.callsign = generateAirplaneId(1000,2);
+		registerAircraft();
 		this.speed =0;
 		this.targetSpeed = 0;
 		this.heading = 0;
@@ -299,37 +336,5 @@ public class Airplane implements Cloneable, Serializable {
 			altitude = targetAltitude;
 		}
 	}
-
-	private String generateAirplaneId(int upper, int length){
-		//GENERATE TWO RANDOM NUMBERS
-		StringBuilder id = new StringBuilder();
-		Random r = new Random();
-		int bound = 26;
-		for(int i =0; i< length; i++){
-			id.append((char) (r.nextInt(bound) + 'A'));
-		}
-		id.append(r.nextInt(upper));
-		//GENERATE LETTERS IN AIRPLANE ID
-		return id.toString();
-	}
-
-
-	/*static{
-		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-		InputStream is = classLoader.getResourceAsStream("csv/airlines.csv");
-		Scanner sc = new Scanner(is);
-
-
-	}
-
-	private void registerAircraft(){
-		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-		InputStream is = classLoader.getResourceAsStream("csv/airlines.csv");
-		Scanner sc = new Scanner(is);
-		while(sc.hasNextLine()) {
-			String line = sc.nextLine();
-			String iataAirline = line.substring(0, Utils.findNthOccurance(line, ',', 1));
-	}*/
-
 
 }

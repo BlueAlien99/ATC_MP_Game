@@ -28,4 +28,6 @@ public class Dimensions {
 
     public static final double AIRPLANE_MIN_ALTITUDE = 1000;
     public static final double AIRPLANE_MAX_ALTITUDE = 40000;
+
+    public static final String AIRLINES_FILE = "csv/airlines.csv";
 }
