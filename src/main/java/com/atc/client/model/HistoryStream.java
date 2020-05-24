@@ -2,6 +2,7 @@ package com.atc.client.model;
 
 import com.atc.server.Message;
 import com.atc.server.model.Event;
+import javafx.scene.control.Alert;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -41,56 +42,34 @@ public class HistoryStream implements Runnable{
         }
     }
 
-    private void sayHello(ObjectOutputStream out){
+    private void sayHello(ObjectOutputStream out) throws IOException{
         Message message = new Message();
-        try {
-            out.writeObject(message);
-        }
-        catch (IOException ex){
-            ex.printStackTrace();
-        }
+        out.writeObject(message);
     }
 
-    private void connectToSocket(String ipAddress, int port){
-        try {
+    private void connectToSocket(String ipAddress, int port) throws IOException{
             socket = new Socket(ipAddress, port);
             System.out.println("Connected!");
             in = new ObjectInputStream(socket.getInputStream());
             out  = new ObjectOutputStream(socket.getOutputStream());
-        }
-        catch (IOException ex){
-            ex.printStackTrace();
-        }
     }
 
-    public void sendRequestForData(){
-        try {
-            initializeSemaphore.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    public void sendRequestForData() throws InterruptedException, IOException{
+        initializeSemaphore.acquire();
         Message message = new Message(searchedGameId);
-        try {
-            out.writeObject(message);
-            System.out.println("Requested data!");
-        }catch(IOException ex){
-            ex.printStackTrace();
-        }
+        out.writeObject(message);
+        System.out.println("Requested data!");
         initializeSemaphore.release();
-        try {
-            dataSemaphore.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        dataSemaphore.acquire();
     }
     @Override
     public void run(){
+        try{
         connectToSocket(ipAddress,port);
         sayHello(out);
         initializeSemaphore.release();
         System.out.println("Said hello to server");
         Message msg;
-            try {
                 while (!passedData) {
                     msg = (Message) in.readObject();
                     if(msg.getMsgType() == Message.GAME_HISTORY && searchedGameId >= 0) {
@@ -109,7 +88,9 @@ public class HistoryStream implements Runnable{
                     }
                 }
                 } catch(IOException | ClassNotFoundException ex){
-                    ex.printStackTrace();
+                    initializeSemaphore.release();
+                    dataSemaphore.release();
+
                 }
     }
 
@@ -135,4 +116,11 @@ public class HistoryStream implements Runnable{
     public HashMap<Integer, String> getLogins() {return Logins;}
 
     public List<Integer> getAvailableGames() { return availableGames; }
+
+    private void createError(String header, String message){
+
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(header);
+        alert.setContentText(message);
+    }
 }

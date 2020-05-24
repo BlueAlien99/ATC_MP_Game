@@ -15,6 +15,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.function.Predicate;
@@ -122,14 +123,19 @@ public class GameHistoryController  extends GenericController {
 
     private void handleDataTransaction(int gameId) {
         stream.setSearchedGameId(gameId);
-        stream.sendRequestForData();
-        if (gameId < 0) {
-            gameHistory.setAvailableReplayGames(stream.getAvailableGames());
-        } else {
-            gameHistory.setEvents(stream.getEvents());
-            gameHistory.setCallsigns(stream.getCallsigns());
-            gameHistory.setLogins(stream.getLogins());
-            populateAirplaneHashmap(stream.getEvents());
+        try {
+            stream.sendRequestForData();
+            if (gameId < 0) {
+                gameHistory.setAvailableReplayGames(stream.getAvailableGames());
+            } else {
+                gameHistory.setEvents(stream.getEvents());
+                gameHistory.setCallsigns(stream.getCallsigns());
+                gameHistory.setLogins(stream.getLogins());
+                populateAirplaneHashmap(stream.getEvents());
+            }
+        }catch (IOException| InterruptedException | NullPointerException ex){
+            createAlert("Server message",
+                    "Cannot connect to server. Please check IP address in your settings");
         }
     }
 
@@ -152,25 +158,28 @@ public class GameHistoryController  extends GenericController {
                     gameIdComboBox.setVisible(true);
                     sendButton.setText("Show!");
                 } else {
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Database message");
-                    alert.setHeaderText(null);
-                    alert.setContentText("No available replays.");
-                    alert.showAndWait();
+                    createAlert("Database message","No available replays");
                 }
             } else {
                 System.out.println("COMBO BOX SHOULD BE FULL");
-                int idGame = (int) gameIdComboBox.getValue();
-                gameHistory.setCurrentGameId(idGame);
-                handleDataTransaction(idGame);
-                populateLists();
-                mySlider.setMax(getMaxOfTicks(gameHistory.getEvents()));
-                mySlider.setMin(getMinOfTicks(gameHistory.getEvents()));
-                mySlider.setValue(getMinOfTicks(gameHistory.getEvents()));
-                mySlider.setVisible(true);
-                playButton.setVisible(true);
-                stopButton.setVisible(true);
-            }
+                try{
+                    int idGame = (int) gameIdComboBox.getValue();
+                    System.out.println(idGame);
+                    gameHistory.setCurrentGameId(idGame);
+                    handleDataTransaction(idGame);
+                    populateLists();
+                    mySlider.setMax(getMaxOfTicks(gameHistory.getEvents()));
+                    mySlider.setMin(getMinOfTicks(gameHistory.getEvents()));
+                    mySlider.setValue(getMinOfTicks(gameHistory.getEvents()));
+                    mySlider.setVisible(true);
+                    playButton.setVisible(true);
+                    stopButton.setVisible(true);
+                } catch(NullPointerException ex){
+                    createAlert("ComboBox issue",
+                            "Please select an option.");
+                }
+                }
+
         });
 
         eventsList.getSelectionModel().selectedItemProperty().addListener(e-> {
@@ -227,6 +236,14 @@ public class GameHistoryController  extends GenericController {
 
     }
 
+    private void createAlert(String header, String message){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(header);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
     private int getMaxOfTicks(List<Event> events){
         return events.get(events.size()-1).getTimeTick();
     }
@@ -268,6 +285,7 @@ public class GameHistoryController  extends GenericController {
 
     private void populateComboBox(ComboBox gameIdComboBox) {
         List<Integer> availableReplayGames = gameHistory.getAvailableReplayGames();
+        if(availableReplayGames != null )
         gameIdComboBox.setItems(FXCollections.observableArrayList(availableReplayGames));
     }
 
@@ -292,28 +310,26 @@ public class GameHistoryController  extends GenericController {
 
 
     private String createCommandString(HashMap<Integer, String> Logins, HashMap<UUID, String> Callsigns, Event event) {
-        StringBuilder commandString = new StringBuilder();
-        commandString.append(event.getTimeTick());
-        commandString.append(": ");
-        commandString.append(Logins.get(event.getPlayerId()));
-        commandString.append(" → ");
-        commandString.append(Callsigns.get(event.getAirplaneUUID()));
-        commandString.append("(" + event.getHeading());
-        commandString.append(", " + event.getSpeed());
-        commandString.append(", " + event.getHeight() + ")");
-        return commandString.toString();
+        String commandString = event.getTimeTick() +
+                ": " +
+                Logins.get(event.getPlayerId()) +
+                " → " +
+                Callsigns.get(event.getAirplaneUUID()) +
+                "(" + event.getHeading() +
+                ", " + event.getSpeed() +
+                ", " + event.getHeight() + ")";
+        return commandString;
     }
 
     private String createEventString(Event event, HashMap<UUID, String> Callsigns){
-        StringBuilder eventString = new StringBuilder();
-        eventString.append(event.getTimeTick());
-        eventString.append(": ");
-        eventString.append(Callsigns.get(event.getAirplaneUUID()));
-        eventString.append("→ (");
-        eventString.append(Math.round(event.getxCoordinate()));
-        eventString.append("," + Math.round(event.getyCoordinate()));
-        eventString.append(")");
-        return eventString.toString();
+        String eventString = event.getTimeTick() +
+                ": " +
+                Callsigns.get(event.getAirplaneUUID()) +
+                "→ (" +
+                Math.round(event.getxCoordinate()) +
+                "," + Math.round(event.getyCoordinate()) +
+                ")";
+        return eventString;
     }
 
     void alignRadar(){
