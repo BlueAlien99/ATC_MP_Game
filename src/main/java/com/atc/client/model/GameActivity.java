@@ -34,11 +34,11 @@ public class GameActivity {
         public long creationTime;
 
         TrailDot(Airplane airplane){
-            xPos = airplane.getPositionX();
-            yPos = airplane.getPositionY();
-            heading = airplane.getCurrHeading();
-            altitude = airplane.getCurrHeight();
-            speed = airplane.getCurrSpeed();
+            xPos = airplane.getPosX();
+            yPos = airplane.getPosY();
+            heading = airplane.getHeading();
+            altitude = airplane.getAltitude();
+            speed = airplane.getSpeed();
 
             creationTime = currentTimeMillis();
         }
@@ -60,25 +60,21 @@ public class GameActivity {
         radar = newRadar;
     }
 
-    public void addAirplane(){
-        addAirplane(new Airplane(DEFAULT_MAX_SPEED, DEFAULT_MIN_SPEED));
-    }
-
     public void addAirplane(Airplane airplane){
-        gameAirplanes.put(airplane.getUid(), airplane);
+        gameAirplanes.put(airplane.getUuid(), airplane);
     }
 
     public void updateAirplane(Airplane airplane){
-        if (!gameAirplanes.containsKey(airplane.getUid())){
-            gameAirplanes.put(airplane.getUid(), airplane);
+        if (!gameAirplanes.containsKey(airplane.getUuid())){
+            gameAirplanes.put(airplane.getUuid(), airplane);
         }
         else{
-            gameAirplanes.replace(airplane.getUid(), airplane);
+            gameAirplanes.replace(airplane.getUuid(), airplane);
         }
-        if(!gameHistory.containsKey(airplane.getUid())){
-            gameHistory.put(airplane.getUid(), new ArrayList<>());
+        if(!gameHistory.containsKey(airplane.getUuid())){
+            gameHistory.put(airplane.getUuid(), new ArrayList<>());
         }
-        gameHistory.get(airplane.getUid()).add(new TrailDot(airplane));
+        gameHistory.get(airplane.getUuid()).add(new TrailDot(airplane));
     }
 
     public void wrapPrinting(){
@@ -119,7 +115,7 @@ public class GameActivity {
             gameHistory.put(airplane.getUid(), new ArrayList<>());
             gameHistory.get(airplane.getUid()).add(new TrailDot(airplane));
         }*/
-        radar.print_airplane(airplane, airplane.getUid()==activeAirplane);
+        radar.print_airplane(airplane, airplane.getUuid()==activeAirplane);
 
     }
 
@@ -130,7 +126,7 @@ public class GameActivity {
     public void moveAirplanes_DEBUG(){
         gameAirplanes.forEach((k, airplane) -> {
             if(new Random().nextBoolean() && new Random().nextBoolean() && new Random().nextBoolean()){
-                airplane.setTargetHeading(airplane.getCurrHeading()+(new Random().nextInt(3)-1)*180);
+                airplane.setTargetHeading(airplane.getHeading()+(new Random().nextInt(3)-1)*180);
             }
             airplane.moveAirplane();
         });
@@ -145,11 +141,11 @@ public class GameActivity {
         UUID ret = null;
         for (Map.Entry<UUID, Airplane> pair: gameAirplanes.entrySet()) {
             if(pair.getValue().getOwner().equals(clientUUID)) {
-                double val = (pair.getValue().getPositionY() - y) * (pair.getValue().getPositionY() - y)
-                        + (pair.getValue().getPositionX() - x) * (pair.getValue().getPositionX() - x);
+                double val = (pair.getValue().getPosY() - y) * (pair.getValue().getPosY() - y)
+                        + (pair.getValue().getPosX() - x) * (pair.getValue().getPosX() - x);
                 if (val < min) {
                     min = val;
-                    ret = pair.getValue().getUid();
+                    ret = pair.getValue().getUuid();
                 }
             }
         }
@@ -167,7 +163,7 @@ public class GameActivity {
     public void updateChatBoxes(){
         if(activeAirplane != null){
             Airplane plane = gameAirplanes.get(activeAirplane);
-            gameActivityController.updateChatBoxes(plane.getTargetHeading(), plane.getTargetSpeed(), plane.getTargetHeight());
+            gameActivityController.updateChatBoxes(plane.getTargetHeading(), plane.getTargetSpeed(), plane.getTargetAltitude());
         }
     }
 

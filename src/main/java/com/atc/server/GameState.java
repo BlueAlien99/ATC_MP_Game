@@ -29,12 +29,9 @@ public class GameState {
     private GameSettings gs;
     private int gameCount = log.selectGameId();
 
-
-    //TODO: get or set?
-    public void getGameSettings(GameSettings gs){
+    public void setGameSettings(GameSettings gs){
         this.gs = gs;
     }
-
 
     public void addConnection(String key, ClientConnection value){
         if(connections.isEmpty()){
@@ -59,20 +56,15 @@ public class GameState {
     //TODO: Find a new way to generate planes!
     public void generateNewAirplanes(int num, UUID owner){
         for(int i = 0; i < num; ++i){
-            Airplane airplane = new Airplane(owner, 100);
-            airplane.setMaxSpeed(1000);
-            airplane.setMinSpeed(0);
-            airplane.setCurrHeading(new Random().nextInt(360));
-            airplane.setTargetHeading(airplane.getCurrHeading());
-            airplane.setCurrHeight(new Random().nextInt(200)+200);
-            airplane.setTargetHeight(airplane.getCurrHeight()+new Random().nextInt(400)-200);
-            airplane.setCurrPosX(CANVAS_WIDTH/4+new Random().nextInt((int)CANVAS_WIDTH/2));
-            airplane.setCurrPosY(CANVAS_HEIGHT/4+new Random().nextInt((int)CANVAS_HEIGHT/2));
-            airplane.setCurrSpeed(200);
-            airplane.setTargetSpeed(airplane.getCurrSpeed()+new Random().nextInt(100)-50);
+            double pox = CANVAS_WIDTH / 4 + new Random().nextInt((int) CANVAS_WIDTH / 2);
+            double poy = CANVAS_HEIGHT / 4 + new Random().nextInt((int) CANVAS_HEIGHT / 2);
+            double alt = new Random().nextInt(200)+1500;
+            double head = new Random().nextInt(360);
+            double speed = new Random().nextInt(100) + 100;
+            Airplane airplane = new Airplane(owner, pox, poy, alt, head, speed);
 
-            airplanes.put(airplane.getId(), airplane);
-            log.insertCallsign(gameCount,airplane.getUid(), airplane.getId());
+            airplanes.put(airplane.getCallsign(), airplane);
+            log.insertCallsign(gameCount,airplane.getUuid(), airplane.getCallsign());
         }
     }
 
@@ -82,13 +74,16 @@ public class GameState {
         if(airplane == null || clientUUID == null){
             return;
         }
-        Airplane airplaneInGame = airplanes.get(airplane.getId());
+        Airplane airplaneInGame = airplanes.get(airplane.getCallsign());
         if(airplaneInGame == null || !clientUUID.equals(airplaneInGame.getOwner())){
             return;
         }
         String chatMsg = ChatMsgParser.parseNewMsg(airplaneInGame, airplane);
+        if(chatMsg == null){
+            return;
+        }
         chatMessages.put(chatMessages.size(), chatMsg);
-        airplaneInGame.setNewTargets(airplane.getTargetSpeed(), airplane.getTargetHeading(), airplane.getTargetHeight());
+        airplaneInGame.setTargetParams(airplane.getTargetSpeed(), airplane.getTargetHeading(), airplane.getTargetAltitude());
         sendCommandToDatabase(airplane, clientUUID);
         synchronized (outputBufferLock){
             outputBufferLock.notifyAll();
@@ -96,8 +91,8 @@ public class GameState {
     }
 
     private void sendCommandToDatabase(Airplane airplane, UUID clientUUID){
-        log.insertEvent(gameCount, "COMMAND", tickCount, clientUUID, playersLogins.get(clientUUID), airplane.getPositionX(), airplane.getPositionY(),
-                airplane.getTargetSpeed(), airplane.getTargetHeading(), airplane.getTargetHeight(), airplane.getUid());
+        log.insertEvent(gameCount, "COMMAND", tickCount, clientUUID, playersLogins.get(clientUUID), airplane.getPosX(), airplane.getPosY(),
+                airplane.getTargetSpeed(), airplane.getTargetHeading(), airplane.getTargetAltitude(), airplane.getUuid());
 //        log.commit();
     }
 

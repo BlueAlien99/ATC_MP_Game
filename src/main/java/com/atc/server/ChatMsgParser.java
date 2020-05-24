@@ -8,19 +8,28 @@ public class ChatMsgParser {
 
         double speedDiff = newPlane.getTargetSpeed() - oldPlane.getTargetSpeed();
         double headingDiff = newPlane.getTargetHeading() - oldPlane.getTargetHeading();
-        double heightDiff = newPlane.getTargetHeight() - oldPlane.getTargetHeight();
+        double altitudeDiff = newPlane.getTargetAltitude() - oldPlane.getTargetAltitude();
 
-        String msg = newPlane.getId() + ", ";
+        if(speedDiff == 0 && headingDiff == 0 && altitudeDiff == 0){
+            return null;
+        }
 
-        if(speedDiff != 0){
-            msg += "speed " + newPlane.getTargetSpeed() + " (" + speedDiff + "), ";
-        }
-        if(heightDiff != 0){
-            msg += "height " + newPlane.getTargetHeight() + " (" + heightDiff + "), ";
-        }
+        String msg = newPlane.getCallsign();
+
         if(headingDiff != 0){
-            msg += "heading " + newPlane.getTargetHeading() + " (" + headingDiff + "), ";
+            msg += ", fly heading " + (int)newPlane.getTargetHeading();
         }
+        if(altitudeDiff < 0){
+            msg += ", descend to " + (int)newPlane.getTargetAltitude() + " feet";
+        } else if(altitudeDiff > 0){
+            msg += ", climb to " + (int)newPlane.getTargetAltitude() + " feet";
+        }
+        if(speedDiff != 0){
+            msg += ", speed " + (int)newPlane.getTargetSpeed() + " knots";
+        }
+
+        msg = msg + '.';
+
         return msg;
     }
 }

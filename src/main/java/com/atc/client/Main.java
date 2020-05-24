@@ -10,6 +10,9 @@ import java.io.IOException;
 public class Main extends Application {
 
     //TODO: close game after user closes its window
+    //TODO: add back button from multiplayer game
+    //TODO: player's score!
+    //TODO: remove all commented and no longer used code
 
     @Override
     public void start(Stage primaryStage) throws IOException, ClassNotFoundException {

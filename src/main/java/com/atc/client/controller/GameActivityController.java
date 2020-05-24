@@ -114,7 +114,7 @@ public class GameActivityController extends GenericController {
                 }
                 if(changed != null && targetHeading!=-1)  changed.setTargetHeading(targetHeading);
                 if(changed != null && targetSpeed!=-1)  changed.setTargetSpeed(targetSpeed);
-                if(changed != null && targetLevel!=-1)  changed.setTargetHeight(targetLevel);
+                if(changed != null && targetLevel!=-1)  changed.setTargetAltitude(targetLevel);
                 Message msgout = new Message(changed);
                 try {
                     s.out.writeObject(msgout);
@@ -122,7 +122,7 @@ public class GameActivityController extends GenericController {
                     ex.printStackTrace();
                 }
                 if(changed != null) {
-                    updateChatBoxes(changed.getTargetHeading(), changed.getTargetSpeed(), changed.getTargetHeight());
+                    updateChatBoxes(changed.getTargetHeading(), changed.getTargetSpeed(), changed.getTargetAltitude());
                 }
             }
         });

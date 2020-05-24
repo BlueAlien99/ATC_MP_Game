@@ -96,7 +96,7 @@ public class ClientConnection implements Runnable{
         }
         private void clientPassedSettings(Message message){
             gs = message.getGameSettings();
-            gameState.getGameSettings(gs);
+            gameState.setGameSettings(gs);
             clientUUID = gs.getClientUUID();
             clientName = gs.getClientName();
             gameState.addPlayerLogin(clientUUID, clientName);

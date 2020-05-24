@@ -1,8 +1,11 @@
 package com.atc.client.model;
 
+import com.atc.client.Dimensions;
+
+import java.io.InputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.UUID;
 
 import static java.lang.Math.cos;
@@ -10,270 +13,325 @@ import static java.lang.Math.sin;
 
 public class Airplane implements Cloneable, Serializable {
 
-    private UUID uid;
-    private String id;
-    private UUID owner;
-    private double currSpeed;
-    private double targetSpeed;
-    private double currHeading;
-    private double targetHeading;
-    private double currHeight;
-    private double targetHeight;
-    private double currPosX;
-    private double currPosY;
-    private double maxSpeed;
-    private double minSpeed;
+	private static final double climbAccStep = 10;
+	private static final double turnAccStep = 0.8;
+	private static final double speedAccStep = 0.6;
 
-    private boolean collisionCourse;
-    private double colAParam;
-    private double colBParam;
+	private static int numOfAirlines;
 
-    public Airplane(UUID uid, String id, double speed, double heading, double height, double posX, double posY){
-        this.uid = uid;
-        this.id = id;
-        this.currSpeed = this.targetSpeed = speed;
-        this.currHeading = this.targetHeading = heading;
-        this.currHeight = this.targetHeight = height;
-        this.currPosX = posX;
-        this.currPosY = posY;
-        this.minSpeed = 100;
-        this.maxSpeed = 999;
-    }
+	private String callsign;
+	private String radarsign;
+	private UUID uuid;
+	private UUID owner;
 
-    public Airplane(double initialMaxSpeed, double initialMinSpeed){
-        this.uid = UUID.randomUUID();
-        this.id = generateAirplaneId(1000,2);
-        this.currSpeed =0;
-        this.targetSpeed = 0;
-        this.currHeading = 0;
-        this.targetHeading = 0;
-        this.currHeight = 0;
-        this.targetHeading =0;
-        this.currPosX = 0;
-        this.currPosY = 0;
-        this.maxSpeed = initialMaxSpeed;
-        this.minSpeed = initialMinSpeed;
-//        this.collisionCourse = new ArrayList<Airplane>();
-    }
+	private double minSpeed;
+	private double maxSpeed;
 
-    public Airplane(UUID owner, double heading){
-        this(100, 10);
-        this.owner = owner;
-        this.targetSpeed = 50;
-        this.targetHeight = 10000;
-        this.targetHeading = heading;
-//        this.collisionCourse = new ArrayList<Airplane>();
-    }
+	private double posX;
+	private double posY;
 
-    @Override
-    public String toString() {
-        return "Airplane{" +
-                "id='" + id + '\'' +
-                ", owner='" + owner.toString() + '\'' +
-                ", currSpeed=" + currSpeed +
-                ", currHeading=" + currHeading +
-                ", currHeight=" + currHeight +
-                ", xPos=" + currPosX +
-                ", yPos=" + currPosY +
-                '}';
-    }
+	private double altitude;
+	private double heading;
+	private double speed;
 
-    public void moveAirplane(){
-        collisionCourse = false;
-        setNewFlightParameters();
-        double currSpeed = getCurrSpeed();
-        double currPosX = getPositionX();
-        double currPosY = getPositionY();
-        double radians = Math.toRadians(getCurrHeading());
-        double xShift = Math.sin(radians) * currSpeed/10;
-        double yShift = Math.cos(radians)* currSpeed/10;
-        setCurrPosX(currPosX + xShift);
-        setCurrPosY(currPosY - yShift);
-    }
+	private double altitudeAcceleration;
+	private double headingAcceleration;
+	private double speedAcceleration;
 
-    private void setNewFlightParameters(){
-        updateSpeed();
-        updateHeading();
-        updateHeight();
-        calculateABParams();
-    }
+	private double targetAltitude;
+	private double targetHeading;
+	private double targetSpeed;
 
-    private void updateSpeed(){
-        final int speedStep = 10;
+	private double colAParam;
+	private double colBParam;
+	private boolean collisionCourse;
 
-        //UPDATING SPEED
-        double currSpeed = getCurrSpeed();
-        double targetSpeed = getTargetSpeed();
-        double difference = targetSpeed - currSpeed;
-        if(difference > 0 && difference > speedStep) {
-            setCurrSpeed(currSpeed + speedStep);
-        }else if (difference < 0 && Math.abs(difference) > speedStep){
-            setCurrSpeed(currSpeed - speedStep);
-        }else if (Math.abs((difference)) > 0){
-            setCurrSpeed(getTargetSpeed());
-        }
-    }
-    private void updateHeading(){
-        final int headingStep = 15;
+	static{
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		InputStream is = classLoader.getResourceAsStream(Dimensions.AIRLINES_FILE);
+		Scanner sc = new Scanner(is);
 
-        double currHeading = getCurrHeading();
-        double targetHeading = getTargetHeading();
-        double difference = targetHeading - currHeading;
-        if(difference != 0) {
-            if (Math.abs(difference) > 180) {
-                if (difference > 0) {
-                    if (difference > 345) {
-                        setCurrHeading(targetHeading);
-                    } else
-                        setCurrHeading(currHeading - headingStep);
-                } else {
-                    if (difference < -345) {
-                        setCurrHeading(targetHeading);
-                    } else
-                        setCurrHeading(currHeading + headingStep);
-                }
-            } else if (difference > 0 && difference > headingStep) {
-                setCurrHeading(currHeading + headingStep);
-            } else if (difference < 0 && Math.abs(difference) > headingStep) {
-                setCurrHeading((currHeading - headingStep));
-            } else if ((Math.abs(difference)) % 360 <= headingStep) {
-                setCurrHeading(getTargetHeading());
-            }
-            calculateABParams();
-        }
-    }
+		numOfAirlines = 0;
+		while(sc.hasNextLine()){
+			sc.nextLine();
+			++numOfAirlines;
+		}
+	}
 
-    public void calculateABParams(){
-        double x1 = currPosX + currSpeed*sin(Math.toRadians(currHeading));
-        double y1 = currPosY + currSpeed*cos(Math.toRadians(currHeading));
-        colAParam = (y1 - currPosY) / (x1 - currPosX);
-        colBParam = currPosY - (colAParam * currPosX);
-    }
+	public Airplane(UUID owner, double posX, double posY, double altitude, double heading, double speed){
+		registerAircraft();
+		this.owner = owner;
 
-    private void updateHeight(){
-        final int heightStep = 10;
+		this.minSpeed = Dimensions.DEFAULT_MIN_SPEED;
+		this.maxSpeed = Dimensions.DEFAULT_MAX_SPEED;
 
-        double currHeight = getCurrHeight();
-        double targetHeight = getTargetHeight();
-        double difference = targetHeight - currHeight;
-        if(difference > 0 && difference > heightStep){
-            setCurrHeight(currHeight + heightStep);
-        }else if(difference < 0 && Math.abs(difference) > heightStep){
-            setCurrHeight(currHeight - heightStep);
-        }else if (Math.abs((difference)) > 0){
-            setCurrHeight(getTargetHeight());
-        }
-    }
+		this.posX = posX;
+		this.posY = posY;
 
-    private String generateAirplaneId(int upper, int length){
-        //GENERATE TWO RANDOM NUMBERS
-        StringBuilder id = new StringBuilder();
-        Random r = new Random();
-        int bound = 26;
-        for(int i =0; i< length; i++){
-            id.append((char) (r.nextInt(bound) + 'A'));
-        }
-        id.append(r.nextInt(upper));
-        //GENERATE LETTERS IN AIRPLANE ID
-        return id.toString();
-    }
+		setTargetAltitude(altitude);
+		setTargetHeading(heading);
+		setTargetSpeed(speed);
 
+		this.altitude = this.targetAltitude;
+		this.heading = this.targetHeading;
+		this.speed = this.targetSpeed;
 
-    public UUID getUid(){return this.uid; }
-    public String getId(){ return this.id;}
-    public double getCurrSpeed(){ return this.currSpeed; }
-    public double getTargetSpeed(){return this.targetSpeed;}
-    public double getCurrHeading(){ return this.currHeading; }
-    public double getTargetHeading(){return this.targetHeading;}
-    public double getCurrHeight(){ return this.currHeight; }
-    public double getTargetHeight(){ return this.targetHeight;}
-    public double getPositionX(){ return this.currPosX; }
-    public double getPositionY(){
-        return this.currPosY;
-    }
-    public double getMinSpeed(){
-        return  this.minSpeed;
-    }
-    public double getMaxSpeed(){return this.maxSpeed;}
+		this.altitudeAcceleration = 0;
+		this.headingAcceleration = 0;
+		this.speedAcceleration = 0;
 
-    public void setId(String newId){
-        this.id = newId;
-    }
-    public void setCurrSpeed(double newSpeed){
-        if(newSpeed < getMaxSpeed() && newSpeed > getMinSpeed()) {
-            this.currSpeed = newSpeed;
-        }
-    }
-    public void setTargetSpeed(double newTargetSpeed){
-        if (newTargetSpeed < getMaxSpeed() && newTargetSpeed > getMinSpeed()) {
-            this.targetSpeed = newTargetSpeed;
-        }
-    }
-    public void setCurrHeading(double newHeading) {
-        if(newHeading > 360) {
-            this.currHeading = newHeading - 360;
-        }else if (newHeading < 0 ){
-            this.currHeading = newHeading + 360;
-        } else{
-            this.currHeading = newHeading;
-        }
-    }
-    public void setTargetHeading(double newTargetHeading){
-        if(newTargetHeading > 360) {
-            setTargetHeading(newTargetHeading-360);
-        }else if (newTargetHeading < 0){
-            setTargetHeading(newTargetHeading+360);
-        }else {
-            this.targetHeading = newTargetHeading;
-        }
-    }
-    public void setCurrHeight(double newCurrHeight){
-        this.currHeight = newCurrHeight;
-    }
-    public void setTargetHeight(double newTargetHeight){
-        this.targetHeight = newTargetHeight;
-    }
-    public void setCurrPosX(double newPosX) {
-        this.currPosX = newPosX;
-    }
-    public void setCurrPosY(double newPosY){
-        this.currPosY = newPosY;
-    }
-    public void setMaxSpeed(double newMaxSpeed){
-        this.maxSpeed = newMaxSpeed;
-    }
-    public void setMinSpeed(double newMinSpeed){
-        this.minSpeed = newMinSpeed;
-    }
+		this.collisionCourse = false;
+		calculateABParams();
+	}
 
-    public UUID getOwner() {
-        return owner;
-    }
+	public Airplane(UUID uuid, String callsign, String radarsign, double posX, double posY, double altitude, double heading, double speed){
+		this(null, posX, posY, altitude, heading, speed);
+		this.uuid = uuid;
+		this.callsign = callsign;
+		this.radarsign = radarsign;
+	}
 
-    public void setNewTargets(double speed, double heading, double height){
-        targetSpeed = speed;
-        targetHeading = heading;
-        targetHeight = height;
-    }
+	//TODO: it should depend on time
+	public void moveAirplane(){
+		collisionCourse = false;
 
-    public void setCollisionCourse(){
-        collisionCourse = true;
-    }
+		if(Dimensions.DEBUGGING_MODE){
+			altitude = targetAltitude;
+			heading = targetHeading;
+			speed = targetSpeed;
+		} else{
+			updateAltitude();
+			updateHeading();
+			updateSpeed();
+		}
 
-    public boolean getCollisionCourse(){
-        return collisionCourse;
-    }
+		calculateABParams();
 
-    public double getColAParam() {
-        return colAParam;
-    }
+		double headingRad = Math.toRadians(heading);
+		double xShift = Math.sin(headingRad) * speed/10;
+		double yShift = Math.cos(headingRad) * speed/10;
 
-    public double getColBParam() {
-        return colBParam;
-    }
+		posX += xShift;
+		posY -= yShift;
+	}
 
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
+	public String getCallsign() {
+		return callsign;
+	}
+
+	public String getRadarsign() {
+		return radarsign;
+	}
+
+	public UUID getUuid() {
+		return uuid;
+	}
+
+	public UUID getOwner() {
+		return owner;
+	}
+
+	public double getPosX() {
+		return posX;
+	}
+
+	public void setPosX(double posX) throws Exception {
+		if(Dimensions.DEBUGGING_MODE){
+			this.posX = posX;
+		} else{
+			throw new Exception("This method requires DEBUGGING_MODE to be enabled!");
+		}
+	}
+
+	public double getPosY() {
+		return posY;
+	}
+
+	public void setPosY(double posY) throws Exception {
+		if(Dimensions.DEBUGGING_MODE) {
+			this.posY = posY;
+		} else{
+			throw new Exception("This method requires DEBUGGING_MODE to be enabled!");
+		}
+	}
+
+	public double getAltitude() {
+		return altitude;
+	}
+
+	public double getHeading() {
+		if(heading == 0){
+			return 360;
+		}
+		return heading;
+	}
+
+	public double getSpeed() {
+		return speed;
+	}
+
+	public double getTargetAltitude() {
+		return targetAltitude;
+	}
+
+	public double getTargetHeading() {
+		if(targetHeading == 0){
+			return 360;
+		}
+		return targetHeading;
+	}
+
+	public double getTargetSpeed() {
+		return targetSpeed;
+	}
+
+	public void setTargetParams(double speed, double heading, double altitude){
+		setTargetAltitude(altitude);
+		setTargetHeading(heading);
+		setTargetSpeed(speed);
+	}
+
+	public void setTargetAltitude(double altitude){
+		if(altitude < Dimensions.AIRPLANE_MIN_ALTITUDE){
+			targetAltitude = Dimensions.AIRPLANE_MIN_ALTITUDE;
+		} else{
+			targetAltitude = Math.min(altitude, Dimensions.AIRPLANE_MAX_ALTITUDE);
+		}
+	}
+
+	public void setTargetHeading(double heading) {
+		heading %= 360;
+
+		if(heading < 0){
+			heading -= 360 * Math.floor(heading / 360);
+		}
+
+		targetHeading = heading;
+	}
+
+	public void setTargetSpeed(double speed){
+		if(speed < minSpeed){
+			targetSpeed = minSpeed;
+		} else{
+			targetSpeed = Math.min(speed, maxSpeed);
+		}
+	}
+
+	public void calculateABParams(){
+		double x = posX + speed * sin(Math.toRadians(heading));
+		double y = posY + speed * cos(Math.toRadians(heading));
+		// Mathematically speaking, in the expression below there should NOT be - sign,
+		// but strangely enough JavaFX's canvas has mirrored y axis.
+		colAParam = - (y - posY) / (x - posX);
+		colBParam = posY - (colAParam * posX);
+	}
+
+	public double getColAParam() {
+		return colAParam;
+	}
+
+	public double getColBParam() {
+		return colBParam;
+	}
+
+	public boolean isCollisionCourse() {
+		return collisionCourse;
+	}
+
+	public void setCollisionCourse() {
+		this.collisionCourse = true;
+	}
+
+	private void updateAltitude(){
+		double diff = targetAltitude - altitude;
+
+		if(diff == 0){
+			return;
+		}
+
+		double absDiff = Math.abs(diff);
+		altitudeAcceleration = Math.abs(altitudeAcceleration);
+
+		altitudeAcceleration = Math.min(altitudeAcceleration + climbAccStep, absDiff);
+		altitudeAcceleration = Math.min(altitudeAcceleration, Dimensions.AIRPLANE_MAX_CLIMB_RATE);
+		altitudeAcceleration *= diff / absDiff;
+
+		altitude += altitudeAcceleration;
+	}
+
+	private void updateSpeed(){
+		double diff = targetSpeed - speed;
+
+		if(diff == 0){
+			return;
+		}
+
+		double absDiff = Math.abs(diff);
+		speedAcceleration = Math.abs(speedAcceleration);
+
+		speedAcceleration = Math.min(speedAcceleration + speedAccStep, absDiff);
+		speedAcceleration = Math.min(speedAcceleration, Dimensions.AIRPLANE_MAX_ACCELERATION);
+		speedAcceleration *= diff / absDiff;
+
+		speed += speedAcceleration;
+	}
+
+	private void updateHeading(){
+		double diff = targetHeading - heading;
+
+		if(diff == 0){
+			return;
+		}
+
+		if(diff > 180){
+			diff -= 360;
+		}
+		if(diff < -180){
+			diff += 360;
+		}
+
+		double absDiff = Math.abs(diff);
+		headingAcceleration = Math.abs(headingAcceleration);
+
+		headingAcceleration = Math.min(headingAcceleration + turnAccStep, absDiff);
+		headingAcceleration = Math.min(headingAcceleration, Dimensions.AIRPLANE_MAX_TURN_RATE);
+		headingAcceleration *= diff / absDiff;
+
+		heading += headingAcceleration;
+
+		if(heading < 0){
+			heading += 360;
+		}
+		if(heading >= 360){
+			heading -= 360;
+		}
+	}
+
+	private void registerAircraft() {
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		InputStream is = classLoader.getResourceAsStream(Dimensions.AIRLINES_FILE);
+		Scanner sc = new Scanner(is);
+
+		Random rand = new Random();
+		int currentLine = 1;
+		int targetLine = rand.nextInt(numOfAirlines) + 1;
+
+		while (currentLine != targetLine) {
+			sc.nextLine();
+			++currentLine;
+		}
+
+		String line = sc.nextLine();
+		int commaIndex = line.indexOf(',');
+		int ident = rand.nextInt(10000);
+		radarsign = line.substring(0, commaIndex) + ident;
+		callsign = line.substring(commaIndex + 1) + ' ' + ident;
+
+		uuid = UUID.randomUUID();
+	}
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
 }
