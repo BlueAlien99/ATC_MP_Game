@@ -302,7 +302,7 @@ public class Airplane implements Cloneable, Serializable {
 		if(heading < 0){
 			heading += 360;
 		}
-		if(heading > 360){
+		if(heading >= 360){
 			heading -= 360;
 		}
 	}

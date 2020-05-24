@@ -14,8 +14,6 @@ public class Main extends Application {
     //TODO: player's score!
     //TODO: remove all commented and no longer used code
 
-    //TODO: sometimes planes just disappear for no reason
-
     @Override
     public void start(Stage primaryStage) throws IOException, ClassNotFoundException {
         /*
