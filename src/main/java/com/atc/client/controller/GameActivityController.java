@@ -19,7 +19,6 @@ import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 
-
 public class GameActivityController extends GenericController {
     public GameActivity gameActivity;
     public StreamReader s;

@@ -275,8 +275,9 @@ public class GameHistoryController  extends GenericController {
             if(e.getTimeTick() == activeTimeTick){
                 airplaneVector.put(e.getAirplaneUUID(),new Airplane(e.getAirplaneUUID(),
                         gameHistory.getCallsigns().get(e.getAirplaneUUID()),
-                        e.getSpeed(), e.getHeading(), e.getHeight(),
-                        e.getxCoordinate(), e.getyCoordinate()));
+                        gameHistory.getCallsigns().get(e.getAirplaneUUID()),
+                        e.getxCoordinate(), e.getyCoordinate(),
+                        e.getHeight(), e.getHeading(), e.getSpeed()));
             } else if (e.getTimeTick()> activeTimeTick){
                 break;
             }
@@ -295,7 +296,7 @@ public class GameHistoryController  extends GenericController {
     private void drawAirplanes(Event event){
         chooseAirplanes(event);
         radar.start_printing();
-        airplaneVector.forEach((key, value) -> radar.print_airplane(value, value.getUid() == event.getAirplaneUUID()));
+        airplaneVector.forEach((key, value) -> radar.print_airplane(value, value.getUuid() == event.getAirplaneUUID()));
         radar.finish_printing();
     }
 
