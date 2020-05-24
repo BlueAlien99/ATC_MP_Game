@@ -105,14 +105,14 @@ public class Airplane implements Cloneable, Serializable {
 			updateSpeed();
 		}
 
-		calculateABParams();
-
 		double headingRad = Math.toRadians(heading);
 		double xShift = Math.sin(headingRad) * speed/10;
 		double yShift = Math.cos(headingRad) * speed/10;
 
 		posX += xShift;
 		posY -= yShift;
+
+		calculateABParams();
 	}
 
 	public String getCallsign() {

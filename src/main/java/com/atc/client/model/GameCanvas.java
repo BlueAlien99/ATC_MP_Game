@@ -18,10 +18,6 @@ public class GameCanvas extends StackPane {
     public GameCanvas(){
         radarAirplanes = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
         radarTrails = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-
-        /*DEBUG*/
-        radarAirplanes.setOnMousePressed(e->System.out.println(e.getX() +" "+e.getY()));
-
     }
 
     @Override
@@ -29,8 +25,6 @@ public class GameCanvas extends StackPane {
         super.setPrefSize(prefWidth, prefHeight);
         resize_canvas();
     }
-
-
 
     public void start_printing(){
         GraphicsContext gc = radarAirplanes.getGraphicsContext2D();
@@ -64,12 +58,6 @@ public class GameCanvas extends StackPane {
 
         double x_line = speed*sin(Math.toRadians(hdg));
         double y_line = speed*cos(Math.toRadians(hdg));
-
-/*        if(active){
-            System.out.println("x = " + airplane.getPosX());
-            System.out.println("y = " + airplane.getPosY());
-            System.out.println("y = " + airplane.getColAParam() + " x + " + airplane.getColBParam());
-        }*/
 
         String alt_symbol = "=";
         if(level < targetLevel) alt_symbol="↑";
