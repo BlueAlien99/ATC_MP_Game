@@ -181,6 +181,19 @@ public class GameHistoryController  extends GenericController {
                 }
 
         });
+        commandsList.getSelectionModel().selectedItemProperty().addListener(e->{
+            if(task != null){
+                task.stop();
+            }
+            if(commandsList.getSelectionModel().getSelectedItem() != null){
+                int gameTimeTick = ((Event) commandsList.getSelectionModel().getSelectedItem()).getTimeTick();
+                UUID activeUUID = ((Event) commandsList.getSelectionModel().getSelectedItem()).getAirplaneUUID();
+                activeTimeTick = gameTimeTick;
+                mySlider.setValue(activeTimeTick);
+                radar.print_airplane(airplaneVector.get(activeUUID), true);
+            }
+        });
+
 
         eventsList.getSelectionModel().selectedItemProperty().addListener(e-> {
             if(task != null){
@@ -216,14 +229,17 @@ public class GameHistoryController  extends GenericController {
 
         });
         newGameButton.setOnAction(e -> {
+            if(stream!= null)
             stream.sayGoodbye();
             windowController.loadAndSetScene("/fxml/GameActivity.fxml", gameSettings);
         });
         mainMenuButton.setOnAction(e -> {
+            if(stream!= null)
             stream.sayGoodbye();
             windowController.loadAndSetScene("/fxml/MainActivity.fxml", gameSettings);
         });
         settingsButton.setOnAction(e -> {
+            if(stream!= null)
             stream.sayGoodbye();
             windowController.loadAndSetScene("/fxml/GameSettings.fxml", gameSettings);
         });

@@ -36,6 +36,8 @@ public class HistoryStream implements Runnable{
         Message message = new Message('x');
         try {
             out.writeObject(message);
+            initializeSemaphore.release();
+            dataSemaphore.release();
         }
         catch (IOException ex){
             ex.printStackTrace();
@@ -117,10 +119,4 @@ public class HistoryStream implements Runnable{
 
     public List<Integer> getAvailableGames() { return availableGames; }
 
-    private void createError(String header, String message){
-
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(header);
-        alert.setContentText(message);
-    }
 }
