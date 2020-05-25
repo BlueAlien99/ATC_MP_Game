@@ -10,7 +10,7 @@ import com.atc.server.gamelog.GameLog;
 
 import static com.atc.client.Dimensions.CANVAS_HEIGHT;
 import static com.atc.client.Dimensions.CANVAS_WIDTH;
-import static com.atc.client.Dimensions.SIMULATION_TICK_PERIOD;
+import static com.atc.client.Dimensions.SIM_TICK_DELAY;
 
 import com.atc.client.model.GameSettings;
 
@@ -39,7 +39,7 @@ public class GameState {
     public void addConnection(String key, ClientConnection value){
         if(connections.isEmpty()){
             simulationTimer = new Timer(true);
-            simulationTimer.scheduleAtFixedRate(new Simulation(this), SIMULATION_TICK_PERIOD, SIMULATION_TICK_PERIOD);
+            simulationTimer.scheduleAtFixedRate(new Simulation(this), SIM_TICK_DELAY, SIM_TICK_DELAY);
         }
         if(connections.get(key)!=null){
             //TODO: Warning:(42, 9) 'if' statement has empty body

@@ -7,7 +7,7 @@ public class Dimensions {
 
     public static final boolean DEBUGGING_MODE = true;
 
-    public static final int SIMULATION_TICK_PERIOD = 1000;
+    public static final int SIM_TICK_DELAY = 1000;
 
     public static final int WINDOW_WIDTH = 1280;
     public static final int WINDOW_HEIGHT = 720;
