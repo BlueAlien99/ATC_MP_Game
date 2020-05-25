@@ -9,6 +9,7 @@ public class TCAS {
 	//TODO: too sensitive to speed
 	//TODO: add collision detection, just calculate distance between two aircrafts
 	//TODO: add detection, when two aircrafts are just too close to each other
+	//TODO: planes flying at each other
 
 	public static void calculateCollisions(ConcurrentHashMap<String, Airplane> airplanes){
 		ArrayList<Airplane> airList = new ArrayList<>(airplanes.values());

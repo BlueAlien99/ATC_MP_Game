@@ -32,7 +32,6 @@ public class GameActivityController extends GenericController {
     @FXML private ScrollPane chatScroll;
     @FXML private VBox chatHistory;
     @FXML private Button chatSend;
-    @FXML private ChoiceBox<String> chatEnterAircraft;
     @FXML private TextField chatEnterHeading;
     @FXML private TextField chatEnterSpeed;
     @FXML private TextField chatEnterAltitude;
@@ -126,7 +125,6 @@ public class GameActivityController extends GenericController {
             }
         });
 
-        populateChoiceBox();
         System.out.println("GAC end of Initialzie");
         Platform.runLater(this::resize);
     }
@@ -151,17 +149,22 @@ public class GameActivityController extends GenericController {
 //        chatHistory.getChildren().add(msgLabel);
 //    }
 
-    public void populateChoiceBox(){
-        chatEnterAircraft.setItems(FXCollections.observableArrayList("Boeing", "Airbus", "Cessna"));
-    }
-
     public void updateChatBoxes(double heading, double speed, double altitude){
         chatEnterHeading.clear();
         chatEnterSpeed.clear();
         chatEnterAltitude.clear();
-        chatEnterHeading.setPromptText(heading + " deg");
-        chatEnterSpeed.setPromptText(speed + " kts");
-        chatEnterAltitude.setPromptText(altitude + " ft");
+        chatEnterHeading.setPromptText((int)heading + " deg");
+        chatEnterSpeed.setPromptText((int)speed + " kts");
+        chatEnterAltitude.setPromptText((int)altitude + " ft");
+    }
+
+    public void clearChatBoxes(){
+        chatEnterHeading.clear();
+        chatEnterSpeed.clear();
+        chatEnterAltitude.clear();
+        chatEnterHeading.setPromptText("Heading");
+        chatEnterSpeed.setPromptText("Speed");
+        chatEnterAltitude.setPromptText("Altitude");
     }
 
 }

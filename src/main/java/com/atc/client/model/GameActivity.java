@@ -164,6 +164,8 @@ public class GameActivity {
         if(activeAirplane != null){
             Airplane plane = gameAirplanes.get(activeAirplane);
             gameActivityController.updateChatBoxes(plane.getTargetHeading(), plane.getTargetSpeed(), plane.getTargetAltitude());
+        } else{
+            gameActivityController.clearChatBoxes();
         }
     }
 
