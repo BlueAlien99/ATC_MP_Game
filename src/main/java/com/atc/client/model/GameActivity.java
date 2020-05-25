@@ -19,6 +19,7 @@ public class GameActivity {
 
     public GameCanvas radar;
 
+    private UUID clientUUID;
     private UUID activeAirplane;
 
     private GameActivityController gameActivityController;
@@ -58,6 +59,10 @@ public class GameActivity {
 
     public void setRadar(GameCanvas newRadar){
         radar = newRadar;
+    }
+
+    public void setClientUUID(UUID clientUUID){
+        this.clientUUID = clientUUID;
     }
 
     public void addAirplane(Airplane airplane){
@@ -115,7 +120,8 @@ public class GameActivity {
             gameHistory.put(airplane.getUid(), new ArrayList<>());
             gameHistory.get(airplane.getUid()).add(new TrailDot(airplane));
         }*/
-        radar.print_airplane(airplane, airplane.getUuid()==activeAirplane);
+
+        radar.print_airplane(airplane, airplane.getUuid() == activeAirplane, airplane.getOwner().equals(clientUUID));
 
     }
 
@@ -136,7 +142,7 @@ public class GameActivity {
         gameAirplanes.forEach((k, airplane) -> airplane.moveAirplane());
     }
 
-    private UUID getClosest(double x, double y, UUID clientUUID){
+    private UUID getClosest(double x, double y){
         double min = 2048;
         UUID ret = null;
         for (Map.Entry<UUID, Airplane> pair: gameAirplanes.entrySet()) {
@@ -155,8 +161,8 @@ public class GameActivity {
 
     }
 
-    public void setActive(double x, double y, UUID clientUUID){
-        activeAirplane = getClosest(x,y,clientUUID);
+    public void setActive(double x, double y){
+        activeAirplane = getClosest(x,y);
         updateChatBoxes();
     }
 

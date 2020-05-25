@@ -43,7 +43,7 @@ public class GameActivityController extends GenericController {
         radar.setOnMouseClicked(e -> {
             double xPos = e.getX()/radar.xCoeff();
             double yPos = e.getY()/radar.yCoeff();
-            gameActivity.setActive(xPos, yPos, gameSettings.getClientUUID());
+            gameActivity.setActive(xPos, yPos);
         });
 
         //TODO: This, as with all uses of gameCanvas canvases has to be rewrritten
@@ -85,6 +85,7 @@ public class GameActivityController extends GenericController {
 
         //TODO: The MAIN (i.e. this of running app instance) GameSettings should probably be static and in scope for all WindowControllers, however this also works for now lmao ~BJ
         Platform.runLater(()->{
+            gameActivity.setClientUUID(gameSettings.getClientUUID());
             s = new StreamReader(gameSettings, gameActivity, chatHistory);
             s.start();
         });
