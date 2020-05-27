@@ -19,7 +19,6 @@ import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 
-
 public class GameActivityController extends GenericController {
     public GameActivity gameActivity;
     public StreamReader s;
@@ -33,7 +32,6 @@ public class GameActivityController extends GenericController {
     @FXML private ScrollPane chatScroll;
     @FXML private VBox chatHistory;
     @FXML private Button chatSend;
-    @FXML private ChoiceBox<String> chatEnterAircraft;
     @FXML private TextField chatEnterHeading;
     @FXML private TextField chatEnterSpeed;
     @FXML private TextField chatEnterAltitude;
@@ -45,7 +43,7 @@ public class GameActivityController extends GenericController {
         radar.setOnMouseClicked(e -> {
             double xPos = e.getX()/radar.xCoeff();
             double yPos = e.getY()/radar.yCoeff();
-            gameActivity.setActive(xPos, yPos, gameSettings.getClientUUID());
+            gameActivity.setActive(xPos, yPos);
         });
 
         //TODO: This, as with all uses of gameCanvas canvases has to be rewrritten
@@ -87,6 +85,7 @@ public class GameActivityController extends GenericController {
 
         //TODO: The MAIN (i.e. this of running app instance) GameSettings should probably be static and in scope for all WindowControllers, however this also works for now lmao ~BJ
         Platform.runLater(()->{
+            gameActivity.setClientUUID(gameSettings.getClientUUID());
             s = new StreamReader(gameSettings, gameActivity, chatHistory);
             s.start();
         });
@@ -127,7 +126,6 @@ public class GameActivityController extends GenericController {
             }
         });
 
-        populateChoiceBox();
         System.out.println("GAC end of Initialzie");
         Platform.runLater(this::resize);
     }
@@ -152,17 +150,22 @@ public class GameActivityController extends GenericController {
 //        chatHistory.getChildren().add(msgLabel);
 //    }
 
-    public void populateChoiceBox(){
-        chatEnterAircraft.setItems(FXCollections.observableArrayList("Boeing", "Airbus", "Cessna"));
-    }
-
     public void updateChatBoxes(double heading, double speed, double altitude){
         chatEnterHeading.clear();
         chatEnterSpeed.clear();
         chatEnterAltitude.clear();
-        chatEnterHeading.setPromptText(heading + " deg");
-        chatEnterSpeed.setPromptText(speed + " kts");
-        chatEnterAltitude.setPromptText(altitude + " ft");
+        chatEnterHeading.setPromptText((int)heading + " deg");
+        chatEnterSpeed.setPromptText((int)speed + " kts");
+        chatEnterAltitude.setPromptText((int)altitude + " ft");
+    }
+
+    public void clearChatBoxes(){
+        chatEnterHeading.clear();
+        chatEnterSpeed.clear();
+        chatEnterAltitude.clear();
+        chatEnterHeading.setPromptText("Heading");
+        chatEnterSpeed.setPromptText("Speed");
+        chatEnterAltitude.setPromptText("Altitude");
     }
 
 }

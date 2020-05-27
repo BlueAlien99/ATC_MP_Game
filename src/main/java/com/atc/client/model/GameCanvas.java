@@ -1,5 +1,6 @@
 package com.atc.client.model;
 
+import com.atc.client.Dimensions;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.StackPane;
@@ -18,10 +19,6 @@ public class GameCanvas extends StackPane {
     public GameCanvas(){
         radarAirplanes = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
         radarTrails = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-
-        /*DEBUG*/
-        radarAirplanes.setOnMousePressed(e->System.out.println(e.getX() +" "+e.getY()));
-
     }
 
     @Override
@@ -29,8 +26,6 @@ public class GameCanvas extends StackPane {
         super.setPrefSize(prefWidth, prefHeight);
         resize_canvas();
     }
-
-
 
     public void start_printing(){
         GraphicsContext gc = radarAirplanes.getGraphicsContext2D();
@@ -43,53 +38,49 @@ public class GameCanvas extends StackPane {
     //TODO: this abomination of a function will need some thinking. It works though
 
     public void print_airplane(Airplane airplane){
-        print_airplane(airplane, false);
+        print_airplane(airplane, false, false);
     }
     public void print_airplane(Airplane airplane, Boolean active){
+        print_airplane(airplane, active, false);
+    }
+    public void print_airplane(Airplane airplane, Boolean active, Boolean ownership){
 
-        double level = airplane.getAltitude();
-        double targetLevel = airplane.getTargetAltitude();
+        double altitude = airplane.getAltitude();
+        double targetAltitude = airplane.getTargetAltitude();
         double speed = airplane.getSpeed();
         double targetSpeed = airplane.getTargetSpeed();
-        double hdg = airplane.getHeading();
-        double targetHdg = airplane.getTargetHeading();
+        double heading = airplane.getHeading();
+        double targetHeading = airplane.getTargetHeading();
         double x = airplane.getPosX();
         double y = airplane.getPosY();
         String callsign = airplane.getRadarsign();
-        //TODO: Make it depend on player, only player's own planes should turn red
-        boolean collisionCourse = airplane.isCollisionCourse();
 
-//        double x_line = LEADING_LINE_LENGTH*sin(Math.toRadians(hdg));
-//        double y_line = LEADING_LINE_LENGTH*cos(Math.toRadians(hdg));
+        boolean collisionCourse = airplane.isCollisionCourse() && (ownership || DEBUGGING_MODE);
 
-        double x_line = speed*sin(Math.toRadians(hdg));
-        double y_line = speed*cos(Math.toRadians(hdg));
+//        double x_line = LEADING_LINE_LENGTH*sin(Math.toRadians(heading));
+//        double y_line = LEADING_LINE_LENGTH*cos(Math.toRadians(heading));
 
-/*        if(active){
-            System.out.println("x = " + airplane.getPosX());
-            System.out.println("y = " + airplane.getPosY());
-            System.out.println("y = " + airplane.getColAParam() + " x + " + airplane.getColBParam());
-        }*/
+        double x_line = speed*sin(Math.toRadians(heading));
+        double y_line = speed*cos(Math.toRadians(heading));
 
         String alt_symbol = "=";
-        if(level < targetLevel) alt_symbol="↑";
-        if(level > targetLevel) alt_symbol="↓";
+        if(altitude < targetAltitude) alt_symbol="↑";
+        if(altitude > targetAltitude) alt_symbol="↓";
 
         String speed_symbol="=";
         if(speed < targetSpeed) speed_symbol="↑";
         if(speed > targetSpeed) speed_symbol="↓";
 
         String hdg_symbol="=";
-        if((Math.abs(hdg-targetHdg)>180 && targetHdg<hdg) ||
-                (Math.abs(hdg-targetHdg)<=180 && targetHdg>hdg)) hdg_symbol="→";
-        if((Math.abs(hdg-targetHdg)>180 && targetHdg>hdg) ||
-                (Math.abs(hdg-targetHdg)<=180 && targetHdg<hdg)) hdg_symbol="←";
-
+        if((Math.abs(heading-targetHeading)>180 && targetHeading<heading) ||
+                (Math.abs(heading-targetHeading)<=180 && targetHeading>heading)) hdg_symbol="→";
+        if((Math.abs(heading-targetHeading)>180 && targetHeading>heading) ||
+                (Math.abs(heading-targetHeading)<=180 && targetHeading<heading)) hdg_symbol="←";
 
         GraphicsContext gc = radarAirplanes.getGraphicsContext2D();
         GraphicsContext gcDots = radarTrails.getGraphicsContext2D();
 
-        Paint radarPaint = active ? RADAR_ACTIVE_COLOR : collisionCourse ? RADAR_COLLISION_COLOR : RADAR_COLOR;
+        Paint radarPaint = active ? RADAR_ACTIVE_COLOR : collisionCourse ? RADAR_COLLISION_COLOR : ownership ? RADAR_USER_COLOR : RADAR_COLOR;
 
         gc.setFill(radarPaint);
         gc.setStroke(radarPaint);
@@ -98,9 +89,9 @@ public class GameCanvas extends StackPane {
 
         gc.strokeText(callsign, x-15, y-43);
 
-        gc.strokeText(String.format("%03d",Math.round(level))
+        gc.strokeText(String.format("%03d",Math.round(altitude))
                         + alt_symbol +
-                        String.format("%03d",Math.round(targetLevel))
+                        String.format("%03d",Math.round(targetAltitude))
                         + "FT",
                 x-15, y-32);
 
@@ -110,9 +101,9 @@ public class GameCanvas extends StackPane {
                         + "KTS",
                 x-15, y-21);
 
-        gc.strokeText(String.format("%03d", ((Math.round(hdg)) != 360) ? Math.round(hdg) : 0)
+        gc.strokeText(String.format("%03d", ((Math.round(heading)) != 360) ? Math.round(heading) : 0)
                         + hdg_symbol +
-                        String.format("%03d", ((Math.round(targetHdg)) != 360) ? Math.round(targetHdg) : 0),
+                        String.format("%03d", ((Math.round(targetHeading)) != 360) ? Math.round(targetHeading) : 0),
                 x-15, y-10);
 
         gc.setLineWidth(1);

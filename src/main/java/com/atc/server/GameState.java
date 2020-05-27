@@ -3,17 +3,20 @@ package com.atc.server;
 import com.atc.client.model.Airplane;
 
 import java.util.Random;
+import java.util.Timer;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import com.atc.server.gamelog.GameLog;
 
 import static com.atc.client.Dimensions.CANVAS_HEIGHT;
 import static com.atc.client.Dimensions.CANVAS_WIDTH;
+import static com.atc.client.Dimensions.SIM_TICK_DELAY;
+
 import com.atc.client.model.GameSettings;
 
 public class GameState {
 
-    private Thread simulation;
+    private Timer simulationTimer;
 
     private ConcurrentHashMap<String, ClientConnection> connections = new ConcurrentHashMap<>();
 
@@ -35,8 +38,8 @@ public class GameState {
 
     public void addConnection(String key, ClientConnection value){
         if(connections.isEmpty()){
-            simulation = new Thread(new Simulation(this));
-            simulation.start();
+            simulationTimer = new Timer(true);
+            simulationTimer.scheduleAtFixedRate(new Simulation(this), SIM_TICK_DELAY, SIM_TICK_DELAY);
         }
         if(connections.get(key)!=null){
             //TODO: Warning:(42, 9) 'if' statement has empty body
@@ -49,7 +52,7 @@ public class GameState {
     public void removeConnection(String key){
         connections.remove(key);
         if(connections.isEmpty()){
-            simulation.interrupt(); /*TODO: it won't work, Rafał, as interrupts don't work on threads that have to do with ObjectStreams*/
+            simulationTimer.cancel(); /*TODO: it won't work, Rafał, as interrupts don't work on threads that have to do with ObjectStreams*/
         }
     }
 
