@@ -4,6 +4,7 @@ import com.atc.client.Dimensions;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
 import java.util.ArrayList;
@@ -13,12 +14,14 @@ import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
 public class GameCanvas extends StackPane {
-    public Canvas radarAirplanes;
-    public Canvas radarTrails;
+    private Canvas radarAirplanes;
+    private Canvas radarCheckpoints;
+    private Canvas radarTrails;
 
     public GameCanvas(){
         radarAirplanes = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
         radarTrails = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+        radarCheckpoints = new Canvas(CANVAS_WIDTH,CANVAS_HEIGHT);
     }
 
     @Override
@@ -30,9 +33,11 @@ public class GameCanvas extends StackPane {
     public void start_printing(){
         GraphicsContext gc = radarAirplanes.getGraphicsContext2D();
         GraphicsContext gcDots = radarTrails.getGraphicsContext2D();
+        GraphicsContext gcCheckpoints = radarCheckpoints.getGraphicsContext2D();
         gc.clearRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
-        gcDots.setFill(RADAR_BACKGROUND);
-        gcDots.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+        gcDots.clearRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+        gcCheckpoints.setFill(RADAR_BACKGROUND);
+        gcCheckpoints.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
     }
 
     //TODO: this abomination of a function will need some thinking. It works though
@@ -123,9 +128,18 @@ public class GameCanvas extends StackPane {
         gcDots.setFill(dotColor);
         gcDots.fillOval(x, y, 2, 2);
     }
+    public void printCheckpoint(Checkpoint checkpoint){
+        GraphicsContext gcCheckpoints = radarCheckpoints.getGraphicsContext2D();
+        double radius = checkpoint.getRadius();
+        System.out.println("Radius: "+radius);
+        gcCheckpoints.setFill(Color.YELLOW);
+        gcCheckpoints.fillOval(checkpoint.getxPos()-radius/2,
+                checkpoint.getyPos()-radius/2, radius, radius);
+    }
 
     public void finish_printing(){
         this.getChildren().clear();
+        this.getChildren().add(radarCheckpoints);
         this.getChildren().add(radarTrails);
         this.getChildren().add(radarAirplanes);
     }
@@ -135,6 +149,8 @@ public class GameCanvas extends StackPane {
         radarAirplanes.setScaleY(yCoeff());
         radarTrails.setScaleX(xCoeff());
         radarTrails.setScaleY(yCoeff());
+        radarCheckpoints.setScaleX(xCoeff());
+        radarCheckpoints.setScaleY(yCoeff());
     }
 
     public double xCoeff(){ return this.getPrefWidth() / CANVAS_WIDTH; }

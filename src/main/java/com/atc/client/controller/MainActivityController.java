@@ -29,6 +29,8 @@ public class MainActivityController extends GenericController{
             }
         });
 
+        singlePlayerGameButton.setOnAction(e->
+            windowController.loadAndSetScene("/fxml/GameCreator.fxml", gameSettings));
         gameHistoryButton.setOnAction(e ->
             windowController.loadAndSetScene("/fxml/GameHistory.fxml", gameSettings));
         settingsButton.setOnAction(e ->

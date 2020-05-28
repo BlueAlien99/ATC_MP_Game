@@ -30,7 +30,6 @@ public class GameHistoryController  extends GenericController {
     @FXML private ListView commandsList;
     @FXML Button stopButton;
     @FXML Button playButton;
-    @FXML Button newGameButton;
     @FXML Button sendButton;
     @FXML Slider mySlider;
     @FXML Button settingsButton;
@@ -111,31 +110,6 @@ public class GameHistoryController  extends GenericController {
             });
             T.start();
             actualTimeTick +=1;
-        }
-    }
-
-    private void initializeStream() {
-        stream = new HistoryStream(gameSettings.getIpAddress());
-        gameHistory.setStream(stream);
-        streamThread = new Thread(stream);
-        streamThread.start();
-    }
-
-    private void handleDataTransaction(int gameId) {
-        stream.setSearchedGameId(gameId);
-        try {
-            stream.sendRequestForData();
-            if (gameId < 0) {
-                gameHistory.setAvailableReplayGames(stream.getAvailableGames());
-            } else {
-                gameHistory.setEvents(stream.getEvents());
-                gameHistory.setCallsigns(stream.getCallsigns());
-                gameHistory.setLogins(stream.getLogins());
-                populateAirplaneHashmap(stream.getEvents());
-            }
-        }catch (IOException| InterruptedException | NullPointerException ex){
-            createAlert("Server message",
-                    "Cannot connect to server. Please check IP address in your settings");
         }
     }
 
@@ -228,11 +202,7 @@ public class GameHistoryController  extends GenericController {
             }
 
         });
-        newGameButton.setOnAction(e -> {
-            if(stream!= null)
-            stream.sayGoodbye();
-            windowController.loadAndSetScene("/fxml/GameActivity.fxml", gameSettings);
-        });
+
         mainMenuButton.setOnAction(e -> {
             if(stream!= null)
             stream.sayGoodbye();
@@ -252,6 +222,30 @@ public class GameHistoryController  extends GenericController {
 
     }
 
+    private void initializeStream() {
+        stream = new HistoryStream(gameSettings.getIpAddress());
+        gameHistory.setStream(stream);
+        streamThread = new Thread(stream);
+        streamThread.start();
+    }
+
+    private void handleDataTransaction(int gameId) {
+        stream.setSearchedGameId(gameId);
+        try {
+            stream.sendRequestForData();
+            if (gameId < 0) {
+                gameHistory.setAvailableReplayGames(stream.getAvailableGames());
+            } else {
+                gameHistory.setEvents(stream.getEvents());
+                gameHistory.setCallsigns(stream.getCallsigns());
+                gameHistory.setLogins(stream.getLogins());
+                populateAirplaneHashmap(stream.getEvents());
+            }
+        }catch (IOException| InterruptedException | NullPointerException ex){
+            createAlert("Server message",
+                    "Cannot connect to server. Please check IP address in your settings");
+        }
+    }
     private void createAlert(String header, String message){
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(header);
@@ -274,9 +268,9 @@ public class GameHistoryController  extends GenericController {
         for(Event e : events){
             if(e.getTimeTick() == activeTimeTick){
                 airplaneVector.put(e.getAirplaneUUID(),new Airplane(e.getAirplaneUUID(),
-                        gameHistory.getCallsigns().get(e.getAirplaneUUID()),
-                        e.getSpeed(), e.getHeading(), e.getHeight(),
-                        e.getxCoordinate(), e.getyCoordinate()));
+                        gameHistory.getCallsigns().get(e.getAirplaneUUID()), "",
+                        e.getxCoordinate(), e.getyCoordinate(),e.getHeight(),
+                        e.getHeading(),e.getSpeed()));
             } else if (e.getTimeTick()> activeTimeTick){
                 break;
             }
@@ -295,7 +289,7 @@ public class GameHistoryController  extends GenericController {
     private void drawAirplanes(Event event){
         chooseAirplanes(event);
         radar.start_printing();
-        airplaneVector.forEach((key, value) -> radar.print_airplane(value, value.getUid() == event.getAirplaneUUID()));
+        airplaneVector.forEach((key, value) -> radar.print_airplane(value, value.getUuid() == event.getAirplaneUUID()));
         radar.finish_printing();
     }
 

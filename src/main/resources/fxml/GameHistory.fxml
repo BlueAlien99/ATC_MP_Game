@@ -19,7 +19,6 @@
 <top>
     <HBox spacing="40">
         <Button fx:id= "mainMenuButton" text="Main Menu" mnemonicParsing="false"/>
-        <Button fx:id="newGameButton" text="New Game" mnemonicParsing="false"/>
         <Button fx:id="settingsButton" text = "Settings" mnemonicParsing="false"/>
     </HBox>
 </top>

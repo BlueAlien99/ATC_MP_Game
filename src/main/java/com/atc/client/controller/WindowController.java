@@ -3,6 +3,7 @@ package com.atc.client.controller;
 import com.atc.client.Dimensions;
 import com.atc.client.model.GameSettings;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -54,5 +55,9 @@ public class WindowController {
 
     public GenericController loadAndSetScene(String layout, GameSettings gameSettings){
         return loadAndSetScene(layout, Dimensions.WINDOW_WIDTH, Dimensions.WINDOW_HEIGHT, gameSettings);
+    }
+
+    public void changeCursor(Cursor cursor){
+        window.getScene().setCursor(cursor);
     }
 }
