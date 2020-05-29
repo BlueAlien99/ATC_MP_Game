@@ -21,6 +21,8 @@ public class Simulation extends TimerTask {
 
     @Override
     public void run() {
+        if(!gameState.simulationPaused())
+            return;
         airplanes.forEach((k, v) -> {
             v.moveAirplane();
             //This is just for testing, so that user does not loose airplanes
@@ -47,5 +49,6 @@ public class Simulation extends TimerTask {
 //            gameState.getLog().commit();
         gameState.setNewAirplanesOutput();
         System.out.println("1s has passed");
+        gameState.simulationResume();
     }
 }

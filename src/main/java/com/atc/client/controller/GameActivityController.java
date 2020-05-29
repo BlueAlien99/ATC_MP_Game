@@ -1,17 +1,11 @@
 package com.atc.client.controller;
 
-import com.atc.client.model.Airplane;
-import com.atc.client.model.GameActivity;
-import com.atc.client.model.GameCanvas;
+import com.atc.client.model.*;
 import com.atc.server.Message;
-import com.atc.server.model.StreamReader;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -20,8 +14,32 @@ import javafx.scene.layout.VBox;
 import java.io.IOException;
 
 public class GameActivityController extends GenericController {
+
+    private class TimeOutManager extends Thread{
+        @Override
+        public void run() {
+            try {
+                System.out.println("DADADDADADadadadadadadadad");
+                s.streamNotifier.acquire();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if(!s.connected){
+                Platform.runLater(()->{
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Connection timed out");
+                    alert.setHeaderText("We were unable to reach the server");
+                    alert.setContentText("Please check the IP address in Game Settings or Firewall settings and try again.");
+                    alert.showAndWait();
+                    windowController.loadAndSetScene("/fxml/MainActivity.fxml", gameSettings);
+                });
+            }
+        }
+    }
     public GameActivity gameActivity;
     public StreamReader s;
+    private Thread streamThread;
+    public TimeOutManager t;
 
     @FXML private Pane root;
     @FXML private GridPane centerGrid;
@@ -36,6 +54,10 @@ public class GameActivityController extends GenericController {
     @FXML private TextField chatEnterHeading;
     @FXML private TextField chatEnterSpeed;
     @FXML private TextField chatEnterAltitude;
+
+    @FXML private MenuItem menuResume;
+    @FXML private MenuItem menuReturn;
+
     @FXML
     public void initialize(){
         gameActivity = new GameActivity(this);
@@ -45,6 +67,9 @@ public class GameActivityController extends GenericController {
             double xPos = e.getX()/radar.xCoeff();
             double yPos = e.getY()/radar.yCoeff();
             gameActivity.setActive(xPos, yPos, gameSettings.getClientUUID());
+            Platform.runLater(
+                    () -> gameActivity.wrapPrinting());
+
         });
 
         //TODO: This, as with all uses of gameCanvas canvases has to be rewrritten
@@ -83,12 +108,21 @@ public class GameActivityController extends GenericController {
                 }
             });
         }
+        System.out.println("XD: " + gameSettings);
 
-        //TODO: The MAIN (i.e. this of running app instance) GameSettings should probably be static and in scope for all WindowControllers, however this also works for now lmao ~BJ
-        Platform.runLater(()->{
-            s = new StreamReader(gameSettings, gameActivity, chatHistory);
-            s.start();
-        });
+        if(StreamController.checkInstance(StreamController.SC_TYPE_STREAMREADER)){
+            s = (StreamReader) StreamController.getInstance();
+        }
+        else{
+            s = (StreamReader) StreamController.setInstance(new StreamReader(gameSettings, gameActivity, chatHistory));
+            streamThread = new Thread(s);
+            streamThread.start();
+        }
+
+            t = new TimeOutManager();
+            t.start();
+
+
 
         chatSend.setOnAction(e -> {
 //            sendMessage();
@@ -126,9 +160,28 @@ public class GameActivityController extends GenericController {
             }
         });
 
+
+        menuResume.setOnAction(e-> {
+                    try {
+                        s.out.writeObject(new Message(Message.msgTypes.GAME_RESUME));
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                });
+
+        menuReturn.setOnAction(e->{
+            try {
+                s.out.writeObject(new Message(Message.msgTypes.CLIENT_GOODBYE));
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            windowController.loadAndSetScene("/fxml/MainActivity.fxml", GameSettings.getInstance());
+        });
+
         populateChoiceBox();
         System.out.println("GAC end of Initialzie");
         Platform.runLater(this::resize);
+
     }
 
 

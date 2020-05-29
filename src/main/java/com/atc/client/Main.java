@@ -1,13 +1,14 @@
 package com.atc.client;
 
 import com.atc.client.controller.WindowController;
+import com.atc.server.ServerMain;
 import javafx.application.Application;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-
 public class Main extends Application {
+
+    ServerMain sm;
 
     //TODO: close game after user closes its window
     //TODO: add back button from multiplayer game
@@ -15,7 +16,7 @@ public class Main extends Application {
     //TODO: remove all commented and no longer used code
 
     @Override
-    public void start(Stage primaryStage) throws IOException, ClassNotFoundException {
+    public void start(Stage primaryStage) {
         /*
         // HERE VVV
         Socket socket = new Socket("localhost", 2137);
@@ -46,6 +47,8 @@ public class Main extends Application {
         primaryStage.setTitle("ATC Client");
         primaryStage.getIcons().add(new Image("images/airplane.png"));
         primaryStage.show();
+
+        sm = ServerMain.getInstance();
     }
 
     public static void main(String[] args) {

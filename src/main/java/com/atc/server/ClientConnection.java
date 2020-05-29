@@ -6,17 +6,21 @@ import com.atc.server.model.Event;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.atc.server.Message.msgTypes.*;
 
 //TODO: Safe casting and proper connection closing!
 public class ClientConnection implements Runnable{
+
+    public final static int CONNECTION_IDLE = 0;
+    public final static int CONNECTION_GAME = 1;
+    public final static int CONNECTION_HISTORY = 2;
 
     private final GameState gameState;
     private final Object outputBufferLock;
@@ -28,16 +32,32 @@ public class ClientConnection implements Runnable{
     private int currentTick = 0;
     private int currentChatMsg = 0;
 
+    private Message.msgTypes lastMsgType;
+
     private boolean clientHello = false;
-    private boolean passedGameSettings = false;
+    private int connectionMode = CONNECTION_IDLE;
+    private int searchedGameId = 0;
+
+
     private UUID clientUUID;
     private String clientName;
     private GameSettings gs;
+
+    private Thread input;
+    private Thread output;
 
     public ClientConnection(Socket socket, GameState gameState) {
         this.gameState = gameState;
         this.outputBufferLock = gameState.getOutputBufferLock();
         this.socket = socket;
+    }
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public GameSettings getGs(){
+        return gs;
     }
 
     @Override
@@ -50,63 +70,34 @@ public class ClientConnection implements Runnable{
         } catch(IOException e){
             e.printStackTrace();
         }
-        Thread input = new Thread(new Input());
+        input = new Thread(new Input());
         input.start();
-        Thread output = new Thread(new Output());
+
+        output = new Thread(new Output());
         output.start();
-//        try {
-//            Thread.sleep(6000);
-//            gameState.removeConnection(socket.toString());
-//            socket.close();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
     }
 
     //TODO: Test syncing, eg. getTickCount()!
     //TODO: Validate and improve connection loss detection!
     private class Input implements Runnable{
 
-        private void chooseGameMode(){
-            Message message = null;
-            try {
-                message = (Message) inputStream.readObject();
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-            if (message.getMsgType() == Message.CLIENT_SETTINGS){
-                clientPassedSettings(message);
-            } else if(message.getMsgType() == Message.GAME_HISTORY) {
-                clientWantsData(message);
-            }
-
-        }
-
-        private void clientSaidHello(Message message){
-            while(!clientHello){
-                try {
-                    message = (Message) inputStream.readObject();
-                } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-                if(message.getMsgType() == Message.CLIENT_HELLO){
-                    clientHello = true;
-                }
-            }
-        }
-        private void clientPassedSettings(Message message){
+        private void passSettings(Message message){
             gs = message.getGameSettings();
-            gameState.setGameSettings(gs);
             clientUUID = gs.getClientUUID();
             clientName = gs.getClientName();
-            gameState.addPlayerLogin(clientUUID, clientName);
-            passedGameSettings = true;
-            System.out.println("Client passed settings!");
-            gameState.generateNewAirplanes(gs.getPlaneNum(), clientUUID);
+            if(gameState.searchPlayerLogin(clientUUID)==null){
+                gameState.addPlayerLogin(clientUUID, clientName);
+                System.out.println("Client passed settings!");
+                gameState.generateNewAirplanes(gs.getPlaneNum(), clientUUID);
+                gameState.sendMessageToAll(clientName + " connected!");
+            }
+            else{
+                gameState.sendMessageToAll(clientName + " is back!");
+            }
         }
 
         private Message sendAvailableReplays(){
-;           List<Integer> availableGames = gameState.getLog().selectAvailableGameId();
+            List<Integer> availableGames = gameState.getLog().selectAvailableGameId();
             System.out.println("Got data from database!");
             return new Message(availableGames);
         }
@@ -119,54 +110,22 @@ public class ClientConnection implements Runnable{
             return new Message(searchedGameId, Events, Callsigns, Logins);
         }
 
-        private void clientWantsData(Message message){
-            while(message.getMsgType() != Message.GAME_HISTORY_END){
-                Message  gameHistoryMessage;
-                System.out.println("Client wants data!");
-                int searchedGameId = message.getGameid();
-                if(searchedGameId < 0)
-                    gameHistoryMessage = sendAvailableReplays();
-                else
-                    gameHistoryMessage = sendDataAboutEvents(searchedGameId);
-                try {
-                    outputStream.writeObject(gameHistoryMessage);
-                    System.out.println("Sent data to client!");
-                    message = (Message) inputStream.readObject();
-
-                } catch (SocketException sex) {
-                    try {
-                        socket.close();
-                    } catch (Exception es) {
-                        System.out.println("Can't close connection");
-                    }
-                    System.out.println("Closing socket to " + clientUUID.toString());
-                    gameState.removeConnection(socket.toString());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-            //END OF WHILE WE HAVE TO SAY GOODBYE TO CLIENT
-            try {
-                outputStream.writeObject(new Message('c'));
-                System.out.println("Stopped exchanging data with client");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         @Override
         public void run() {
-            Message message = null;
-            clientSaidHello(message);
-            System.out.println("Client said hello!");
-            chooseGameMode();
-            while(passedGameSettings){
+            Message message;
+            //this "thing" below is a state machine. Looks how it looks but allows for easier handling than previous ideas
+            while(true){
                 try{
+                    if(socket.isClosed()) {
+                        gameState.removeConnection(socket.toString());
+                        break;
+                    }
                     message = (Message) inputStream.readObject();
                 }
                 catch(SocketException sex){
-                    try{socket.close();}
+                    try{
+                        System.out.println("Socket close input.run() 1");
+                        socket.close();}
                     catch(Exception es) {System.out.println("Can't close connection");}
                     System.out.println("Closing socket to "+ clientUUID.toString());
                     gameState.removeConnection(socket.toString());
@@ -177,16 +136,95 @@ public class ClientConnection implements Runnable{
                     break;
                 }
                 if(message == null){
-                    break;
+                    continue;
                 }
-                if(message.getMsgType() == Message.AIRPLANE_COMMAND){
-                    gameState.updateAirplane(message.getUpdatedAirplane(), clientUUID);
+                lastMsgType = message.getMsgType();
+
+                if(!clientHello){
+                    if (lastMsgType==CLIENT_HELLO)
+                        clientHello=true;
+                    continue;
+                }
+
+                if(connectionMode == CONNECTION_IDLE){
+                    if (lastMsgType==CLIENT_SETTINGS) {
+                        passSettings(message);
+                        connectionMode = CONNECTION_GAME;
+                        gameState.incCurrPlaying();
+                    }
+                    if (lastMsgType==GAME_HISTORY){
+                        connectionMode = CONNECTION_HISTORY;
+                    }
+                }
+
+                if(connectionMode == CONNECTION_GAME){
+                    if(lastMsgType == GAME_PAUSE){
+                        gameState.simulationPauseResume();
+                        continue;
+                    }
+                    if(lastMsgType == GAME_RESUME){
+                        gameState.simulationPauseResume();
+                        continue;
+                    }
+                    if(lastMsgType == AIRPLANE_COMMAND){
+                        gameState.updateAirplane(message.getUpdatedAirplane(), clientUUID);
+                        continue;
+                    }
+                    if(lastMsgType == FETCH_AIRPLANES){
+                        Message outMsg = new Message(gameState.getAirplanes());
+                        try {
+                            outputStream.writeObject(outMsg);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        System.out.println("Sent airplanes to client");
+                        continue;
+                    }
+                    if(lastMsgType == CLIENT_GOODBYE){
+                        gameState.sendMessageToAll(clientName + " left :(");
+                        connectionMode=CONNECTION_IDLE;
+                        gameState.decCurrPlaying();
+                        continue;
+                    }
+                }
+
+                if(connectionMode == CONNECTION_HISTORY){
+                    if(lastMsgType == GAME_HISTORY) {
+                        searchedGameId = message.getGameid();
+                        Message gameHistoryMessage;
+                        if (searchedGameId < 0)
+                            gameHistoryMessage = sendAvailableReplays();
+                        else
+                            gameHistoryMessage = sendDataAboutEvents(searchedGameId);
+                        try {
+                            outputStream.writeObject(gameHistoryMessage);
+                            System.out.println("Sent data to client!");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        continue;
+                    }
+                    if(lastMsgType == GAME_HISTORY_END) {
+                        try {
+                            outputStream.writeObject(new Message(Message.msgTypes.GAME_HISTORY_END));
+                            System.out.println("Stopped exchanging data with client!");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        searchedGameId=0;
+                        connectionMode=CONNECTION_IDLE;
+                        continue;
+                    }
                 }
             }
-            gameState.removeConnection(socket.toString());
             try {
-                socket.close();
+                if(!socket.isClosed()) {
+                    System.out.println("Socket close input.run() 2");
+                    socket.close();
+                    gameState.removeConnection(socket.toString());
+                }
             } catch (IOException e) {
+                gameState.removeConnection(socket.toString());
                 e.printStackTrace();
             }
         }
@@ -197,14 +235,17 @@ public class ClientConnection implements Runnable{
         public void run() {
             ConcurrentHashMap<Integer, String> chatMsg = gameState.getChatMessages();
             while(true){
-                if(currentTick != gameState.getTickCount()){
+                if(currentTick != gameState.getTickCount() && connectionMode == CONNECTION_GAME){
                     currentTick = gameState.getTickCount();
                     Message msg = new Message(gameState.getAirplanesOutput());
                     try {
                         outputStream.writeObject(msg);
                     }
                     catch(SocketException sex){
-                        try{socket.close();}
+                        try{
+                            System.out.println("Socket close output.run() 1");
+                            socket.close();
+                        }
                         catch(Exception es) {System.out.println("Can't close connection");}
                         System.out.println("Closing socket to "+ clientUUID.toString());
                         gameState.removeConnection(socket.toString());
@@ -239,6 +280,7 @@ public class ClientConnection implements Runnable{
             }
             gameState.removeConnection(socket.toString());
             try {
+                System.out.println("Socket close output.run() 2");
                 socket.close();
             } catch (IOException e) {
                 e.printStackTrace();

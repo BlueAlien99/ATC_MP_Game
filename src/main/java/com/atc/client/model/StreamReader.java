@@ -1,7 +1,5 @@
-package com.atc.server.model;
+package com.atc.client.model;
 
-import com.atc.client.model.GameActivity;
-import com.atc.client.model.GameSettings;
 import com.atc.server.Message;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
@@ -14,58 +12,91 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.concurrent.Semaphore;
 
-public class StreamReader extends Thread {
+import static com.atc.server.Message.msgTypes.FETCH_AIRPLANES;
+
+public class StreamReader extends StreamController {
 
     protected ObjectInputStream in;
     public ObjectOutputStream out;
     protected Socket socket;
-    private GameSettings gameSettings;
     private GameActivity gameActivity;
     private VBox chatHistory;
+
+    public Semaphore streamNotifier = new Semaphore(0);
+    public boolean connected = false;
+    public boolean terminated = false;
+
+    private Message.msgTypes lastMsgType;
+
 
     public StreamReader(GameSettings gs, GameActivity gameActivity, VBox chatHistory){
         this.chatHistory = chatHistory;
         this.gameActivity= gameActivity;
-        this.gameSettings = gs;
     }
+
 
     @Override
     public void run()  {
-        try {
-            System.out.println(gameSettings.getClientUUID().toString());
-            socket = new Socket(gameSettings.getIpAddress(), 2137);
-            System.out.println("Connected!");
-            System.out.println(socket.toString());
-            in = new ObjectInputStream(socket.getInputStream());
-            out  = new ObjectOutputStream(socket.getOutputStream());
+        for(int i =0; i<5 && in==null && out==null; i++) {
+            try {
+                System.out.println(GameSettings.getInstance().getClientUUID().toString());
+                socket = new Socket(GameSettings.getInstance().getIpAddress(), 2137);
+                System.out.println("Connected!");
+                System.out.println(socket.toString());
+                in = new ObjectInputStream(socket.getInputStream());
+                out = new ObjectOutputStream(socket.getOutputStream());
+            } catch (IOException ex) {
+                System.out.println("Unable to connect. Are you sure about IP address?");
+            }
         }
-        catch (IOException ex){
-            ex.printStackTrace();
+
+        if(in==null || out==null) {
+            streamNotifier.release();
+            return;
         }
+        connected=true;
+        streamNotifier.release();
 
         try {
             out.writeObject(new Message());
-            out.writeObject(new Message(gameSettings));
+            out.writeObject(new Message(GameSettings.getInstance()));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        while(true){
+        Platform.runLater(()-> {
+            try {
+                out.writeObject(new Message(FETCH_AIRPLANES));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        while(connected && !terminated){
             Message msg;
             try {
                 msg = (Message) in.readObject();
-                switch (msg.getMsgType()){
-                    case 3:
+                lastMsgType = msg.getMsgType();
+                switch (lastMsgType){
+                    case AIRPLANES_LIST:
                         msg.getAirplanes().forEach((k, airplane) -> gameActivity.updateAirplane(airplane));
+                        Platform.runLater(
+                                () -> gameActivity.wrapPrinting());
+                        System.out.println("Got airplanes");
                         break;
-                    case 1:
+                    case CHAT_MESSAGE:
                         Label msgLabel = new Label(msg.getChatMsg());
                         msgLabel.setFont(new Font("Comic Sans MS", 14));
                         msgLabel.setTextFill(Color.GREEN);
                         Platform.runLater(
                                 () -> chatHistory.getChildren().add(msgLabel)
                         );
+                        break;
+                    case SERVER_GOODBYE:
+                        connected=false;
+                        break;
                 }
                 System.out.println("received data");
             }
@@ -76,7 +107,7 @@ public class StreamReader extends Thread {
                     System.out.println("Can't close socket");
                 }
                 try {
-                    socket = new Socket(gameSettings.getIpAddress(), 2137);
+                    socket = new Socket(GameSettings.getInstance().getIpAddress(), 2137);
                     System.out.println("Connected!");
                     System.out.println(socket.toString());
                     in = new ObjectInputStream(socket.getInputStream());
@@ -90,8 +121,11 @@ public class StreamReader extends Thread {
             catch (IOException | ClassNotFoundException | NullPointerException ex) {
                 ex.printStackTrace();
             }
-            Platform.runLater(
-                    () -> gameActivity.wrapPrinting());
         }
+    }
+
+    @Override
+    public void terminate() {
+        terminated = true;
     }
 }

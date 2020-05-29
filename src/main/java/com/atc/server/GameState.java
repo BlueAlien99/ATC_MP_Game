@@ -1,18 +1,16 @@
 package com.atc.server;
 
 import com.atc.client.model.Airplane;
+import com.atc.client.model.GameSettings;
+import com.atc.server.gamelog.GameLog;
 
 import java.util.Random;
 import java.util.Timer;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import com.atc.server.gamelog.GameLog;
+import java.util.concurrent.Semaphore;
 
-import static com.atc.client.Dimensions.CANVAS_HEIGHT;
-import static com.atc.client.Dimensions.CANVAS_WIDTH;
-import static com.atc.client.Dimensions.SIMULATION_TICK_PERIOD;
-
-import com.atc.client.model.GameSettings;
+import static com.atc.client.Dimensions.*;
 
 public class GameState {
 
@@ -25,6 +23,9 @@ public class GameState {
     private ConcurrentHashMap<Integer, String> chatMessages = new ConcurrentHashMap<>();
     private ConcurrentHashMap<UUID, String> playersLogins = new ConcurrentHashMap<>();
     private GameLog log = new GameLog();
+
+    private Semaphore gameRunning = new Semaphore(0, true);
+
     private int tickCount = 0;
 
     private final Object outputBufferLock = new Object();
@@ -32,8 +33,16 @@ public class GameState {
     private GameSettings gs;
     private int gameCount = log.selectGameId();
 
-    public void setGameSettings(GameSettings gs){
-        this.gs = gs;
+    private boolean shutdown = false;
+
+    private int currPlaying = 0;
+
+    public void setShutdown(boolean val){
+        shutdown = val;
+    }
+
+    public boolean getShutdown(){
+        return shutdown;
     }
 
     public void addConnection(String key, ClientConnection value){
@@ -41,18 +50,40 @@ public class GameState {
             simulationTimer = new Timer(true);
             simulationTimer.scheduleAtFixedRate(new Simulation(this), SIMULATION_TICK_PERIOD, SIMULATION_TICK_PERIOD);
         }
-        if(connections.get(key)!=null){
-            //TODO: Warning:(42, 9) 'if' statement has empty body
-        }
-        else{
+        if (connections.get(key) == null) {
+            simulationPause();
             connections.put(key, value);
         }
+    }
+
+
+    public boolean simulationPaused(){
+        return gameRunning.tryAcquire();
+    }
+
+    public void simulationResume(){
+        if(!gameRunning.tryAcquire())
+            gameRunning.release();
+    }
+
+    public void simulationPause(){
+        //pausing the game on player connection. This is the way to do it as not-a-toggle
+        while(true)
+        {
+            if (!gameRunning.tryAcquire()) break;
+        }
+    }
+
+    public void simulationPauseResume(){
+        simulationResume();
     }
 
     public void removeConnection(String key){
         connections.remove(key);
         if(connections.isEmpty()){
-            simulationTimer.cancel(); /*TODO: it won't work, Rafał, as interrupts don't work on threads that have to do with ObjectStreams*/
+            if(simulationTimer != null)
+                simulationTimer.cancel(); /*TODO: it won't work, Rafał, as interrupts don't work on threads that have to do with ObjectStreams
+                                            edit: maybe it will now, idk ~BJ*/
         }
     }
 
@@ -71,8 +102,8 @@ public class GameState {
         }
     }
 
-    //TODO: Use recently implemented UUID instead of String ID!
     //TODO: Handle integer overflow in chatMessages and in ClientConnection!
+    //lmaoooooo, obv sb will be playing the game until the apocalypse comes dddd ~BJ
     public void updateAirplane(Airplane airplane, UUID clientUUID){
         if(airplane == null || clientUUID == null){
             return;
@@ -142,4 +173,22 @@ public class GameState {
     public String searchPlayerLogin(UUID playerUUID){
         return playersLogins.get(playerUUID);
     }
+
+    public void sendMessageToAll(String s ){
+        chatMessages.put(chatMessages.size(), s);
+        synchronized (outputBufferLock){
+            outputBufferLock.notifyAll();
+        }
+    }
+
+    public void incCurrPlaying(){
+        currPlaying++;
+    }
+    public void decCurrPlaying(){
+        currPlaying--;
+        if(currPlaying==0){
+            simulationPause();
+        }
+    }
+
 }

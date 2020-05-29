@@ -2,7 +2,6 @@ package com.atc.client.model;
 
 import com.atc.server.Message;
 import com.atc.server.model.Event;
-import javafx.scene.control.Alert;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -13,13 +12,17 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
-public class HistoryStream implements Runnable{
+import static com.atc.server.Message.msgTypes.GAME_HISTORY;
+import static com.atc.server.Message.msgTypes.GAME_HISTORY_END;
+
+public class HistoryStream extends StreamController{
     protected ObjectInputStream in;
     public ObjectOutputStream out;
     protected Socket socket;
-    String ipAddress = "localhost";
+    String ipAddress;
     private int port = 2137;
     private boolean passedData = false;
+    private boolean terminated = false;
     private List<Event> Events;
     private List<Integer> availableGames;
     private HashMap<UUID, String> Callsigns;
@@ -72,19 +75,19 @@ public class HistoryStream implements Runnable{
         initializeSemaphore.release();
         System.out.println("Said hello to server");
         Message msg;
-                while (!passedData) {
+                while (!passedData && !terminated) {
                     msg = (Message) in.readObject();
-                    if(msg.getMsgType() == Message.GAME_HISTORY && searchedGameId >= 0) {
+                    if(msg.getMsgType() == GAME_HISTORY && searchedGameId >= 0) {
                         System.out.println("Received Events list from server!");
                         Events = msg.getEventsList();
                         Callsigns = msg.getCallsigns();
                         Logins = msg.getLogins();
                         dataSemaphore.release();
-                    }else if(msg.getMsgType()==Message.GAME_HISTORY && searchedGameId < 0){
+                    }else if(msg.getMsgType()==GAME_HISTORY && searchedGameId < 0){
                         System.out.println("Received available replays from server!");
                         availableGames = msg.getAvailableGameId();
                         dataSemaphore.release();
-                    } else if(msg.getMsgType() == Message.GAME_HISTORY_END){
+                    } else if(msg.getMsgType() == GAME_HISTORY_END){
                         System.out.println("End of exchanging data with server");
                         passedData = true;
                     }
@@ -94,6 +97,12 @@ public class HistoryStream implements Runnable{
                     dataSemaphore.release();
 
                 }
+    }
+
+
+    @Override
+    public void terminate() {
+        terminated = true;
     }
 
     public List<Event> getEvents() {

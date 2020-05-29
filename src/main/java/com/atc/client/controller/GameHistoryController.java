@@ -1,4 +1,5 @@
 package com.atc.client.controller;
+
 import com.atc.client.model.Airplane;
 import com.atc.client.model.GameCanvas;
 import com.atc.client.model.GameHistory;
@@ -7,10 +8,8 @@ import com.atc.server.model.Event;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -194,7 +193,6 @@ public class GameHistoryController  extends GenericController {
             }
         });
 
-
         eventsList.getSelectionModel().selectedItemProperty().addListener(e-> {
             if(task != null){
                 task.stop();
@@ -327,7 +325,7 @@ public class GameHistoryController  extends GenericController {
 
 
     private String createCommandString(HashMap<Integer, String> Logins, HashMap<UUID, String> Callsigns, Event event) {
-        String commandString = event.getTimeTick() +
+        return event.getTimeTick() +
                 ": " +
                 Logins.get(event.getPlayerId()) +
                 " → " +
@@ -335,18 +333,16 @@ public class GameHistoryController  extends GenericController {
                 "(" + event.getHeading() +
                 ", " + event.getSpeed() +
                 ", " + event.getHeight() + ")";
-        return commandString;
     }
 
     private String createEventString(Event event, HashMap<UUID, String> Callsigns){
-        String eventString = event.getTimeTick() +
+        return event.getTimeTick() +
                 ": " +
                 Callsigns.get(event.getAirplaneUUID()) +
                 "→ (" +
                 Math.round(event.getxCoordinate()) +
                 "," + Math.round(event.getyCoordinate()) +
                 ")";
-        return eventString;
     }
 
     void alignRadar(){

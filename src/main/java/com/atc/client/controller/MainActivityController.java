@@ -4,8 +4,37 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+
+import java.util.Optional;
 
 public class MainActivityController extends GenericController{
+
+    private static class HistoryChoice extends Alert{
+        public static ButtonType bRemote = new ButtonType("Remote");
+        public static ButtonType bLocal = new ButtonType("Local");
+        public static ButtonType bCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        public HistoryChoice() {
+            super(AlertType.CONFIRMATION);
+            this.setTitle("Choose history type");
+            this.setHeaderText("Do you want to browse local or remote history?");
+            this.setContentText("Make your selection.\nTo browse remote history please configure the IP address in Settings");
+            this.getButtonTypes().setAll(bRemote, bLocal, bCancel);
+        }
+    }
+    private static class MultiPlayerChoice extends Alert{
+        public static ButtonType bHost = new ButtonType("Host");
+        public static ButtonType bJoin = new ButtonType("Join");
+        public static ButtonType bCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        public MultiPlayerChoice() {
+            super(AlertType.CONFIRMATION);
+            this.setTitle("Choose multi player game type");
+            this.setHeaderText("Do you want to join or host a game?");
+            this.setContentText("Make your selection.\nTo join a game please configure the IP address in Settings");
+            this.getButtonTypes().setAll(bHost, bJoin, bCancel);
+        }
+    }
 
     @FXML private Button singlePlayerGameButton;
     @FXML private Button multiPlayerGameButton;
@@ -13,24 +42,40 @@ public class MainActivityController extends GenericController{
     @FXML private Button settingsButton;
     @FXML private Button quitButton;
 
+
     @FXML
     public void initialize(){
-
+        System.out.println("MAC SET: " + gameSettings);
         multiPlayerGameButton.setOnAction(e -> {
-            if(gameSettings.getIpAddress() != null) {
-                System.out.println(gameSettings.getClientUUID().toString() + " MAC multiplayer");
+            Optional<ButtonType> result = new MultiPlayerChoice().showAndWait();
+            ButtonType buttonType = result.get();
+            if (MultiPlayerChoice.bJoin.equals(buttonType)) {
+                if(gameSettings.getIpAddress() != null) {
+                    System.out.println(gameSettings.getClientUUID().toString() + " MainActivityController multiplayer");
+                    windowController.loadAndSetScene("/fxml/GameActivity.fxml", gameSettings);
+                }else{
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("ERROR!");
+                    alert.setHeaderText("Not initialized IP address!");
+                    alert.setContentText("Specify IP address of your server.");
+                    alert.showAndWait();
+                }
+            } else if (MultiPlayerChoice.bHost.equals(buttonType)) {
+                gameSettings.setIpAddress("localhost");
                 windowController.loadAndSetScene("/fxml/GameActivity.fxml", gameSettings);
-            }else{
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("ERROR!");
-                alert.setHeaderText("Not initialized IP address!");
-                alert.setContentText("Specify IP address of your server.");
-                alert.showAndWait();
             }
         });
 
-        gameHistoryButton.setOnAction(e ->
-            windowController.loadAndSetScene("/fxml/GameHistory.fxml", gameSettings));
+        gameHistoryButton.setOnAction(e ->{
+            Optional<ButtonType> result = new HistoryChoice().showAndWait();
+            ButtonType buttonType = result.get();
+            if (HistoryChoice.bRemote.equals(buttonType)) {
+                windowController.loadAndSetScene("/fxml/GameHistory.fxml", gameSettings);
+            } else if (HistoryChoice.bLocal.equals(buttonType)) {
+                gameSettings.setIpAddress("localhost");
+                windowController.loadAndSetScene("/fxml/GameHistory.fxml", gameSettings);
+            }
+        });
         settingsButton.setOnAction(e ->
                 windowController.loadAndSetScene("/fxml/GameSettings.fxml", gameSettings));
 
