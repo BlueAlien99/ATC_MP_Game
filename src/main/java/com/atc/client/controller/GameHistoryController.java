@@ -26,7 +26,6 @@ public class GameHistoryController  extends GenericController {
     @FXML private ListView commandsList;
     @FXML Button stopButton;
     @FXML Button playButton;
-    @FXML Button newGameButton;
     @FXML Button sendButton;
     @FXML Slider mySlider;
     @FXML Button settingsButton;
@@ -223,11 +222,6 @@ public class GameHistoryController  extends GenericController {
                });
             }
 
-        });
-        newGameButton.setOnAction(e -> {
-            if(stream!= null)
-            stream.sayGoodbye();
-            windowController.loadAndSetScene("/fxml/GameActivity.fxml", gameSettings);
         });
         mainMenuButton.setOnAction(e -> {
             if(stream!= null)
