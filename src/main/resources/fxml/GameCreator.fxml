@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.atc.client.model.GameCanvas?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane fx:id="gameCreatorBorderPane"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.atc.client.controller.GameCreatorController"
+            prefHeight="400.0" prefWidth="600.0">
+<top>
+    <Button fx:id="mainMenuButton" text="Main Menu"/>
+</top>
+    <center>
+        <VBox fx:id="gameCanvasVBox"  maxHeight="600" maxWidth="600" alignment="CENTER">
+            <GameCanvas fx:id="radar" minHeight="8.0" minWidth="8.0" prefHeight="400.0"
+                        prefWidth="400.0" style="-fx-background-color: black;"
+                        onDragDropped="#dragDropped"
+                        onDragOver="#dragOver"
+            />
+        </VBox>
+    </center>
+    <right>
+        <GridPane alignment="CENTER_LEFT" vgap="10" hgap="10">
+            <padding><Insets top="8" right="8" bottom="8" left="8"/></padding>
+            <Button fx:id="undoCheckpointButton"
+                    GridPane.columnIndex="0"
+                    GridPane.rowIndex="0"
+                    maxWidth="50" maxHeight="50"
+                    onMouseClicked="#undoCheckpointButtonClicked"/>
+            <Button fx:id="undoAirplaneButton"
+                    GridPane.columnIndex="1"
+                    GridPane.rowIndex="0"
+                    maxWidth="50" maxHeight="50"
+                    onMouseClicked="#undoAirplaneButtonClicked"/>
+            <Button fx:id="checkpointAddButton" GridPane.columnIndex="0"
+            GridPane.rowIndex="2" maxWidth="50" maxHeight="50"
+            onDragDetected="#checkpointDragDetected"
+            onDragDone="#checkpointDragDone">
+            </Button>
+            <Button fx:id="airplaneAddButton" GridPane.columnIndex="0"
+                    GridPane.rowIndex="4" maxWidth="50" maxHeight="50"
+                    onDragDetected="#airplaneDragDetected"
+                    onDragDone="#airplaneDragDone">
+            </Button>
+            <TextField promptText="Points" fx:id="chatEnterPoints" minWidth="40.0"
+                       GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            <VBox GridPane.rowSpan="3" GridPane.rowIndex="4" GridPane.columnIndex="1"
+            alignment="CENTER" spacing="10">
+                <TextField promptText="Heading" fx:id="chatEnterHeading" minWidth="40.0"/>
+                <TextField promptText="Altitude" fx:id="chatEnterAltitude" minWidth="40.0"/>
+                <TextField promptText="Speed" fx:id="chatEnterSpeed" minWidth="40.0"/>
+                <TextField promptText="Time of spawning" fx:id="chatEnterTime" minWidth="40.0"
+                           GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+            </VBox>
+        </GridPane>
+    </right>
+    <bottom>
+        <Label>ATC_MP_GAME by Majkowska, Kulus, Janowski. Made with ❤ in 2020</Label>
+    </bottom>
+</BorderPane>

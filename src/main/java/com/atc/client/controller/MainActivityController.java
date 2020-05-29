@@ -42,10 +42,9 @@ public class MainActivityController extends GenericController{
     @FXML private Button settingsButton;
     @FXML private Button quitButton;
 
-
     @FXML
     public void initialize(){
-        System.out.println("MAC SET: " + gameSettings);
+
         multiPlayerGameButton.setOnAction(e -> {
             Optional<ButtonType> result = new MultiPlayerChoice().showAndWait();
             ButtonType buttonType = result.get();
@@ -76,6 +75,8 @@ public class MainActivityController extends GenericController{
                 windowController.loadAndSetScene("/fxml/GameHistory.fxml", gameSettings);
             }
         });
+        singlePlayerGameButton.setOnAction(e->
+            windowController.loadAndSetScene("/fxml/GameCreator.fxml", gameSettings));
         settingsButton.setOnAction(e ->
                 windowController.loadAndSetScene("/fxml/GameSettings.fxml", gameSettings));
 

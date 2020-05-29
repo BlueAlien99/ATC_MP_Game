@@ -135,24 +135,16 @@ public class Airplane implements Cloneable, Serializable {
 		return posX;
 	}
 
-	public void setPosX(double posX) throws Exception {
-		if(Dimensions.DEBUGGING_MODE){
-			this.posX = posX;
-		} else{
-			throw new Exception("This method requires DEBUGGING_MODE to be enabled!");
-		}
+	public void setPosX(double posX) {
+		this.posX = posX;
 	}
 
 	public double getPosY() {
 		return posY;
 	}
 
-	public void setPosY(double posY) throws Exception {
-		if(Dimensions.DEBUGGING_MODE) {
-			this.posY = posY;
-		} else{
-			throw new Exception("This method requires DEBUGGING_MODE to be enabled!");
-		}
+	public void setPosY(double posY){
+		this.posY = posY;
 	}
 
 	public double getAltitude() {

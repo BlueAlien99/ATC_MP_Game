@@ -270,10 +270,9 @@ public class GameHistoryController  extends GenericController {
         for(Event e : events){
             if(e.getTimeTick() == activeTimeTick){
                 airplaneVector.put(e.getAirplaneUUID(),new Airplane(e.getAirplaneUUID(),
-                        gameHistory.getCallsigns().get(e.getAirplaneUUID()),
-                        gameHistory.getCallsigns().get(e.getAirplaneUUID()),
-                        e.getxCoordinate(), e.getyCoordinate(),
-                        e.getHeight(), e.getHeading(), e.getSpeed()));
+                        gameHistory.getCallsigns().get(e.getAirplaneUUID()), "",
+                        e.getxCoordinate(), e.getyCoordinate(),e.getHeight(),
+                        e.getHeading(),e.getSpeed()));
             } else if (e.getTimeTick()> activeTimeTick){
                 break;
             }
