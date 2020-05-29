@@ -3,7 +3,6 @@ package com.atc.client.controller;
 import com.atc.client.model.*;
 import com.atc.server.Message;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -12,6 +11,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
+
+import static com.atc.client.model.StreamController.*;
 
 public class GameActivityController extends GenericController {
 
@@ -37,8 +38,10 @@ public class GameActivityController extends GenericController {
         }
     }
     public GameActivity gameActivity;
-    public StreamReader s;
+
+    private StreamReader s;
     private Thread streamThread;
+
     public TimeOutManager t;
 
     @FXML private Pane root;
@@ -50,7 +53,6 @@ public class GameActivityController extends GenericController {
     @FXML private ScrollPane chatScroll;
     @FXML private VBox chatHistory;
     @FXML private Button chatSend;
-    @FXML private ChoiceBox<String> chatEnterAircraft;
     @FXML private TextField chatEnterHeading;
     @FXML private TextField chatEnterSpeed;
     @FXML private TextField chatEnterAltitude;
@@ -62,14 +64,14 @@ public class GameActivityController extends GenericController {
     public void initialize(){
         gameActivity = new GameActivity(this);
         gameActivity.setRadar(radar);
+        gameActivity.setClientUUID(GameSettings.getInstance().getClientUUID());
 
         radar.setOnMouseClicked(e -> {
             double xPos = e.getX()/radar.xCoeff();
             double yPos = e.getY()/radar.yCoeff();
-            gameActivity.setActive(xPos, yPos, gameSettings.getClientUUID());
+            gameActivity.setActive(xPos, yPos);
             Platform.runLater(
                     () -> gameActivity.wrapPrinting());
-
         });
 
         //TODO: This, as with all uses of gameCanvas canvases has to be rewrritten
@@ -110,11 +112,11 @@ public class GameActivityController extends GenericController {
         }
         System.out.println("XD: " + gameSettings);
 
-        if(StreamController.checkInstance(StreamController.SC_TYPE_STREAMREADER)){
-            s = (StreamReader) StreamController.getInstance();
+        if(checkInstance(SC_TYPE_STREAMREADER)){
+            s = (StreamReader) getInstance();
         }
         else{
-            s = (StreamReader) StreamController.setInstance(new StreamReader(gameSettings, gameActivity, chatHistory));
+            s = (StreamReader) setInstance(new StreamReader(gameSettings, gameActivity, chatHistory));
             streamThread = new Thread(s);
             streamThread.start();
         }
@@ -178,10 +180,8 @@ public class GameActivityController extends GenericController {
             windowController.loadAndSetScene("/fxml/MainActivity.fxml", GameSettings.getInstance());
         });
 
-        populateChoiceBox();
         System.out.println("GAC end of Initialzie");
         Platform.runLater(this::resize);
-
     }
 
 
@@ -204,17 +204,22 @@ public class GameActivityController extends GenericController {
 //        chatHistory.getChildren().add(msgLabel);
 //    }
 
-    public void populateChoiceBox(){
-        chatEnterAircraft.setItems(FXCollections.observableArrayList("Boeing", "Airbus", "Cessna"));
-    }
-
     public void updateChatBoxes(double heading, double speed, double altitude){
         chatEnterHeading.clear();
         chatEnterSpeed.clear();
         chatEnterAltitude.clear();
-        chatEnterHeading.setPromptText(heading + " deg");
-        chatEnterSpeed.setPromptText(speed + " kts");
-        chatEnterAltitude.setPromptText(altitude + " ft");
+        chatEnterHeading.setPromptText((int)heading + " deg");
+        chatEnterSpeed.setPromptText((int)speed + " kts");
+        chatEnterAltitude.setPromptText((int)altitude + " ft");
+    }
+
+    public void clearChatBoxes(){
+        chatEnterHeading.clear();
+        chatEnterSpeed.clear();
+        chatEnterAltitude.clear();
+        chatEnterHeading.setPromptText("Heading");
+        chatEnterSpeed.setPromptText("Speed");
+        chatEnterAltitude.setPromptText("Altitude");
     }
 
 }

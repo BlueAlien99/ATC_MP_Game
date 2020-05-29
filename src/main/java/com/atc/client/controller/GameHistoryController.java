@@ -1,9 +1,6 @@
 package com.atc.client.controller;
 
-import com.atc.client.model.Airplane;
-import com.atc.client.model.GameCanvas;
-import com.atc.client.model.GameHistory;
-import com.atc.client.model.HistoryStream;
+import com.atc.client.model.*;
 import com.atc.server.model.Event;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -114,7 +111,8 @@ public class GameHistoryController  extends GenericController {
     }
 
     private void initializeStream() {
-        stream = new HistoryStream(gameSettings.getIpAddress());
+        stream = (HistoryStream) StreamController.setInstance(new HistoryStream(gameSettings.getIpAddress()));
+
         gameHistory.setStream(stream);
         streamThread = new Thread(stream);
         streamThread.start();

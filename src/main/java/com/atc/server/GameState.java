@@ -48,7 +48,7 @@ public class GameState {
     public void addConnection(String key, ClientConnection value){
         if(connections.isEmpty()){
             simulationTimer = new Timer(true);
-            simulationTimer.scheduleAtFixedRate(new Simulation(this), SIMULATION_TICK_PERIOD, SIMULATION_TICK_PERIOD);
+            simulationTimer.scheduleAtFixedRate(new Simulation(this), SIM_TICK_DELAY, SIM_TICK_DELAY);
         }
         if (connections.get(key) == null) {
             simulationPause();

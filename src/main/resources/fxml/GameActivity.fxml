@@ -53,11 +53,11 @@
                            <Insets/>
                        </opaqueInsets>
                    </Button>
-                   <HBox prefHeight="100.0" prefWidth="300.0">
-                       <ChoiceBox fx:id="chatEnterAircraft" minWidth="40.0" prefWidth="150.0"/>
+                   <HBox prefHeight="100.0" prefWidth="300.0" spacing="8">
+                       <padding><Insets top="8" right="8" bottom="8" left="8"/></padding>
                        <TextField promptText="Heading" fx:id="chatEnterHeading" minWidth="40.0"/>
+                       <TextField promptText="Altitude" fx:id="chatEnterAltitude" minWidth="40.0"/>
                        <TextField promptText="Speed" fx:id="chatEnterSpeed" minWidth="40.0"/>
-                       <TextField promptText="Level" fx:id="chatEnterAltitude" minWidth="40.0"/>
                    </HBox>
                </GridPane>
            </GridPane>

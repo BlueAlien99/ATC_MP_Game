@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.UUID;
 
+import static com.atc.client.Dimensions.SIM_TICK_DELAY;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
@@ -91,7 +92,6 @@ public class Airplane implements Cloneable, Serializable {
 		this.radarsign = radarsign;
 	}
 
-	//TODO: it should depend on time
 	public void moveAirplane(){
 		collisionCourse = false;
 
@@ -106,8 +106,8 @@ public class Airplane implements Cloneable, Serializable {
 		}
 
 		double headingRad = Math.toRadians(heading);
-		double xShift = Math.sin(headingRad) * speed/10;
-		double yShift = Math.cos(headingRad) * speed/10;
+		double xShift = Math.sin(headingRad) * speed/10 * SIM_TICK_DELAY/1000;
+		double yShift = Math.cos(headingRad) * speed/10 * SIM_TICK_DELAY/1000;
 
 		posX += xShift;
 		posY -= yShift;
@@ -246,14 +246,15 @@ public class Airplane implements Cloneable, Serializable {
 		double diff = targetAltitude - altitude;
 
 		if(diff == 0){
+			altitudeAcceleration = 0;
 			return;
 		}
 
 		double absDiff = Math.abs(diff);
 		altitudeAcceleration = Math.abs(altitudeAcceleration);
 
-		altitudeAcceleration = Math.min(altitudeAcceleration + climbAccStep, absDiff);
-		altitudeAcceleration = Math.min(altitudeAcceleration, Dimensions.AIRPLANE_MAX_CLIMB_RATE);
+		altitudeAcceleration = Math.min(altitudeAcceleration + climbAccStep * SIM_TICK_DELAY/1000, absDiff);
+		altitudeAcceleration = Math.min(altitudeAcceleration, Dimensions.AIRPLANE_MAX_CLIMB_RATE * SIM_TICK_DELAY/1000);
 		altitudeAcceleration *= diff / absDiff;
 
 		altitude += altitudeAcceleration;
@@ -263,14 +264,15 @@ public class Airplane implements Cloneable, Serializable {
 		double diff = targetSpeed - speed;
 
 		if(diff == 0){
+			speedAcceleration = 0;
 			return;
 		}
 
 		double absDiff = Math.abs(diff);
 		speedAcceleration = Math.abs(speedAcceleration);
 
-		speedAcceleration = Math.min(speedAcceleration + speedAccStep, absDiff);
-		speedAcceleration = Math.min(speedAcceleration, Dimensions.AIRPLANE_MAX_ACCELERATION);
+		speedAcceleration = Math.min(speedAcceleration + speedAccStep * SIM_TICK_DELAY/1000, absDiff);
+		speedAcceleration = Math.min(speedAcceleration, Dimensions.AIRPLANE_MAX_ACCELERATION * SIM_TICK_DELAY/1000);
 		speedAcceleration *= diff / absDiff;
 
 		speed += speedAcceleration;
@@ -280,6 +282,7 @@ public class Airplane implements Cloneable, Serializable {
 		double diff = targetHeading - heading;
 
 		if(diff == 0){
+			headingAcceleration = 0;
 			return;
 		}
 
@@ -293,8 +296,8 @@ public class Airplane implements Cloneable, Serializable {
 		double absDiff = Math.abs(diff);
 		headingAcceleration = Math.abs(headingAcceleration);
 
-		headingAcceleration = Math.min(headingAcceleration + turnAccStep, absDiff);
-		headingAcceleration = Math.min(headingAcceleration, Dimensions.AIRPLANE_MAX_TURN_RATE);
+		headingAcceleration = Math.min(headingAcceleration + turnAccStep * SIM_TICK_DELAY/1000, absDiff);
+		headingAcceleration = Math.min(headingAcceleration, Dimensions.AIRPLANE_MAX_TURN_RATE * SIM_TICK_DELAY/1000);
 		headingAcceleration *= diff / absDiff;
 
 		heading += headingAcceleration;
