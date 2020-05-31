@@ -12,29 +12,36 @@ import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 
+import static com.atc.client.Dimensions.TIMEOUT_TIME;
+import static com.atc.client.Dimensions.TIMEOUT_TRIES;
 import static com.atc.client.model.StreamController.*;
 
 public class GameActivityController extends GenericController {
 
     private class TimeOutManager extends Thread{
+        protected boolean timeouted = true;
         @Override
         public void run() {
-            try {
-                System.out.println("DADADDADADadadadadadadadad");
-                s.streamNotifier.acquire();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            for(int i=0; i<TIMEOUT_TRIES; i++){
+                if(s.streamNotifier.tryAcquire()){
+                    timeouted=false;
+                    return;
+                }
+                try {
+                    Thread.sleep(TIMEOUT_TIME);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-            if(!s.connected){
                 Platform.runLater(()->{
+                    s.terminate();
                     Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Connection timed out");
+                    alert.setTitle("Connection failed");
                     alert.setHeaderText("We were unable to reach the server");
                     alert.setContentText("Please check the IP address in Game Settings or Firewall settings and try again.");
                     alert.showAndWait();
                     windowController.loadAndSetScene("/fxml/MainActivity.fxml", gameSettings);
-                });
-            }
+            });
         }
     }
     public GameActivity gameActivity;
@@ -152,7 +159,8 @@ public class GameActivityController extends GenericController {
                 if(changed != null && targetLevel!=-1)  changed.setTargetAltitude(targetLevel);
                 Message msgout = new Message(changed);
                 try {
-                    s.out.writeObject(msgout);
+                    if(!t.timeouted)
+                        s.out.writeObject(msgout);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
@@ -165,7 +173,8 @@ public class GameActivityController extends GenericController {
 
         menuResume.setOnAction(e-> {
                     try {
-                        s.out.writeObject(new Message(Message.msgTypes.GAME_RESUME));
+                        if(!t.timeouted)
+                            s.out.writeObject(new Message(Message.msgTypes.GAME_RESUME));
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
@@ -173,7 +182,8 @@ public class GameActivityController extends GenericController {
 
         menuReturn.setOnAction(e->{
             try {
-                s.out.writeObject(new Message(Message.msgTypes.CLIENT_GOODBYE));
+                if(!t.timeouted)
+                    s.out.writeObject(new Message(Message.msgTypes.CLIENT_GOODBYE));
             } catch (IOException ex) {
                 ex.printStackTrace();
             }

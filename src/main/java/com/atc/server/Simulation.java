@@ -1,9 +1,11 @@
 package com.atc.server;
 
 import com.atc.client.model.Airplane;
+import com.atc.client.model.Checkpoint;
 import com.atc.client.model.TCAS;
 
 import java.util.TimerTask;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.atc.client.Dimensions.CANVAS_HEIGHT;
@@ -12,11 +14,13 @@ import static com.atc.client.Dimensions.CANVAS_WIDTH;
 public class Simulation extends TimerTask {
 
     private GameState gameState;
-    private ConcurrentHashMap<String, Airplane> airplanes;
+    private ConcurrentHashMap<UUID, Airplane> airplanes;
+    private ConcurrentHashMap<UUID, Checkpoint> checkpoints;
 
     public Simulation(GameState gameState) {
         this.gameState = gameState;
         this.airplanes = gameState.getAirplanes();
+        this.checkpoints = gameState.getCheckpoints();
     }
 
     @Override
@@ -36,6 +40,15 @@ public class Simulation extends TimerTask {
             } catch (Exception ex){
                 ex.printStackTrace();
             }
+
+            checkpoints.forEach((ck, cv) -> {
+                if(cv.checkAirplane(v)){
+                    System.out.println(v.getUuid()+" JUST PASSED CHECKPOINT "+cv.getCheckpointUUID());
+                    gameState.passCheckpoint(v.getUuid(), cv.getCheckpointUUID());
+                    //TODO: gameLog event for checkpoints
+                }
+            });
+
 
             gameState.getLog().insertEvent(
                     gameState.getGameCount(), "MOVEMENT", gameState.getTickCount(), v.getOwner(),0,

@@ -28,6 +28,11 @@ public class Dimensions {
     public static final Paint RADAR_COLLISION_COLOR = Color.RED;
     public static final Paint RADAR_BACKGROUND = Color.BLACK;
 
+    public static final Paint CHECKPOINT_NORMAL = Color.YELLOW;
+    public static final Paint CHECKPOINT_ACTIVE = Color.BLUE;
+    public static final Paint CHECKPOINT_PASSED = Color.GREEN;
+    public static final double CHECKPOINT_ALPHA = 0.60;
+
     public static final double AIRPLANE_MIN_ALTITUDE = 1000;
     public static final double AIRPLANE_MAX_ALTITUDE = 40000;
 
@@ -46,6 +51,12 @@ public class Dimensions {
     public static final double AIRPLANE_MAX_TURN_RATE = 10;
 
     public static final double AIRPLANE_MAX_ACCELERATION = 3.2;
+
+    public static final int TIMEOUT_TIME = 100;
+
+    public static final int TIMEOUT_TRIES = 50;
+
+
 
     public static final String AIRLINES_FILE = "csv/airlines.csv";
 }

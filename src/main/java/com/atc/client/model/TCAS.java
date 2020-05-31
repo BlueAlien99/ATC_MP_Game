@@ -1,6 +1,7 @@
 package com.atc.client.model;
 
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TCAS {
@@ -11,7 +12,7 @@ public class TCAS {
 	//TODO: add detection, when two aircrafts are just too close to each other
 	//TODO: planes flying at each other
 
-	public static void calculateCollisions(ConcurrentHashMap<String, Airplane> airplanes){
+	public static void calculateCollisions(ConcurrentHashMap<UUID, Airplane> airplanes){
 		ArrayList<Airplane> airList = new ArrayList<>(airplanes.values());
 		double tooClose = 256;
 		double criticallyClose = 64;

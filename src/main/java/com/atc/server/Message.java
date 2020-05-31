@@ -1,31 +1,39 @@
 package com.atc.server;
 
 import com.atc.client.model.Airplane;
+import com.atc.client.model.Checkpoint;
 import com.atc.client.model.GameSettings;
 import com.atc.server.model.Event;
+import javafx.util.Pair;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Message implements Serializable {
 
+
     public enum msgTypes{
         CHAT_MESSAGE,  AIRPLANE_COMMAND,  AIRPLANES_LIST,  CLIENT_HELLO,  CLIENT_SETTINGS,  GAME_HISTORY,
-        GAME_HISTORY_END,  GAME_PAUSE,  GAME_RESUME,  CLIENT_GOODBYE,  SERVER_GOODBYE,  FETCH_AIRPLANES
+        GAME_HISTORY_END,  GAME_PAUSE,  GAME_RESUME,  CLIENT_GOODBYE,  SERVER_GOODBYE,  FETCH_AIRPLANES,
+        SEND_INITIAL, NEW_GAME, FETCH_CHECKPOINTS, CHECKPOINTS_LIST
     }
 
     private int gameid;
     List<Event> eventsList;
     List<Integer> availableGameId;
-    private ConcurrentHashMap<String, Airplane> airplanes;
+    private ConcurrentHashMap<UUID, Airplane> airplanes;
+    private ConcurrentHashMap<UUID, Checkpoint> checkpoints;
+    private double spawnRatio;
     private HashMap<UUID, String> Callsigns;
     private HashMap<Integer, String> Logins;
     private Airplane updatedAirplane;
     private String chatMsg;
     private GameSettings gameSettings;
+    private Vector<Pair<UUID, UUID>> checkpointsAirplanesMapping;
 
     private msgTypes msgType;
 
@@ -58,7 +66,7 @@ public class Message implements Serializable {
         this.Logins = Logins;
     }
 
-    public Message(ConcurrentHashMap<String, Airplane> airplanes) {
+    public Message(ConcurrentHashMap<UUID, Airplane> airplanes) {
         this.airplanes = airplanes;
         this.msgType = msgTypes.AIRPLANES_LIST;
     }
@@ -86,9 +94,17 @@ public class Message implements Serializable {
         return msgType;
     }
 
-    public ConcurrentHashMap<String, Airplane> getAirplanes() {
-        return airplanes;
-    }
+    public ConcurrentHashMap<UUID, Airplane> getAirplanes() { return airplanes; }
+
+    public void setAirplanes(ConcurrentHashMap<UUID, Airplane> airplanes) {this.airplanes=airplanes;}
+
+    public ConcurrentHashMap<UUID, Checkpoint> getCheckpoints() { return checkpoints;}
+
+    public void setCheckpoints(ConcurrentHashMap<UUID, Checkpoint> checkpoints) {this.checkpoints=checkpoints;}
+
+    public void setSpawnRatio(double spawnRatio) {this.spawnRatio = spawnRatio;}
+
+    public double getSpawnRatio() {return spawnRatio;}
 
     public Airplane getUpdatedAirplane() {
         return updatedAirplane;
@@ -99,6 +115,7 @@ public class Message implements Serializable {
     }
 
     public GameSettings getGameSettings() {return gameSettings;}
+    public void setGameSettings(GameSettings gameSettings) {this.gameSettings = gameSettings;}
 
     public HashMap<UUID, String> getCallsigns() {
         return Callsigns;
@@ -111,4 +128,14 @@ public class Message implements Serializable {
     public List<Integer> getAvailableGameId() {
         return availableGameId;
     }
+
+
+    public List<Pair<UUID, UUID>> getCheckpointsAirplanesMapping() {
+        return checkpointsAirplanesMapping;
+    }
+
+    public void setCheckpointsAirplanesMapping(Vector<Pair<UUID, UUID>> checkpointsAirplanesMapping) {
+        this.checkpointsAirplanesMapping = checkpointsAirplanesMapping;
+    }
+
 }

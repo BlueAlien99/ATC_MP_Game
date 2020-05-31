@@ -2,10 +2,7 @@ package com.atc.client.model;
 
 import com.atc.client.controller.GameActivityController;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.atc.client.Dimensions.RADAR_DOTS_HISTORY;
@@ -16,6 +13,7 @@ public class GameActivity {
     private long gameStartedTime;
     private Map<UUID, ArrayList<TrailDot>> gameHistory;
     private Map<UUID, Airplane> gameAirplanes;
+    private ConcurrentHashMap<UUID, Checkpoint> checkpoints = new ConcurrentHashMap<>();
 
     public GameCanvas radar;
 
@@ -23,6 +21,24 @@ public class GameActivity {
     private UUID activeAirplane;
 
     private GameActivityController gameActivityController;
+
+    public ConcurrentHashMap<UUID, Checkpoint> getCheckpoints() {
+        return checkpoints;
+    }
+
+    public void setCheckpoints(ConcurrentHashMap<UUID, Checkpoint> checkpoints) {
+        checkpoints.forEach(((uuid, checkpoint) -> {
+            this.checkpoints.put(uuid, checkpoint);
+        }));
+        System.out.println("SET CHECKPOINTS");
+        checkpoints.forEach(((uuid, checkpoint) -> {
+            System.out.println(uuid);
+            checkpoint.airplanes.forEach(((uuid1, aBoolean) -> {
+                System.out.println(uuid1.toString() + aBoolean);
+            }));
+        }));
+        System.out.println("END SET CHECKPOINTS");
+    }
 
 
     static class TrailDot{
@@ -88,7 +104,7 @@ public class GameActivity {
         gameHistory.forEach((k, trailDot)-> {
             int trailCounter = 0;
             double x, y;
-            for (int j = trailDot.size() - 1;
+            for (int j = trailDot.size() - 2;
                  trailCounter <= RADAR_DOTS_HISTORY && j >= 0;
                  trailCounter++, j--) {
                 x = trailDot.get(j).xPos;
@@ -96,6 +112,7 @@ public class GameActivity {
                 radar.printDot(x, y);
             }
         });
+        checkpoints.forEach((uuid, checkpoint) -> radar.printCheckpoint(checkpoint, activeAirplane));
         radar.finish_printing();
 
     }

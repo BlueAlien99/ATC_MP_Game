@@ -11,6 +11,7 @@
             prefHeight="400.0" prefWidth="600.0">
 <top>
     <Button fx:id="mainMenuButton" text="Main Menu"/>
+    <Button fx:id="startGameButton" text="Start game"/>
 </top>
     <center>
         <VBox fx:id="gameCanvasVBox"  maxHeight="600" maxWidth="600" alignment="CENTER">

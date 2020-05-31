@@ -93,6 +93,10 @@ public class Airplane implements Cloneable, Serializable {
 	}
 
 	public void moveAirplane(){
+		moveAirplane(1);
+	}
+
+	public void moveAirplane(double steps){
 		collisionCourse = false;
 
 		if(Dimensions.DEBUGGING_MODE){
@@ -106,8 +110,8 @@ public class Airplane implements Cloneable, Serializable {
 		}
 
 		double headingRad = Math.toRadians(heading);
-		double xShift = Math.sin(headingRad) * speed/10 * SIM_TICK_DELAY/1000;
-		double yShift = Math.cos(headingRad) * speed/10 * SIM_TICK_DELAY/1000;
+		double xShift = steps*Math.sin(headingRad) * speed/10 * SIM_TICK_DELAY/1000;
+		double yShift = steps*Math.cos(headingRad) * speed/10 * SIM_TICK_DELAY/1000;
 
 		posX += xShift;
 		posY -= yShift;

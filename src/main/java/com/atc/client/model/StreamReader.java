@@ -1,5 +1,6 @@
 package com.atc.client.model;
 
+import com.atc.client.controller.GameCreatorController;
 import com.atc.server.Message;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
@@ -12,9 +13,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
-import static com.atc.server.Message.msgTypes.FETCH_AIRPLANES;
+import static com.atc.server.Message.msgTypes.*;
 
 public class StreamReader extends StreamController {
 
@@ -39,7 +42,6 @@ public class StreamReader extends StreamController {
 
     @Override
     public void run()  {
-        for(int i =0; i<5 && in==null && out==null; i++) {
             try {
                 System.out.println(GameSettings.getInstance().getClientUUID().toString());
                 socket = new Socket(GameSettings.getInstance().getIpAddress(), 2137);
@@ -50,18 +52,25 @@ public class StreamReader extends StreamController {
             } catch (IOException ex) {
                 System.out.println("Unable to connect. Are you sure about IP address?");
             }
-        }
 
-        if(in==null || out==null) {
+        if(in==null || out==null || socket.isClosed()) {
             streamNotifier.release();
             return;
         }
-        connected=true;
         streamNotifier.release();
+        connected=true;
 
         try {
             out.writeObject(new Message());
-            out.writeObject(new Message(GameSettings.getInstance()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            if(!GameCreatorController.creatorMessage.msgSet)
+                out.writeObject(new Message(GameSettings.getInstance()));
+            else
+                out.writeObject(GameCreatorController.creatorMessage.msg);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -69,6 +78,7 @@ public class StreamReader extends StreamController {
         Platform.runLater(()-> {
             try {
                 out.writeObject(new Message(FETCH_AIRPLANES));
+                out.writeObject(new Message(FETCH_CHECKPOINTS));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -85,6 +95,16 @@ public class StreamReader extends StreamController {
                         Platform.runLater(
                                 () -> gameActivity.wrapPrinting());
                         System.out.println("Got airplanes");
+                        break;
+                    case CHECKPOINTS_LIST:
+                        ConcurrentHashMap<UUID, Checkpoint> tempMap = msg.getCheckpoints();
+                        msg.getCheckpointsAirplanesMapping().forEach((pair)->{
+                            tempMap.get(pair.getKey()).passAirplane(pair.getValue());
+                        });
+                        gameActivity.setCheckpoints(tempMap);
+                        Platform.runLater(
+                                () -> gameActivity.wrapPrinting());
+                        System.out.println("Got checkpoints");
                         break;
                     case CHAT_MESSAGE:
                         Label msgLabel = new Label(msg.getChatMsg());
@@ -103,6 +123,7 @@ public class StreamReader extends StreamController {
             catch (SocketException sex){
                 try {
                     socket.close();
+                    System.out.println("Socket close SR.run(1)");
                 } catch (IOException e) {
                     System.out.println("Can't close socket");
                 }
@@ -122,10 +143,17 @@ public class StreamReader extends StreamController {
                 ex.printStackTrace();
             }
         }
+        try {
+            socket.close();
+            System.out.println("Socket close SR.run(2)"+terminated+connected);
+        } catch (IOException e) {
+            System.out.println("Can't close socket");
+        }
     }
 
     @Override
     public void terminate() {
+        System.out.println("StreamReader terminated");
         terminated = true;
     }
 }

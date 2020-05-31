@@ -95,7 +95,6 @@ public class HistoryStream extends StreamController{
                 } catch(IOException | ClassNotFoundException ex){
                     initializeSemaphore.release();
                     dataSemaphore.release();
-
                 }
     }
 

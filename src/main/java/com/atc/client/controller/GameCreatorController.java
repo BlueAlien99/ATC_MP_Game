@@ -3,6 +3,8 @@ package com.atc.client.controller;
 import com.atc.client.model.Airplane;
 import com.atc.client.model.Checkpoint;
 import com.atc.client.model.GameCanvas;
+import com.atc.client.model.GameSettings;
+import com.atc.server.Message;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -14,7 +16,10 @@ import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
+import java.util.HashMap;
+import java.util.UUID;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
@@ -30,19 +35,24 @@ public class GameCreatorController extends GenericController{
     @FXML TextField chatEnterAltitude;
     @FXML TextField chatEnterSpeed;
     @FXML Button mainMenuButton;
+    @FXML Button startGameButton;
     @FXML GameCanvas radar;
     @FXML Button airplaneAddButton;
     @FXML Button checkpointAddButton;
-    DataFormat airplaneDF = new DataFormat("airplaneDataFormat");
+    static DataFormat airplaneDF = new DataFormat("airplaneDataFormat");
     private Vector<Checkpoint> newCheckpoints = new Vector<>();
     private Vector<Airplane> newAirplanes = new Vector<>();
+    private ConcurrentHashMap<UUID, Integer> airplaneDelays = new ConcurrentHashMap<>();
+    private double spawnRatio = 10;
 
     public void initialize(){
+        GameSettings.getInstance().setIpAddress("127.0.0.1");
         addGraphicToButtons("images/airplaneicon.png",
                 "images/yellowballicon.png",
                 "images/undoairplaneicon.png",
                 "images/undoyellowballicon.png");
         mainMenuButton.setOnAction(e-> windowController.loadAndSetScene("/fxml/MainActivity.fxml", gameSettings));
+        startGameButton.setOnAction(e->startGame());
         radar.setOnMouseClicked(e-> System.out.println(e.getX()+", "+e.getY()));
         Platform.runLater(this::resize);
     }
@@ -124,7 +134,7 @@ public class GameCreatorController extends GenericController{
 
     public void checkpointDragDetected(MouseEvent event) {
         if(chatEnterPoints.getText().trim().isEmpty()){
-            createAlert("Creator message", "One of the field is empty. Please enter data!");
+            createAlert("Creator message", "One of the fields is empty. Please enter data!");
         }else {
             try{
                 parseInt(chatEnterPoints.getText());
@@ -145,13 +155,14 @@ public class GameCreatorController extends GenericController{
                 || chatEnterHeading.getText().trim().isEmpty()
                 || chatEnterSpeed.getText().trim().isEmpty()
                 || chatEnterTime.getText().trim().isEmpty()){
-            createAlert("Creator message", "One of the field is empty. Please enter data!");
+            createAlert("Creator message", "One of the fields is empty. Please enter data!");
         }else {
             try {
                 Airplane dummyAirplane = new Airplane(gameSettings.getClientUUID(),
                         0, 0, parseDouble(chatEnterAltitude.getText()),
                         parseDouble(chatEnterHeading.getText()),
                         parseDouble(chatEnterSpeed.getText()));
+                airplaneDelays.put(dummyAirplane.getUuid(), Integer.parseInt(chatEnterTime.getText()));
                 System.out.println("DRAG DETECTED");
                 event.setDragDetect(true);
                 Dragboard db = airplaneAddButton.startDragAndDrop(TransferMode.ANY);
@@ -198,6 +209,33 @@ public class GameCreatorController extends GenericController{
             radar.finish_printing();
         }else
             createAlert("Creator message", "Nothing left to remove from canvas!");
+    }
+
+    private void startGame(){
+        ConcurrentHashMap<UUID, Airplane> msgAirplanes = new ConcurrentHashMap<>();
+        ConcurrentHashMap<UUID, Checkpoint> msgCheckpoints = new ConcurrentHashMap<>();
+        for(Airplane a : newAirplanes){
+            if(airplaneDelays.get(a.getUuid())!=null) {
+                a.moveAirplane(-airplaneDelays.get(a.getUuid()).doubleValue());
+            }
+            msgAirplanes.put(a.getUuid(), a);
+        }
+        for(Checkpoint c : newCheckpoints){
+            msgCheckpoints.put(c.getCheckpointUUID(), c);
+        }
+        Message msg = new Message(Message.msgTypes.SEND_INITIAL);
+        msg.setAirplanes(msgAirplanes);
+        msg.setCheckpoints(msgCheckpoints);
+        msg.setSpawnRatio(spawnRatio);
+        msg.setGameSettings(GameSettings.getInstance());
+        creatorMessage.msgSet=true;
+        creatorMessage.msg=msg;
+        windowController.loadAndSetScene("/fxml/GameActivity.fxml", GameSettings.getInstance());
+    }
+
+    public static class creatorMessage{
+        public static boolean msgSet = false;
+        public static Message msg = null;
     }
 }
 

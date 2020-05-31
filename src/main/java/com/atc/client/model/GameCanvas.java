@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import static com.atc.client.Dimensions.*;
 import static java.lang.Math.cos;
@@ -114,8 +115,8 @@ public class GameCanvas extends StackPane {
         gc.strokeLine(x, y, x+x_line, y-y_line);
         gc.fillRect(x-5,y-5,10,10);
 
-        gc.setFill(RADAR_BACKGROUND);
-        gc.fillRect(x-3, y-3, 6, 6);
+        gc.clearRect(x-2.5, y-2.5, 5, 5);
+//        gcDots.clearRect(x-3, y-3, 6, 6);
     }
 
     void printDot(double x, double y){
@@ -127,14 +128,25 @@ public class GameCanvas extends StackPane {
         gcDots.setFill(dotColor);
         gcDots.fillOval(x, y, 2, 2);
     }
-    public void printCheckpoint(Checkpoint checkpoint){
+    public void printCheckpoint(Checkpoint checkpoint, UUID activeAirplane){
         GraphicsContext gcCheckpoints = radarCheckpoints.getGraphicsContext2D();
         double radius = checkpoint.getRadius();
-        System.out.println("Radius: "+radius);
-        gcCheckpoints.setFill(Color.YELLOW);
-        gcCheckpoints.setGlobalAlpha(0.60);
+        System.out.println("Currently active: "+activeAirplane);
+        System.out.println(checkpoint.getAirplane(activeAirplane));
+        if(checkpoint.getAirplane(activeAirplane)) {
+            gcCheckpoints.setFill(CHECKPOINT_PASSED);
+        }
+        else {
+            gcCheckpoints.setFill(CHECKPOINT_NORMAL);
+        }
+        gcCheckpoints.setGlobalAlpha(CHECKPOINT_ALPHA);
         gcCheckpoints.fillOval(checkpoint.getxPos()-radius/2,
                 checkpoint.getyPos()-radius/2, radius, radius);
+        gcCheckpoints.setGlobalAlpha(1);
+    }
+
+    public void printCheckpoint(Checkpoint checkpoint) {
+        printCheckpoint(checkpoint, null);
     }
 
     public void finish_printing(){

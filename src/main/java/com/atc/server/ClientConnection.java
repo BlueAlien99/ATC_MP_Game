@@ -3,6 +3,7 @@ package com.atc.server;
 import com.atc.client.model.GameSettings;
 import com.atc.server.model.Event;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -96,6 +97,24 @@ public class ClientConnection implements Runnable{
             }
         }
 
+        private void passInitial(Message message){
+            gs = message.getGameSettings();
+            clientUUID = gs.getClientUUID();
+            clientName = gs.getClientName();
+            message.getCheckpoints().forEach((uuid, checkpoint) -> {gameState.addCheckpoint(checkpoint);});
+            message.getAirplanes().forEach((uuid, airplane)->{
+                gameState.addAirplane(airplane);
+            });
+            if(gameState.searchPlayerLogin(clientUUID)==null){
+                gameState.addPlayerLogin(clientUUID, clientName);
+                System.out.println("Client passed singleplayer data!");
+                gameState.sendMessageToAll(clientName + " connected!");
+            }
+            else{
+                gameState.sendMessageToAll(clientName + " is back!");
+            }
+        }
+
         private Message sendAvailableReplays(){
             List<Integer> availableGames = gameState.getLog().selectAvailableGameId();
             System.out.println("Got data from database!");
@@ -112,7 +131,7 @@ public class ClientConnection implements Runnable{
 
         @Override
         public void run() {
-            Message message;
+            Message message = null;
             //this "thing" below is a state machine. Looks how it looks but allows for easier handling than previous ideas
             while(true){
                 try{
@@ -122,6 +141,7 @@ public class ClientConnection implements Runnable{
                     }
                     message = (Message) inputStream.readObject();
                 }
+                catch (EOFException ignored) {}
                 catch(SocketException sex){
                     try{
                         System.out.println("Socket close input.run() 1");
@@ -152,6 +172,11 @@ public class ClientConnection implements Runnable{
                         connectionMode = CONNECTION_GAME;
                         gameState.incCurrPlaying();
                     }
+                    if (lastMsgType==SEND_INITIAL) {
+                        passInitial(message);
+                        connectionMode = CONNECTION_GAME;
+                        gameState.incCurrPlaying();
+                    }
                     if (lastMsgType==GAME_HISTORY){
                         connectionMode = CONNECTION_HISTORY;
                     }
@@ -178,6 +203,18 @@ public class ClientConnection implements Runnable{
                             e.printStackTrace();
                         }
                         System.out.println("Sent airplanes to client");
+                        continue;
+                    }
+                    if(lastMsgType == FETCH_CHECKPOINTS){
+                        Message outMsg = new Message(CHECKPOINTS_LIST);
+                        outMsg.setCheckpoints(gameState.getCheckpoints());
+                        outMsg.setCheckpointsAirplanesMapping(gameState.getCheckpointsAirplanesMapping());
+                        try {
+                            outputStream.writeObject(outMsg);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        System.out.println("Sent checkpoints to client");
                         continue;
                     }
                     if(lastMsgType == CLIENT_GOODBYE){
@@ -234,7 +271,7 @@ public class ClientConnection implements Runnable{
         @Override
         public void run() {
             ConcurrentHashMap<Integer, String> chatMsg = gameState.getChatMessages();
-            while(true){
+            run: while(true){
                 if(currentTick != gameState.getTickCount() && connectionMode == CONNECTION_GAME){
                     currentTick = gameState.getTickCount();
                     Message msg = new Message(gameState.getAirplanesOutput());
@@ -263,10 +300,23 @@ public class ClientConnection implements Runnable{
                             outputStream.writeObject(msg);
                         } catch (IOException e) {
                             e.printStackTrace();
-                            break;
+                            break run;
                         }
                         ++currentChatMsg;
                     }
+                }
+                if(gameState.getCheckpointsUpdated()){
+                    Message msg = new Message(CHECKPOINTS_LIST);
+                    msg.setCheckpoints(gameState.getCheckpoints());
+                    msg.setCheckpointsAirplanesMapping(gameState.getCheckpointsAirplanesMapping());
+                    try {
+                        outputStream.writeObject(msg);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        break;
+                    }
+                    gameState.setCheckpointsUpdated(false);
+
                 }
                 synchronized (outputBufferLock){
                     if(currentTick == gameState.getTickCount() && currentChatMsg == chatMsg.size()){

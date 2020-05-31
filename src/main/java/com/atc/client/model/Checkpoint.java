@@ -1,16 +1,29 @@
 package com.atc.client.model;
 
-public class Checkpoint {
+import javafx.util.Pair;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class Checkpoint implements Serializable, Cloneable {
     private final int standardRadius = 50;
+    private UUID checkpointUUID;
     private int points;
     private double xPos;
     private double yPos;
     private double altitude;
     private double radius;
 
+    //TODO: TO BE PRIVATE
+    public ConcurrentHashMap<UUID, Boolean> airplanes = new ConcurrentHashMap<>();
+
     public Checkpoint(int points) {
         this.radius = calculateRadius(points);
         this.points = points;
+        checkpointUUID = UUID.randomUUID();
     }
 
     public Checkpoint(double x, double y, int points) {
@@ -18,6 +31,48 @@ public class Checkpoint {
         this.yPos = y;
         this.points = points;
         this.radius = calculateRadius(points);
+        checkpointUUID = UUID.randomUUID();
+    }
+
+    public boolean checkAirplane(Airplane airplane) {
+        if(airplanes.get(airplane.getUuid())==null) {
+            addAirplane(airplane.getUuid());
+        }
+        if(!getAirplane(airplane.getUuid()) && Math.pow(airplane.getPosX()-xPos, 2)+Math.pow(airplane.getPosY()-yPos, 2)<=Math.pow(radius/2, 2)) {
+            airplanes.put(airplane.getUuid(), true);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean getAirplane(UUID airplaneUUID) {
+        if(airplaneUUID == null)
+            return false;
+        if(airplanes.get(airplaneUUID)!=null){
+            return airplanes.get(airplaneUUID);
+        }
+        return false;
+    }
+
+
+    public void passAirplane(UUID airplaneUUID){
+        System.out.println(airplaneUUID+" passes checkpoint");
+        airplanes.put(airplaneUUID, true);
+
+        System.out.println("Pass result: " + getAirplane(airplaneUUID));
+
+    }
+
+    public void addAirplane(UUID airplaneUUID){
+        airplanes.put(airplaneUUID, false);
+    }
+
+    public boolean checkAllAirplanes(){
+        for(Map.Entry<UUID, Boolean> pair : airplanes.entrySet()){
+            if(!pair.getValue())
+                return false;
+        }
+        return true;
     }
 
     private double calculateRadius(int points) {
@@ -62,5 +117,18 @@ public class Checkpoint {
 
     public void setRadius(double radius) {
         this.radius = radius;
+    }
+
+    public UUID getCheckpointUUID() {
+        return checkpointUUID;
+    }
+
+    public void setCheckpointUUID(UUID checkpointUUID) {
+        this.checkpointUUID = checkpointUUID;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }
