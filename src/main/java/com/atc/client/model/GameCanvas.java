@@ -132,6 +132,7 @@ public class GameCanvas extends StackPane {
         double radius = checkpoint.getRadius();
         System.out.println("Radius: "+radius);
         gcCheckpoints.setFill(Color.YELLOW);
+        gcCheckpoints.setGlobalAlpha(0.60);
         gcCheckpoints.fillOval(checkpoint.getxPos()-radius/2,
                 checkpoint.getyPos()-radius/2, radius, radius);
     }

@@ -125,7 +125,8 @@ public class GameState {
     }
 
     private void sendCommandToDatabase(Airplane airplane, UUID clientUUID){
-        log.insertEvent(gameCount, "COMMAND", tickCount, clientUUID, playersLogins.get(clientUUID), airplane.getPosX(), airplane.getPosY(),
+        log.insertEvent(gameCount, "COMMAND", tickCount, clientUUID, 0,
+                playersLogins.get(clientUUID), airplane.getPosX(), airplane.getPosY(),
                 airplane.getTargetSpeed(), airplane.getTargetHeading(), airplane.getTargetAltitude(), airplane.getUuid());
 //        log.commit();
     }

@@ -12,6 +12,7 @@ public class Event implements Serializable {
     private eventType type;
     private int timeTick;
     private int playerId;
+    private int points;
     private double xCoordinate;
     private double yCoordinate;
     private double speed;
@@ -19,6 +20,13 @@ public class Event implements Serializable {
     private double height;
     private UUID airplaneUUID;
 
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
+    }
 
     public double getSpeed() {
         return speed;
@@ -109,12 +117,14 @@ public class Event implements Serializable {
         this.airplaneUUID = airplaneUUID;
     }
 
-    public Event( int eventId, int gameId, eventType type, int timeTick, int playerId, double xCoordinate, double yCoordinate, double speed, double heading, double height, UUID airplaneUUID) {
+    public Event( int eventId, int gameId, eventType type, int timeTick, int playerId, int points,
+                  double xCoordinate, double yCoordinate, double speed, double heading, double height, UUID airplaneUUID) {
         this.gameId = gameId;
         this.eventId = eventId;
         this.type = type;
         this.timeTick = timeTick;
         this.playerId = playerId;
+        this.points = points;
         this.xCoordinate = xCoordinate;
         this.yCoordinate = yCoordinate;
         this.speed = speed;

@@ -62,6 +62,7 @@ public class GameLog {
                 "EVENT_TYPE VARCHAR(255) NOT NULL," +
                 "TICK_TIME INTEGER NOT NULL," +
                 "PLAYER_ID INTEGER NOT NULL," +
+                "POINTS INTEGER NOT NULL," +
                 "X_COOR DOUBLE," +
                 "Y_COOR DOUBLE," +
                 "SPEED DOUBLE," +
@@ -153,7 +154,8 @@ public class GameLog {
             System.out.println(entry.getKey() + " " + entry.getValue()));
     }
 
-    public boolean insertEvent(int gameId, String eventType, int timeTick, UUID playerUUID, String login, double xCoordinate, double yCoordinate,
+    public boolean insertEvent(int gameId, String eventType, int timeTick, UUID playerUUID, int points,
+                               String login, double xCoordinate, double yCoordinate,
                                double speed, double heading, double height,UUID airplaneUUID){
         if (!checkUUIDInDatabase(playerUUID)) {
             insertPlayer(gameId,playerUUID, 0, 0, 0);
@@ -166,17 +168,18 @@ public class GameLog {
         System.out.println(playerId +" " + playerUUID.toString());
         try{
             PreparedStatement prepStmt = con.prepareStatement(
-                    "INSERT INTO EVENTS VALUES(NULL,?,?,?,?,?,?,?,?,?,?);");
+                    "INSERT INTO EVENTS VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?);");
             prepStmt.setInt(1,gameId);
             prepStmt.setString(2,eventType);
             prepStmt.setInt(3, timeTick);
             prepStmt.setInt(4, playerId);
-            prepStmt.setDouble(5, xCoordinate);
-            prepStmt.setDouble(6, yCoordinate);
-            prepStmt.setDouble(7, speed);
-            prepStmt.setDouble(8, heading);
-            prepStmt.setDouble(9, height);
-            prepStmt.setBytes(10, airplaneUUID.toString().getBytes());
+            prepStmt.setInt(5, points);
+            prepStmt.setDouble(6, xCoordinate);
+            prepStmt.setDouble(7, yCoordinate);
+            prepStmt.setDouble(8, speed);
+            prepStmt.setDouble(9, heading);
+            prepStmt.setDouble(10, height);
+            prepStmt.setBytes(11, airplaneUUID.toString().getBytes());
             prepStmt.execute();
         }catch (SQLException e){
             System.err.println("ERROR: Cannot add event:" + eventType + ":" + timeTick);
@@ -353,7 +356,7 @@ public class GameLog {
     private List<Event> getEventResults(ResultSet result){
         try {
             List<Event> Events = new LinkedList<>();
-            int id, gameId, tickTime, playerId;
+            int id, gameId, tickTime, playerId, points;
             double xCoordinate, yCoordinate, speed, heading, height;
             Event.eventType eventType;
             UUID airplaneUUID;
@@ -363,13 +366,14 @@ public class GameLog {
                 eventType = Event.eventType.valueOf(result.getString("event_type"));
                 tickTime = result.getInt("tick_time");
                 playerId = result.getInt("player_id");
+                points = result.getInt("points");
                 xCoordinate = result.getDouble("x_coor");
                 yCoordinate = result.getDouble("y_coor");
                 speed = result.getDouble("speed");
                 heading = result.getDouble("heading");
                 height = result.getDouble("height");
                 airplaneUUID = UUID.nameUUIDFromBytes(result.getBytes("airplane_UUID"));
-                Events.add(new Event(id, gameId, eventType, tickTime, playerId, xCoordinate, yCoordinate,speed,
+                Events.add(new Event(id, gameId, eventType, tickTime, playerId,points, xCoordinate, yCoordinate,speed,
                         heading, height,airplaneUUID));
             }
             return Events;

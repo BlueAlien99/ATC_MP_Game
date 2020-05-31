@@ -38,7 +38,7 @@ public class Simulation extends TimerTask {
             }
 
             gameState.getLog().insertEvent(
-                    gameState.getGameCount(), "MOVEMENT", gameState.getTickCount(), v.getOwner(),
+                    gameState.getGameCount(), "MOVEMENT", gameState.getTickCount(), v.getOwner(),0,
                     gameState.searchPlayerLogin(v.getOwner()),
                     v.getPosX(), v.getPosY(), v.getSpeed(), v.getHeading(),
                     v.getAltitude(), v.getUuid());

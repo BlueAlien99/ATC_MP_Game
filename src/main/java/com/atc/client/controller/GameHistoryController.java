@@ -224,11 +224,17 @@ public class GameHistoryController  extends GenericController {
 
         });
         mainMenuButton.setOnAction(e -> {
+            if(task != null){
+                task.stop();
+            }
             if(stream!= null)
             stream.sayGoodbye();
             windowController.loadAndSetScene("/fxml/MainActivity.fxml", gameSettings);
         });
         settingsButton.setOnAction(e -> {
+            if(task != null){
+                task.stop();
+            }
             if(stream!= null)
             stream.sayGoodbye();
             windowController.loadAndSetScene("/fxml/GameSettings.fxml", gameSettings);
