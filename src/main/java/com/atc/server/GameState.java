@@ -4,6 +4,7 @@ import com.atc.client.model.Airplane;
 import com.atc.client.model.Checkpoint;
 import com.atc.client.model.GameSettings;
 import com.atc.server.gamelog.GameLog;
+import com.atc.server.model.Event;
 import javafx.util.Pair;
 
 import java.util.Random;
@@ -133,9 +134,11 @@ public class GameState {
     }
 
     private void sendCommandToDatabase(Airplane airplane, UUID clientUUID) {
-        log.insertEvent(gameCount, "COMMAND", tickCount, clientUUID, 0,
+        log.insertEvent(gameCount, Event.eventType.COMMAND.toString().toUpperCase(),
+                tickCount, clientUUID, 0,
                 playersLogins.get(clientUUID), airplane.getPosX(), airplane.getPosY(),
-                airplane.getTargetSpeed(), airplane.getTargetHeading(), airplane.getTargetAltitude(), airplane.getUuid());
+                airplane.getTargetSpeed(), airplane.getTargetHeading(), airplane.getTargetAltitude(),
+                airplane.getUuid(), findAirplanesByPlayer(clientUUID));
 //        log.commit();
     }
 
@@ -222,6 +225,23 @@ public class GameState {
                 + checkpoints.get(checkpointUUID).getPoints() + " points!";
         checkpointsUpdated = true;
         sendMessageToAll(msg);
+        Airplane happyAirplane = airplanes.get(airplaneUUID);
+        Checkpoint happyCheckpoint = checkpoints.get(checkpointUUID);
+        log.insertEvent(gameCount, Event.eventType.CHECKPOINT.toString().toUpperCase(), tickCount,
+                happyAirplane.getOwner(), happyCheckpoint.getPoints(),
+                playersLogins.get(happyAirplane.getOwner()), happyAirplane.getPosX(),
+                happyAirplane.getPosY(), happyAirplane.getSpeed(), happyAirplane.getHeading(),
+                happyAirplane.getAltitude(), happyAirplane.getUuid(),findAirplanesByPlayer(happyAirplane.getOwner()));
+    }
+
+    public int findAirplanesByPlayer(UUID playerUUID){
+        final int[] planeNum = {0};
+        airplanes.forEach((k,v)->{
+            if(v.getOwner() == playerUUID)
+                planeNum[0]++;
+        });
+        return planeNum[0];
+
     }
 
     public void setNewCheckpointsAirplanesMapping(){
@@ -247,6 +267,8 @@ public class GameState {
             checkpoint.addAirplane(uuid);
         }));
         checkpoints.put(checkpoint.getCheckpointUUID(), checkpoint);
+        log.insertCheckpoints(checkpoint.getCheckpointUUID(), gameCount, checkpoint.getPoints(),
+                checkpoint.getxPos(), checkpoint.getyPos(), checkpoint.getRadius());
     }
 
     public void setAirplanes(ConcurrentHashMap<UUID, Airplane> airplanes) {
@@ -258,6 +280,7 @@ public class GameState {
             checkpoint.addAirplane(airplane.getUuid());
         }));
         airplanes.put(airplane.getUuid(), airplane);
+        log.insertCallsign(gameCount, airplane.getUuid(), airplane.getCallsign());
     }
 
     public boolean getCheckpointsUpdated() {

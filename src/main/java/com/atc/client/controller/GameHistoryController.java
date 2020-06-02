@@ -56,10 +56,14 @@ public class GameHistoryController  extends GenericController {
             } else {
                 if(event.getType() == Event.eventType.COMMAND){
                     eventLabel.setText(createCommandString(gameHistory.getLogins(), gameHistory.getCallsigns(), event));
-                    setTextFill(Color.BLUEVIOLET);
+                    setTextFill(Color.VIOLET);
                 } else if(event.getType() == Event.eventType.MOVEMENT){
                     eventLabel.setText(createEventString(event, gameHistory.getCallsigns()));
-                    setTextFill(Color.SPRINGGREEN);
+                    setTextFill(Color.DARKOLIVEGREEN);
+                } else if(event.getType() == Event.eventType.CHECKPOINT){
+                    eventLabel.setText(createCheckpointString(event, gameHistory.getLogins(),
+                            gameHistory.getCallsigns()));
+                    setTextFill(Color.DARKRED);
                 }
                 timeTick = event.getTimeTick();
                 setText(eventLabel.getText());
@@ -127,6 +131,7 @@ public class GameHistoryController  extends GenericController {
                 gameHistory.setEvents(stream.getEvents());
                 gameHistory.setCallsigns(stream.getCallsigns());
                 gameHistory.setLogins(stream.getLogins());
+                gameHistory.setCheckpoints(stream.getCheckpoints());
                 populateAirplaneHashmap(stream.getEvents());
             }
         }catch (IOException| InterruptedException | NullPointerException ex){
@@ -167,6 +172,8 @@ public class GameHistoryController  extends GenericController {
                     mySlider.setMax(getMaxOfTicks(gameHistory.getEvents()));
                     mySlider.setMin(getMinOfTicks(gameHistory.getEvents()));
                     mySlider.setValue(getMinOfTicks(gameHistory.getEvents()));
+                    radar.start_printing();
+                    printCheckpoints();
                     mySlider.setVisible(true);
                     playButton.setVisible(true);
                     stopButton.setVisible(true);
@@ -202,7 +209,7 @@ public class GameHistoryController  extends GenericController {
                 (observable, oldValue, newValue) -> {
                    activeTimeTick = newValue.intValue();
                    populateAirplaneHashmap(gameHistory.getEvents());
-                    radar.start_printing();
+                    radar.removeAirplanes();
                     airplaneVector.forEach((key, value) -> radar.print_airplane(value));
                     Platform.runLater(()->radar.finish_printing());
                 });
@@ -242,7 +249,7 @@ public class GameHistoryController  extends GenericController {
         eventsList.getSelectionModel().getSelectedItem();
         Platform.runLater(()->{
             alignRadar();
-            radar.start_printing();
+            radar.removeAirplanes();
             radar.finish_printing();
         });
 
@@ -290,7 +297,7 @@ public class GameHistoryController  extends GenericController {
 
     private void drawAirplanes(Event event){
         chooseAirplanes(event);
-        radar.start_printing();
+        radar.removeAirplanes();
         airplaneVector.forEach((key, value) -> radar.print_airplane(value, value.getUuid() == event.getAirplaneUUID()));
         radar.finish_printing();
     }
@@ -314,6 +321,8 @@ public class GameHistoryController  extends GenericController {
                 eventsObservableList.add(event);
             } else if(event.getType() == Event.eventType.COMMAND){
                 commandsObservableList.add(event);
+            } else if(event.getType() == Event.eventType.CHECKPOINT){
+                eventsObservableList.add(event);
             }
         }
         eventsList.setItems(eventsObservableList);
@@ -342,9 +351,22 @@ public class GameHistoryController  extends GenericController {
                 ")";
     }
 
+    private String createCheckpointString(Event event, HashMap<Integer, String> Logins,
+                                          HashMap<UUID, String> Callsigns ){
+        return event.getTimeTick() +
+                ": " + Logins.get(event.getPlayerId())+
+                "("+Callsigns.get(event.getAirplaneUUID())+")"
+                + " gains " + event.getPoints() + " points!";
+    }
+
     void alignRadar(){
         int radarDimensions = Math.min((int)centerPane.getHeight()-(int)centerTop.getHeight()-(int)centerBottom.getHeight(), (int)centerPane.getWidth());
         radar.setPrefSize(radarDimensions, radarDimensions);
     }
 
+    void printCheckpoints(){
+        for(Checkpoint checkpoint: gameHistory.getCheckpoints()){
+            radar.printCheckpoint(checkpoint);
+        }
+    }
 }

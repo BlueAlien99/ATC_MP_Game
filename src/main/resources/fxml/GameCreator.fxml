@@ -11,7 +11,7 @@
             prefHeight="400.0" prefWidth="600.0">
 <top>
     <Button fx:id="mainMenuButton" text="Main Menu"/>
-    <Button fx:id="startGameButton" text="Start game"/>
+
 </top>
     <center>
         <VBox fx:id="gameCanvasVBox"  maxHeight="600" maxWidth="600" alignment="CENTER">
@@ -45,6 +45,9 @@
                     onDragDetected="#airplaneDragDetected"
                     onDragDone="#airplaneDragDone">
             </Button>
+            <Button fx:id="startGameButton" text="Start game"
+                    GridPane.columnSpan="2" minWidth="200" minHeight="30"
+                    GridPane.rowIndex="8" GridPane.columnIndex="0"/>
             <TextField promptText="Points" fx:id="chatEnterPoints" minWidth="40.0"
                        GridPane.rowIndex="2" GridPane.columnIndex="1"/>
             <VBox GridPane.rowSpan="3" GridPane.rowIndex="4" GridPane.columnIndex="1"

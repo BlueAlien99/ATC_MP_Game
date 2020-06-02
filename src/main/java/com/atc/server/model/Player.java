@@ -1,8 +1,9 @@
 package com.atc.server.model;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Player {
+public class Player implements Serializable {
     int playerId;
     UUID playerUUID;
     int points;

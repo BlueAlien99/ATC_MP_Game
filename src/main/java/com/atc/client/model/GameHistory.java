@@ -16,20 +16,23 @@ import java.util.UUID;
 
 public class GameHistory {
     int currentGameId;
+    List<Checkpoint> checkpoints;
     List<Event> Events;
     List<Integer> availableReplayGames;
     HashMap<UUID, String> Callsigns;
     HashMap<Integer, String> Logins;
     HistoryStream stream=null;
 
-    public void getDataFromStream(){
-
-    }
-
-
-
     public void setAvailableReplayGames(List<Integer> availableReplayGames) {
         this.availableReplayGames = availableReplayGames;
+    }
+
+    public void setCheckpoints(List<Checkpoint> checkpoints) {
+        this.checkpoints = checkpoints;
+    }
+
+    public List<Checkpoint> getCheckpoints() {
+        return checkpoints;
     }
 
     public HistoryStream getStream() {

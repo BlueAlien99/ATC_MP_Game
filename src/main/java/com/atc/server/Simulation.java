@@ -2,7 +2,9 @@ package com.atc.server;
 
 import com.atc.client.model.Airplane;
 import com.atc.client.model.Checkpoint;
+import com.atc.client.model.GameSettings;
 import com.atc.client.model.TCAS;
+import com.atc.server.model.Event;
 
 import java.util.TimerTask;
 import java.util.UUID;
@@ -51,10 +53,11 @@ public class Simulation extends TimerTask {
 
 
             gameState.getLog().insertEvent(
-                    gameState.getGameCount(), "MOVEMENT", gameState.getTickCount(), v.getOwner(),0,
+                    gameState.getGameCount(), Event.eventType.MOVEMENT.toString().toUpperCase(),
+                    gameState.getTickCount(), v.getOwner(),0,
                     gameState.searchPlayerLogin(v.getOwner()),
                     v.getPosX(), v.getPosY(), v.getSpeed(), v.getHeading(),
-                    v.getAltitude(), v.getUuid());
+                    v.getAltitude(), v.getUuid(), gameState.findAirplanesByPlayer(v.getOwner()));
         });
 
         TCAS.calculateCollisions(airplanes);

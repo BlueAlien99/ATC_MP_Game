@@ -1,7 +1,10 @@
 package com.atc.server;
 
+import com.atc.client.model.Checkpoint;
 import com.atc.client.model.GameSettings;
 import com.atc.server.model.Event;
+import com.atc.server.model.Login;
+import com.atc.server.model.Player;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -115,18 +118,29 @@ public class ClientConnection implements Runnable{
             }
         }
 
+        private Message sendPlayers(){
+            List<Player> plavers = gameState.getLog().selectAllPlayers();
+            List<Login> logins = gameState.getLog().selectAllLogins();
+            System.out.println("Got data about players from database!");
+            Message msg = new Message(PLAYERS_LIST);
+            msg.setPlayersList(plavers);
+            msg.setBestScoresLoginList(logins);
+            return msg;
+        }
+
         private Message sendAvailableReplays(){
             List<Integer> availableGames = gameState.getLog().selectAvailableGameId();
             System.out.println("Got data from database!");
             return new Message(availableGames);
         }
 
-        private Message sendDataAboutEvents(int searchedGameId){
+        private Message sendDataAboutGame(int searchedGameId){
+            List<Checkpoint> checkpoints = gameState.getLog().selectCheckpoints(searchedGameId);
             List<Event> Events = gameState.getLog().selectGameIdEvents(searchedGameId);
             HashMap<Integer, String> Logins = gameState.getLog().selectPlayerLogin(searchedGameId);
             HashMap<UUID, String> Callsigns = gameState.getLog().selectAirplaneCallsigns(searchedGameId);
             System.out.println("Got data from database!");
-            return new Message(searchedGameId, Events, Callsigns, Logins);
+            return new Message(searchedGameId, Events, Callsigns, Logins, checkpoints);
         }
 
         @Override
@@ -177,7 +191,7 @@ public class ClientConnection implements Runnable{
                         connectionMode = CONNECTION_GAME;
                         gameState.incCurrPlaying();
                     }
-                    if (lastMsgType==GAME_HISTORY){
+                    if (lastMsgType==GAME_HISTORY || lastMsgType == FETCH_PLAYERS){
                         connectionMode = CONNECTION_HISTORY;
                     }
                 }
@@ -232,9 +246,18 @@ public class ClientConnection implements Runnable{
                         if (searchedGameId < 0)
                             gameHistoryMessage = sendAvailableReplays();
                         else
-                            gameHistoryMessage = sendDataAboutEvents(searchedGameId);
+                            gameHistoryMessage = sendDataAboutGame(searchedGameId);
                         try {
                             outputStream.writeObject(gameHistoryMessage);
+                            System.out.println("Sent data to client!");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        continue;
+                    }else if(lastMsgType == FETCH_PLAYERS){
+                        Message playersMessage = sendPlayers();
+                        try {
+                            outputStream.writeObject(playersMessage);
                             System.out.println("Sent data to client!");
                         } catch (IOException e) {
                             e.printStackTrace();

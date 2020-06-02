@@ -11,6 +11,7 @@ import java.util.Optional;
 
 public class MainActivityController extends GenericController{
 
+
     private static class HistoryChoice extends Alert{
         public static ButtonType bRemote = new ButtonType("Remote");
         public static ButtonType bLocal = new ButtonType("Local");
@@ -35,7 +36,7 @@ public class MainActivityController extends GenericController{
             this.getButtonTypes().setAll(bHost, bJoin, bCancel);
         }
     }
-
+    @FXML private Button bestScoresButton;
     @FXML private Button singlePlayerGameButton;
     @FXML private Button multiPlayerGameButton;
     @FXML private Button gameHistoryButton;
@@ -75,11 +76,13 @@ public class MainActivityController extends GenericController{
                 windowController.loadAndSetScene("/fxml/GameHistory.fxml", gameSettings);
             }
         });
+        bestScoresButton.setOnAction(e->
+                windowController.loadAndSetScene("/fxml/BestScores.fxml", gameSettings));
+
         singlePlayerGameButton.setOnAction(e->
             windowController.loadAndSetScene("/fxml/GameCreator.fxml", gameSettings));
         settingsButton.setOnAction(e ->
                 windowController.loadAndSetScene("/fxml/GameSettings.fxml", gameSettings));
-
         quitButton.setOnAction(e -> Platform.exit());
     }
 }
