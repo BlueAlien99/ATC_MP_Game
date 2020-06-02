@@ -11,9 +11,9 @@ public class Main extends Application {
     ServerMain sm;
 
     //TODO: close game after user closes its window
-    //TODO: add back button from multiplayer game
+    //TODO: remove useless buttons from header menu
     //TODO: player's score!
-    //TODO: remove all commented and no longer used code
+    //TODO: remove all commented and no longer used code, also styling
 
     @Override
     public void start(Stage primaryStage) {

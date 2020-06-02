@@ -65,7 +65,6 @@ public class GameState {
         }
     }
 
-
     public boolean simulationPaused() {
         return gameRunning.tryAcquire();
     }
@@ -229,7 +228,7 @@ public class GameState {
         checkpoints.forEach(((uuid, checkpoint) -> {
             checkpoint.airplanes.forEach(((uuid1, aBoolean) -> {
                 if(aBoolean)
-                    checkpointsAirplanesMapping.add(new Pair<UUID, UUID>(uuid, uuid1));
+                    checkpointsAirplanesMapping.add(new Pair<>(uuid, uuid1));
             }));
         }));
     }
@@ -243,9 +242,7 @@ public class GameState {
         this.checkpoints = checkpoints;
     }
     public void addCheckpoint(Checkpoint checkpoint) {
-        airplanes.forEach(((uuid, airplane) -> {
-            checkpoint.addAirplane(uuid);
-        }));
+        airplanes.forEach(((uuid, airplane) -> checkpoint.addAirplane(uuid)));
         checkpoints.put(checkpoint.getCheckpointUUID(), checkpoint);
     }
 
@@ -254,9 +251,7 @@ public class GameState {
     }
 
     public void addAirplane(Airplane airplane){
-        checkpoints.forEach(((uuid, checkpoint) -> {
-            checkpoint.addAirplane(airplane.getUuid());
-        }));
+        checkpoints.forEach(((uuid, checkpoint) -> checkpoint.addAirplane(airplane.getUuid())));
         airplanes.put(airplane.getUuid(), airplane);
     }
 

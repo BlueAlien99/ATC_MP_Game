@@ -6,25 +6,53 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class TCAS {
 
+	public final static double warningHorizontal = 72;
+	public final static double warningVertical = 1000;
+	public final static double criticalHorizontal = 24;
+	public final static double criticalVertical = 375;
+
 	//TODO: it doesnt take altitude into calculations, but its easy peasy to implement
-	//TODO: too sensitive to speed
-	//TODO: add collision detection, just calculate distance between two aircrafts
-	//TODO: add detection, when two aircrafts are just too close to each other
 	//TODO: planes flying at each other
+	//TODO: samoloty AI
+	//TODO: brak zderzeń poza mapa
 
 	public static void calculateCollisions(ConcurrentHashMap<UUID, Airplane> airplanes){
 		ArrayList<Airplane> airList = new ArrayList<>(airplanes.values());
-		double tooClose = 256;
-		double criticallyClose = 64;
+
 		for(int i = 0; i < airList.size(); ++i){
 			Airplane iel = airList.get(i);
+
+			if(iel.isCollisionCourse() || iel.isCrashed()){
+				continue;
+			}
+
 			char ielCase = getTcasCase(iel.getHeading());
 			for(int j = i+1; j < airList.size(); ++j){
 				Airplane jel = airList.get(j);
+
+				if(jel.isCrashed()){
+					continue;
+				}
+
+				double verticalSeparation = Math.abs(iel.getAltitude() - jel.getAltitude());
+				double horizontalSeparation = Math.sqrt(Math.pow(iel.getPosX() - jel.getPosX(), 2) + Math.pow(iel.getPosY() - jel.getPosY(), 2));
+
+				if(verticalSeparation < criticalVertical && horizontalSeparation < criticalHorizontal){
+					iel.setCrashed();
+					jel.setCrashed();
+					continue;
+				}
+
+				if(verticalSeparation < warningVertical && horizontalSeparation < warningHorizontal){
+					iel.setCollisionCourse();
+					jel.setCollisionCourse();
+					continue;
+				}
+
 				char jelCase = getTcasCase(jel.getHeading());
 				boolean collision = false;
 
-				if((ielCase == '8' || ielCase == '2') && (jelCase == '8' || jelCase == '2') && Math.abs(iel.getPosX() - jel.getPosX()) < tooClose){
+				if((ielCase == '8' || ielCase == '2') && (jelCase == '8' || jelCase == '2') && Math.abs(iel.getPosX() - jel.getPosX()) < warningHorizontal){
 					if(ielCase != jelCase){
 						double coordFar = ielCase == '8' ? iel.getPosY() : jel.getPosY();
 						double coordClose = ielCase == '8' ? jel.getPosY() : iel.getPosY();
@@ -34,7 +62,7 @@ public class TCAS {
 					}
 				}
 
-				else if((ielCase == '6' || ielCase == '4') && (jelCase == '6' || jelCase == '4') && Math.abs(iel.getPosY() - jel.getPosY()) < tooClose){
+				else if((ielCase == '6' || ielCase == '4') && (jelCase == '6' || jelCase == '4') && Math.abs(iel.getPosY() - jel.getPosY()) < warningHorizontal){
 					if(ielCase != jelCase){
 						double coordFar = ielCase == '6' ? iel.getPosX() : jel.getPosX();
 						double coordClose = ielCase == '6' ? jel.getPosX() : iel.getPosX();

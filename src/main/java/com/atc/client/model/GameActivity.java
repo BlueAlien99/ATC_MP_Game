@@ -27,15 +27,11 @@ public class GameActivity {
     }
 
     public void setCheckpoints(ConcurrentHashMap<UUID, Checkpoint> checkpoints) {
-        checkpoints.forEach(((uuid, checkpoint) -> {
-            this.checkpoints.put(uuid, checkpoint);
-        }));
+        checkpoints.forEach(((uuid, checkpoint) -> this.checkpoints.put(uuid, checkpoint)));
         System.out.println("SET CHECKPOINTS");
         checkpoints.forEach(((uuid, checkpoint) -> {
             System.out.println(uuid);
-            checkpoint.airplanes.forEach(((uuid1, aBoolean) -> {
-                System.out.println(uuid1.toString() + aBoolean);
-            }));
+            checkpoint.airplanes.forEach(((uuid1, aBoolean) -> System.out.println(uuid1.toString() + aBoolean)));
         }));
         System.out.println("END SET CHECKPOINTS");
     }
@@ -85,21 +81,31 @@ public class GameActivity {
         gameAirplanes.put(airplane.getUuid(), airplane);
     }
 
-    public void updateAirplane(Airplane airplane){
-        if (!gameAirplanes.containsKey(airplane.getUuid())){
+    public void updateAirplanes(ConcurrentHashMap<UUID, Airplane> airplanes){
+        gameAirplanes = airplanes;
+/*        if (!gameAirplanes.containsKey(airplane.getUuid())){
             gameAirplanes.put(airplane.getUuid(), airplane);
         }
         else{
             gameAirplanes.replace(airplane.getUuid(), airplane);
-        }
-        if(!gameHistory.containsKey(airplane.getUuid())){
-            gameHistory.put(airplane.getUuid(), new ArrayList<>());
-        }
-        gameHistory.get(airplane.getUuid()).add(new TrailDot(airplane));
+        }*/
+        airplanes.forEach((k,v) -> {
+			if(!gameHistory.containsKey(k)){
+				gameHistory.put(k, new ArrayList<>());
+			}
+			gameHistory.get(k).add(new TrailDot(v));
+        });
+
+        gameHistory.forEach((k,v) -> {
+        	if(gameAirplanes.get(k) == null){
+        		gameHistory.remove(k);
+			}
+		});
     }
 
     public void wrapPrinting(){
         radar.start_printing();
+//        System.out.println(gameAirplanes.size());
         gameAirplanes.forEach((k, airplane)-> printAirplane(airplane));
         gameHistory.forEach((k, trailDot)-> {
             int trailCounter = 0;

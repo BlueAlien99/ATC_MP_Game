@@ -25,9 +25,15 @@ public class Simulation extends TimerTask {
 
     @Override
     public void run() {
-        if(!gameState.simulationPaused())
+        if(!gameState.simulationPaused()){
             return;
+        }
+
         airplanes.forEach((k, v) -> {
+            if(v.isCrashed()){
+                airplanes.remove(k);
+            }
+
             v.moveAirplane();
             //This is just for testing, so that user does not loose airplanes
             try {
@@ -48,7 +54,6 @@ public class Simulation extends TimerTask {
                     //TODO: gameLog event for checkpoints
                 }
             });
-
 
             gameState.getLog().insertEvent(
                     gameState.getGameCount(), "MOVEMENT", gameState.getTickCount(), v.getOwner(),0,
