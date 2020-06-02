@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Checkpoint implements Serializable, Cloneable {
     private final int standardRadius = 50;
     private UUID checkpointUUID;
+    private int gameID;
     private int points;
     private double xPos;
     private double yPos;
@@ -32,6 +33,16 @@ public class Checkpoint implements Serializable, Cloneable {
         this.points = points;
         this.radius = calculateRadius(points);
         checkpointUUID = UUID.randomUUID();
+    }
+
+    public Checkpoint(UUID checkpointUUID, int gameID, int points, double xPos,
+                      double yPos, double radius) {
+    this.checkpointUUID = checkpointUUID;
+    this.gameID = gameID;
+    this.points = points;
+    this.xPos = xPos;
+    this.yPos = yPos;
+    this.radius = radius;
     }
 
     public boolean checkAirplane(Airplane airplane) {
@@ -125,6 +136,14 @@ public class Checkpoint implements Serializable, Cloneable {
 
     public void setCheckpointUUID(UUID checkpointUUID) {
         this.checkpointUUID = checkpointUUID;
+    }
+
+    public int getGameID() {
+        return gameID;
+    }
+
+    public void setGameID(int gameID) {
+        this.gameID = gameID;
     }
 
     @Override

@@ -1,5 +1,8 @@
 package com.atc.client.model;
 
+import java.net.Socket;
+import java.util.logging.SocketHandler;
+
 public abstract class StreamController implements Runnable {
     private static StreamController singleton;
     protected int scType=0;
@@ -24,6 +27,7 @@ public abstract class StreamController implements Runnable {
         singleton=sc;
         return singleton;
     }
+
 
     abstract void terminate();
 

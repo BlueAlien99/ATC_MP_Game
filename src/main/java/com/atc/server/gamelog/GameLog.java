@@ -1,6 +1,8 @@
 package com.atc.server.gamelog;
 
+import com.atc.client.model.Checkpoint;
 import com.atc.server.model.Event;
+import com.atc.server.model.Login;
 import com.atc.server.model.Player;
 
 
@@ -81,12 +83,28 @@ public class GameLog {
                 "GAME_ID INTEGER NOT NULL," +
                 "AIRPLANE_UUID BLOB NOT NULL," +
                 "AIRPLANE_CALLSIGN VARCHAR(255) NOT NULL)";
-
+        String createCheckpoints = "CREATE TABLE IF NOT EXISTS CHECKPOINTS" +
+                "(CHECKPOINT_ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "CHECKPOINT_UUID BLOB NOT NULL," +
+                "GAME_ID INTEGER NOT NULL," +
+                "POINTS INTEGER NOT NULL," +
+                "X_POS DOUBLE NOT NULL," +
+                "Y_POS DOUBLE NOT NULL," +
+                "RADIUS DOUBLE NOT NULL)";
+        String createTrigger ="CREATE TRIGGER IF NOT EXISTS UPDATE_POINTS " +
+                "BEFORE INSERT ON EVENTS WHEN NEW.POINTS <> 0 " +
+                "BEGIN " +
+                "UPDATE PLAYERS " +
+                "SET POINTS = NEW.POINTS + (SELECT POINTS FROM PLAYERS WHERE PLAYER_ID = NEW.PLAYER_ID) " +
+                "WHERE PLAYER_ID = NEW.PLAYER_ID; " +
+                "END; ";
         try {
             stat.execute(createPlayers);
             stat.execute(createEvents);
             stat.execute(createLogins);
             stat.execute(createCallsigns);
+            stat.execute(createCheckpoints);
+            stat.execute(createTrigger);
         } catch (SQLException e) {
             System.err.println("ERROR: Cannot create tables");
             e.printStackTrace();
@@ -95,6 +113,23 @@ public class GameLog {
         return true;
     }
 
+    public void  insertCheckpoints(UUID checkpointUUID, int gameID, int points,
+                                   double xPos, double yPos, double radius){
+        try{
+            PreparedStatement prepStmt = con.prepareStatement(
+                    "INSERT INTO CHECKPOINTS VALUES(NULL,?,?,?,?,?,?);");
+            prepStmt.setBytes(1,checkpointUUID.toString().getBytes());
+            prepStmt.setInt(2, gameID);
+            prepStmt.setInt(3, points);
+            prepStmt.setDouble(4, xPos);
+            prepStmt.setDouble(5, yPos);
+            prepStmt.setDouble(6, radius);
+            prepStmt.execute();
+        }catch (SQLException e){
+            System.err.println("ERROR: Cannot add checkpoint for:" + checkpointUUID.toString());
+            e.printStackTrace();
+        }
+    }
     private void insertLogin(int gameId,int playerId, String login){
         try{
             PreparedStatement prepStmt = con.prepareStatement(
@@ -156,9 +191,9 @@ public class GameLog {
 
     public boolean insertEvent(int gameId, String eventType, int timeTick, UUID playerUUID, int points,
                                String login, double xCoordinate, double yCoordinate,
-                               double speed, double heading, double height,UUID airplaneUUID){
+                               double speed, double heading, double height,UUID airplaneUUID, int airplanesNum){
         if (!checkUUIDInDatabase(playerUUID)) {
-            insertPlayer(gameId,playerUUID, 0, 0, 0);
+            insertPlayer(gameId,playerUUID, 0, airplanesNum, 0);
             int playerIdinDatabese = findPlayerId(playerUUID);
             insertLogin(gameId,playerIdinDatabese, login);
 //            commit();
@@ -282,6 +317,33 @@ public class GameLog {
         return Events;
     }
 
+    public List<Checkpoint> selectCheckpoints(int gameId){
+        List<Checkpoint> Checkpoints = new Vector<>();
+        UUID checkpointUUID;
+        int gameID, points;
+        double yPos, xPos, radius;
+        try {
+            PreparedStatement prepStmt = con.prepareStatement(
+                    "SELECT * FROM CHECKPOINTS WHERE GAME_ID = ?;");
+            prepStmt.setInt(1,gameId);
+            ResultSet result  = prepStmt.executeQuery();
+            while(result.next()){
+                checkpointUUID = UUID.nameUUIDFromBytes(result.getBytes("checkpoint_uuid"));
+                gameID = result.getInt("game_id");
+                points = result.getInt("points");
+                yPos = result.getDouble("y_pos");
+                xPos = result.getDouble("x_pos");
+                radius = result.getDouble("radius");
+                Checkpoints.add(new Checkpoint(checkpointUUID,gameID,points,
+                        xPos, yPos, radius));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return Checkpoints;
+    }
+
     public int selectGameId (){
         int numberOfGames;
         try {
@@ -330,6 +392,28 @@ public class GameLog {
         }
         return logins;
     }
+
+    public List<Login> selectAllLogins(){
+        List<Login> logins = new Vector<>();
+        try {
+            int playerId, gameID;
+            String login;
+            PreparedStatement prepStmt = con.prepareStatement(
+                    "SELECT PLAYER_ID,GAME_ID,  PLAYER_LOGIN FROM LOGINS;");
+            ResultSet result  = prepStmt.executeQuery();
+            while(result.next()){
+                playerId = result.getInt("player_id");
+                login = result.getString("player_login");
+                gameID = result.getInt("game_id");
+                logins.add(new Login(gameID, playerId, login));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return logins;
+    }
+
 
     public HashMap<UUID, String> selectAirplaneCallsigns(int gameId){
         HashMap<UUID, String> callsigns = new HashMap<>();

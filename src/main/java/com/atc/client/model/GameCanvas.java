@@ -39,6 +39,13 @@ public class GameCanvas extends StackPane {
         gcCheckpoints.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
     }
 
+    public void removeAirplanes(){
+        GraphicsContext gc = radarAirplanes.getGraphicsContext2D();
+        GraphicsContext gcDots = radarTrails.getGraphicsContext2D();
+        gc.clearRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+        gcDots.clearRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+    }
+
     //TODO: this abomination of a function will need some thinking. It works though
 
     public void print_airplane(Airplane airplane){
