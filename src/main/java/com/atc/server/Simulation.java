@@ -31,6 +31,7 @@ public class Simulation extends TimerTask {
 
         airplanes.forEach((k, v) -> {
             if(v.isCrashed()){
+                gameState.generateNewAirplanes(1, v.getOwner());
                 airplanes.remove(k);
             }
 

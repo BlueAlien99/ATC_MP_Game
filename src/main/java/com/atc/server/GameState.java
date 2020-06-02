@@ -1,8 +1,10 @@
 package com.atc.server;
 
+import com.atc.client.Dimensions;
 import com.atc.client.model.Airplane;
 import com.atc.client.model.Checkpoint;
 import com.atc.client.model.GameSettings;
+import com.atc.client.model.TCAS;
 import com.atc.server.gamelog.GameLog;
 import javafx.util.Pair;
 
@@ -94,23 +96,45 @@ public class GameState {
         }
     }
 
-    //TODO: Find a new way to generate planes!
     public void generateNewAirplanes(int num, UUID owner) {
-        for (int i = 0; i < num; ++i) {
-            double pox = CANVAS_WIDTH / 4 + new Random().nextInt((int) CANVAS_WIDTH / 2);
-            double poy = CANVAS_HEIGHT / 4 + new Random().nextInt((int) CANVAS_HEIGHT / 2);
-            double alt = new Random().nextInt(200) + 1500;
+        int generated = 0;
+        while(generated < num) {
+            double pox = CANVAS_WIDTH / 8 + new Random().nextInt((int) CANVAS_WIDTH * 3 / 4);
+            double poy = CANVAS_HEIGHT / 8 + new Random().nextInt((int) CANVAS_HEIGHT * 3 / 4);
+            double alt = new Random().nextInt(8)*500 + 8000;
             double head = new Random().nextInt(360);
-            double speed = new Random().nextInt(100) + 100;
-            Airplane airplane = new Airplane(owner, pox, poy, alt, head, speed);
+            double speed = new Random().nextInt((int) (DEFAULT_MAX_SPEED - DEFAULT_MIN_SPEED) / 2) + DEFAULT_MIN_SPEED;
 
-            airplanes.put(airplane.getUuid(), airplane);
+            if(DEBUGGING_MODE) {
+                alt = 5000;
+                speed = 160;
+            }
+
+            Airplane airplane = new Airplane(owner, pox, poy, alt, head, speed);
+            UUID newUUID = airplane.getUuid();
+
+            ConcurrentHashMap<UUID, Airplane> checkForCollisions = new ConcurrentHashMap<>();
+            airplanes.forEach((k, v ) -> {
+                try {
+                    checkForCollisions.put(k, (Airplane)v.clone());
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            });
+
+            checkForCollisions.put(newUUID, airplane);
+            TCAS.calculateSingleCollision(checkForCollisions, newUUID);
+
+            if(checkForCollisions.get(newUUID).isCollisionCourse() || checkForCollisions.get(newUUID).isCrashed()){
+                continue;
+            }
+
+            ++generated;
+            airplanes.put(newUUID, airplane);
             log.insertCallsign(gameCount, airplane.getUuid(), airplane.getCallsign());
         }
     }
 
-    //TODO: Handle integer overflow in chatMessages and in ClientConnection!
-    //lmaoooooo, obv sb will be playing the game until the apocalypse comes dddd ~BJ
     public void updateAirplane(Airplane airplane, UUID clientUUID) {
         if (airplane == null || clientUUID == null) {
             return;

@@ -62,8 +62,8 @@ public class GameCanvas extends StackPane {
         boolean collisionCourse = airplane.isCollisionCourse() && (ownership || DEBUGGING_MODE);
         boolean crashed = airplane.isCrashed() && (ownership || DEBUGGING_MODE);
 
-//        if(active)
- //       System.out.println(airplane.getPosX() + "    " + airplane.getPosY());
+        if(active)
+        System.out.println(airplane.getPosX() + "    " + airplane.getPosY());
 
         double x_line = LEADING_LINE_LENGTH*sin(Math.toRadians(heading));
         double y_line = LEADING_LINE_LENGTH*cos(Math.toRadians(heading));

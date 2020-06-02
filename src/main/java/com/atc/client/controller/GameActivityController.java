@@ -170,7 +170,6 @@ public class GameActivityController extends GenericController {
             }
         });
 
-
         menuResume.setOnAction(e-> {
                     try {
                         if(!t.timeouted)
