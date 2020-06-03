@@ -6,6 +6,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -24,6 +25,8 @@ public class WindowController {
     }
 
     public void setScene(Pane pane, int width, int height){
+        Font.loadFont(this.getClass().getResource("/fonts/Orbitron-VariableFont_wght.ttf").toExternalForm(), 10);
+        Font.loadFont(this.getClass().getResource("/fonts/PressStart2P-Regular.ttf").toExternalForm(), 10).getFamily();
         Scene scene = new Scene(pane, width, height);
         scene.getStylesheets().add(this.getClass().getResource("/style/style.css").toExternalForm());
         setScene(scene);
