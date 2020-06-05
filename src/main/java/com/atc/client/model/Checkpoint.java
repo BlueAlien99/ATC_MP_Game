@@ -21,6 +21,8 @@ public class Checkpoint implements Serializable, Cloneable {
     //TODO: TO BE PRIVATE
     public ConcurrentHashMap<UUID, Boolean> airplanes = new ConcurrentHashMap<>();
 
+    public Checkpoint() {}
+
     public Checkpoint(int points) {
         this.radius = calculateRadius(points);
         this.points = points;
