@@ -30,6 +30,10 @@ public class Simulation extends TimerTask {
         if(!gameState.simulationPaused())
             return;
         airplanes.forEach((k, v) -> {
+            //Used to calculate distance between a trajectory of airplane and checkpoint
+            v.setLastPosX(v.getPosX());
+            v.setLastPosY(v.getPosY());
+
             v.moveAirplane();
             //This is just for testing, so that user does not loose airplanes
             try {

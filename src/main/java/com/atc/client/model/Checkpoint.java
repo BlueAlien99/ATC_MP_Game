@@ -51,7 +51,7 @@ public class Checkpoint implements Serializable, Cloneable {
         if(airplanes.get(airplane.getUuid())==null) {
             addAirplane(airplane.getUuid());
         }
-        if(!getAirplane(airplane.getUuid()) && Math.pow(airplane.getPosX()-xPos, 2)+Math.pow(airplane.getPosY()-yPos, 2)<=Math.pow(radius/2, 2)) {
+        if(!getAirplane(airplane.getUuid()) && calculateDistanceCheckAirplane(airplane)<=Math.pow(radius/2, 2)) {
             airplanes.put(airplane.getUuid(), true);
             return true;
         }
@@ -87,6 +87,26 @@ public class Checkpoint implements Serializable, Cloneable {
         }
         return true;
     }
+    private double calculateDistanceCheckAirplane(Airplane airplane){
+        double x = xPos;
+        double y = yPos;
+        double x1 = airplane.getLastPosX();
+        double x2 = airplane.getPosX();
+        double y1 = airplane.getLastPosY();
+        double  y2 = airplane.getPosY();
+        double u = ((x2-x1)*(x-x1) + (y2-y1)*(y-y1))/(Math.pow((x2-x1),2) + Math.pow((y2-y1),2));
+        if(u<0){
+            return Math.pow((x1-x),2) + Math.pow((y1-y),2);
+        }else if( u>0 && u<1){
+            double x3 = x1 + u*(x2 - x1);
+            double y3 = y1 + u*(y2 - y1);
+            return Math.pow((x3-x),2) + Math.pow((y3-y),2);
+        }else{
+            return Math.pow((x2-x),2) + Math.pow((y2-y),2);
+        }
+    }
+
+
 
     private double calculateRadius(int points) {
         return 10 * (standardRadius/points);
