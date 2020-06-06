@@ -69,6 +69,7 @@ public class GameActivityController extends GenericController {
 
     @FXML
     public void initialize(){
+
         gameActivity = new GameActivity(this);
         gameActivity.setRadar(radar);
         gameActivity.setClientUUID(GameSettings.getInstance().getClientUUID());
@@ -80,30 +81,6 @@ public class GameActivityController extends GenericController {
             Platform.runLater(
                     () -> gameActivity.wrapPrinting());
         });
-
-        //TODO: This, as with all uses of gameCanvas canvases has to be rewrritten
-//        gameActivity.gameCanvas.radarAirplanes.setOnScroll(e -> {
-//            double delta = 1.2;
-//
-//            double scale = gameActivity.gameCanvas.radarAirplanes.getScaleX();
-//            double oldScale = scale;
-//
-//            if (e.getDeltaY() < 0)
-//                scale /= delta;
-//            else
-//                scale *= delta;
-//
-//            double f = (scale / oldScale)-1;
-//
-//            double dx = (e.getSceneX() - (gameActivity.gameCanvas.radarAirplanes.getBoundsInParent().getWidth()/2 + gameActivity.gameCanvas.radarAirplanes.getBoundsInParent().getMinX()));
-//            double dy = (e.getSceneY() - (gameActivity.gameCanvas.radarAirplanes.getBoundsInParent().getHeight()/2 + gameActivity.gameCanvas.radarAirplanes.getBoundsInParent().getMinY()));
-//
-//            gameActivity.gameCanvas.radarAirplanes.setScaleX( scale);
-//            gameActivity.gameCanvas.radarAirplanes.setScaleY( scale);
-//
-//            gameActivity.gameCanvas.radarAirplanes.setTranslateX(gameActivity.gameCanvas.radarAirplanes.getTranslateX()-f*dx);
-//            gameActivity.gameCanvas.radarAirplanes.setTranslateY(gameActivity.gameCanvas.radarAirplanes.getTranslateY()-f*dy);
-//        });
 
         root.widthProperty().addListener((obs) -> resize());
         root.heightProperty().addListener((obs) -> resize());

@@ -8,6 +8,7 @@ import com.atc.server.gamelog.GameLog;
 import com.atc.server.model.Event;
 import javafx.util.Pair;
 
+import java.io.IOException;
 import java.util.Random;
 import java.util.Timer;
 import java.util.UUID;
@@ -276,6 +277,17 @@ public class GameState {
         });
         return planeNum[0];
 
+    }
+
+    public void disconnectAll(){
+        connections.forEach((k,v)->{
+            try {
+                v.disconnect();
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+        });
     }
 
     public void setNewCheckpointsAirplanesMapping(){

@@ -1,6 +1,7 @@
 package com.atc.client.controller;
 
 import com.atc.client.model.ClientStreamHandler;
+import com.atc.server.ServerMain;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -101,6 +102,10 @@ public class MainActivityController extends GenericController{
             windowController.loadAndSetScene("/fxml/GameCreator.fxml", gameSettings));
         settingsButton.setOnAction(e ->
                 windowController.loadAndSetScene("/fxml/GameSettings.fxml", gameSettings));
-        quitButton.setOnAction(e -> Platform.exit());
+        quitButton.setOnAction(e -> {
+            ServerMain.getInstance().interrupt();
+            ClientStreamHandler.getInstance().interrupt();
+            Platform.exit();
+        });
     }
 }
