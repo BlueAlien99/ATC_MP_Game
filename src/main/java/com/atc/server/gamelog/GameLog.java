@@ -6,6 +6,7 @@ import com.atc.server.model.Login;
 import com.atc.server.model.Player;
 
 
+import java.nio.ByteBuffer;
 import java.sql.*;
 import java.util.*;
 
@@ -70,8 +71,7 @@ public class GameLog {
                 "SPEED DOUBLE," +
                 "HEADING DOUBLE," +
                 "HEIGHT DOUBLE," +
-                "AIRPLANE_UUID BLOB NOT NULL," +
-                "FOREIGN KEY(PLAYER_ID) REFERENCES PLAYERS(PLAYER_ID))";
+                "AIRPLANE_UUID BLOB NOT NULL)";
         String createLogins ="CREATE TABLE IF NOT EXISTS LOGINS" +
                 "(LOGIN_ID INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "GAME_ID INTEGER NOT NULL," +
@@ -118,7 +118,7 @@ public class GameLog {
         try{
             PreparedStatement prepStmt = con.prepareStatement(
                     "INSERT INTO CHECKPOINTS VALUES(NULL,?,?,?,?,?,?);");
-            prepStmt.setBytes(1,checkpointUUID.toString().getBytes());
+            prepStmt.setBytes(1,getBytesFromUUID(checkpointUUID));
             prepStmt.setInt(2, gameID);
             prepStmt.setInt(3, points);
             prepStmt.setDouble(4, xPos);
@@ -146,10 +146,11 @@ public class GameLog {
 
     public void  insertCallsign(int game_id, UUID airplaneUUID, String callsign){
         try{
+
             PreparedStatement prepStmt = con.prepareStatement(
                     "INSERT INTO CALLSIGNS VALUES(NULL,?,?,?);");
             prepStmt.setInt(1,game_id);
-            prepStmt.setBytes(2, airplaneUUID.toString().getBytes());
+            prepStmt.setBytes(2, getBytesFromUUID(airplaneUUID));
             prepStmt.setString(3,callsign);
             prepStmt.execute();
         }catch (SQLException e){
@@ -158,11 +159,11 @@ public class GameLog {
         }
     }
 
-    private boolean insertPlayer(int gameId, UUID playerUUID, int points, int airplanesNum, double timeInGame){
+    public boolean insertPlayer(int gameId, UUID playerUUID, int points, int airplanesNum, double timeInGame){
         try{
             PreparedStatement prepStmt = con.prepareStatement(
                     "INSERT INTO PLAYERS VALUES(NULL,?,?,?,?);");
-            prepStmt.setBytes(1, playerUUID.toString().getBytes());
+            prepStmt.setBytes(1, getBytesFromUUID(playerUUID));
             prepStmt.setInt(2,points);
             prepStmt.setInt(3, airplanesNum);
             prepStmt.setDouble(4,timeInGame);
@@ -178,6 +179,7 @@ public class GameLog {
     private boolean checkUUIDInDatabase(UUID playersUUID){
         return playersUUIDHashmap.containsKey(playersUUID);
     }
+
     public int getPlayerIdFromDatabase(UUID playerUUID){
         if (checkUUIDInDatabase(playerUUID)){
             return playersUUIDHashmap.get(playerUUID);
@@ -214,7 +216,7 @@ public class GameLog {
             prepStmt.setDouble(8, speed);
             prepStmt.setDouble(9, heading);
             prepStmt.setDouble(10, height);
-            prepStmt.setBytes(11, airplaneUUID.toString().getBytes());
+            prepStmt.setBytes(11, getBytesFromUUID(airplaneUUID));
             prepStmt.execute();
         }catch (SQLException e){
             System.err.println("ERROR: Cannot add event:" + eventType + ":" + timeTick);
@@ -257,7 +259,7 @@ public class GameLog {
             UUID playerUUID;
             while(result.next()) {
                 player_ID = result.getInt("player_id");
-                playerUUID = UUID.nameUUIDFromBytes(result.getBytes("player_UUID"));
+                playerUUID = getUUIDFromBytes(result.getBytes("player_UUID"));
                 UUIDs.put(playerUUID,player_ID);
             }
         }
@@ -276,7 +278,7 @@ public class GameLog {
             UUID playerUUID;
             while(result.next()) {
                 id = result.getInt("player_id");
-                playerUUID = UUID.nameUUIDFromBytes(result.getBytes("player_UUID"));
+                playerUUID = getUUIDFromBytes(result.getBytes("player_UUID"));
                 points = result.getInt("points");
                 airplanesNum = result.getInt("airplanes_num");
                 timeInGame = result.getDouble("time_in_game");
@@ -293,7 +295,7 @@ public class GameLog {
         try {
             PreparedStatement prepStmt = con.prepareStatement(
                     "SELECT PLAYER_ID FROM PLAYERS WHERE PLAYER_UUID = ?;");
-            prepStmt.setBytes(1,playersUUID.toString().getBytes());
+            prepStmt.setBytes(1, getBytesFromUUID(playersUUID));
             ResultSet result  = prepStmt.executeQuery();
             playerId = result.getInt(1);
         } catch (SQLException e) {
@@ -328,7 +330,7 @@ public class GameLog {
             prepStmt.setInt(1,gameId);
             ResultSet result  = prepStmt.executeQuery();
             while(result.next()){
-                checkpointUUID = UUID.nameUUIDFromBytes(result.getBytes("checkpoint_uuid"));
+                checkpointUUID = getUUIDFromBytes(result.getBytes("checkpoint_uuid"));
                 gameID = result.getInt("game_id");
                 points = result.getInt("points");
                 yPos = result.getDouble("y_pos");
@@ -425,7 +427,7 @@ public class GameLog {
             prepStmt.setInt(1,gameId);
             ResultSet result  = prepStmt.executeQuery();
             while(result.next()){
-                airplaneUUID = UUID.nameUUIDFromBytes(result.getBytes(1));
+                airplaneUUID = getUUIDFromBytes(result.getBytes(1));
                 callsign = result.getString(2);
                 callsigns.put(airplaneUUID,callsign);
             }
@@ -456,7 +458,7 @@ public class GameLog {
                 speed = result.getDouble("speed");
                 heading = result.getDouble("heading");
                 height = result.getDouble("height");
-                airplaneUUID = UUID.nameUUIDFromBytes(result.getBytes("airplane_UUID"));
+                airplaneUUID = getUUIDFromBytes(result.getBytes("airplane_UUID"));
                 Events.add(new Event(id, gameId, eventType, tickTime, playerId,points, xCoordinate, yCoordinate,speed,
                         heading, height,airplaneUUID));
             }
@@ -489,6 +491,25 @@ public class GameLog {
         }
     }
 
+    public void cleanDatabase(){
+        try {
+            PreparedStatement prepStmt = con.prepareStatement(
+                    "DELETE FROM PLAYERS ;");
+            prepStmt.executeUpdate();
+            prepStmt = con.prepareStatement("DELETE FROM CHECKPOINTS ;");
+            prepStmt.executeUpdate();
+            prepStmt = con.prepareStatement("DELETE FROM EVENTS ;");
+            prepStmt.executeUpdate();
+            prepStmt = con.prepareStatement("DELETE FROM CALLSIGNS ;");
+            prepStmt.executeUpdate();
+            prepStmt = con.prepareStatement("DELETE FROM LOGINS ;");
+            prepStmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     public void closeConnection() {
         try {
@@ -497,5 +518,26 @@ public class GameLog {
             System.err.println("ERROR: Cannot close the connection");
             e.printStackTrace();
         }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////
+    /// THIS IS WORK OF jeffjohnson9046
+    /// LINK TO REPOSITORY https://gist.github.com/jeffjohnson9046/c663dd22bbe6bb0b3f5e
+    /////////////////////////////////////////////////////////////////////////////////////
+
+    public static byte[] getBytesFromUUID(UUID uuid) {
+        ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
+        bb.putLong(uuid.getMostSignificantBits());
+        bb.putLong(uuid.getLeastSignificantBits());
+
+        return bb.array();
+    }
+
+    public static UUID getUUIDFromBytes(byte[] bytes) {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        Long high = byteBuffer.getLong();
+        Long low = byteBuffer.getLong();
+
+        return new UUID(high, low);
     }
 }

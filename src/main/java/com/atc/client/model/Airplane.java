@@ -30,6 +30,8 @@ public class Airplane implements Cloneable, Serializable {
 
 	private double posX;
 	private double posY;
+	private double lastPosX;
+	private double lastPosY;
 
 	private double altitude;
 	private double heading;
@@ -124,6 +126,11 @@ public class Airplane implements Cloneable, Serializable {
 
 		calculateABParams();
 	}
+
+	public double getLastPosX() { return lastPosX;}
+	public void setLastPosX(double lastPosX) {this.lastPosX = lastPosX;}
+	public double getLastPosY() {return lastPosY;}
+	public void setLastPosY(double lastPosY) {this.lastPosY = lastPosY;}
 
 	public String getCallsign() {
 		return callsign;
@@ -342,6 +349,7 @@ public class Airplane implements Cloneable, Serializable {
 
 		uuid = UUID.randomUUID();
 	}
+
 
 	@Override
 	public Object clone() throws CloneNotSupportedException {

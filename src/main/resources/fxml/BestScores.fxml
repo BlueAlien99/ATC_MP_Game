@@ -27,7 +27,7 @@
             <padding>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="40.0" />
             </padding>
-            <Text text="BEST SCORES" textAlignment="CENTER" BorderPane.alignment="TOP_CENTER" >
+            <Text text="BEST SCORES" textAlignment="CENTER" BorderPane.alignment="TOP_CENTER"  styleClass="header">
                 <font>
                     <Font name="System Bold" size="40.0" />
                 </font>
@@ -36,7 +36,7 @@
                 <columns>
                     <TableColumn fx:id="loginCol" text="Login" style="-fx-alignment: CENTER" minWidth="100"/>
                     <TableColumn fx:id="pointsCol" text="Points" style="-fx-alignment: CENTER" minWidth="100"/>
-                    <TableColumn fx:id="airplanesCol" text="Number of airplanes" style="-fx-alignment: CENTER" minWidth="200"/>
+                    <TableColumn fx:id="airplanesCol" text="Airplanes" style="-fx-alignment: CENTER" minWidth="200"/>
                     <TableColumn fx:id="gameIDCol" text="Game ID" style="-fx-alignment: CENTER" minWidth="100"/>
                 </columns>
             </TableView>

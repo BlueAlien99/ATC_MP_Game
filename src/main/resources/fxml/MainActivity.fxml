@@ -16,11 +16,7 @@
 
     <center>
         <VBox alignment="CENTER" spacing="30">
-            <Text text="Air Traffic Control – The Game" textAlignment="CENTER" >
-                <font>
-                    <Font name="System Bold" size="40.0" />
-                </font>
-            </Text>
+            <Text text="Air Traffic Control – The Game" styleClass="header"/>
             <Button fx:id="singlePlayerGameButton" minWidth="300" mnemonicParsing="false" text="Singleplayer Game" textAlignment="CENTER" />
             <Button fx:id="multiPlayerGameButton" minWidth="300" mnemonicParsing="false" text="Multiplayer Game" textAlignment="CENTER" />
             <Button fx:id="bestScoresButton" minWidth="300" mnemonicParsing="false" text="Best Scores" textAlignment="CENTER" />

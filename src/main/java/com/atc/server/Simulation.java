@@ -37,6 +37,10 @@ public class Simulation extends TimerTask {
                 airplanes.remove(k);
             }
 
+            //Used to calculate distance between a trajectory of airplane and checkpoint
+            v.setLastPosX(v.getPosX());
+            v.setLastPosY(v.getPosY());
+
             v.moveAirplane();
             //This is just for testing, so that user does not loose airplanes
             try {
@@ -57,6 +61,7 @@ public class Simulation extends TimerTask {
                     //TODO: gameLog event for checkpoints
                 }
             });
+
 
             gameState.getLog().insertEvent(
                     gameState.getGameCount(), Event.eventType.MOVEMENT.toString().toUpperCase(),

@@ -38,7 +38,7 @@ public class GameHistoryController  extends GenericController {
     airplaneTimerTask task;
     final int SENDGAMESID = -1;
 
-    private class EventCell extends ListCell<Event>{
+    public class EventCell extends ListCell<Event>{
         private Label eventLabel=new Label();
         private int timeTick;
 
@@ -54,14 +54,14 @@ public class GameHistoryController  extends GenericController {
             } else {
                 if(event.getType() == Event.eventType.COMMAND){
                     eventLabel.setText(createCommandString(gameHistory.getLogins(), gameHistory.getCallsigns(), event));
-                    setTextFill(Color.VIOLET);
+                    setTextFill(Color.LIGHTBLUE);
                 } else if(event.getType() == Event.eventType.MOVEMENT){
                     eventLabel.setText(createEventString(event, gameHistory.getCallsigns()));
-                    setTextFill(Color.DARKOLIVEGREEN);
+                    setTextFill(Color.WHITE);
                 } else if(event.getType() == Event.eventType.CHECKPOINT){
                     eventLabel.setText(createCheckpointString(event, gameHistory.getLogins(),
                             gameHistory.getCallsigns()));
-                    setTextFill(Color.DARKRED);
+                    setTextFill(Color.GHOSTWHITE);
                 }
                 timeTick = event.getTimeTick();
                 setText(eventLabel.getText());
