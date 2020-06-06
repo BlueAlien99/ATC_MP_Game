@@ -5,7 +5,6 @@ import com.atc.server.Message;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -64,8 +63,8 @@ public class GameActivityController extends GenericController {
     @FXML private TextField chatEnterSpeed;
     @FXML private TextField chatEnterAltitude;
 
-    @FXML private MenuItem menuResume;
-    @FXML private MenuItem menuReturn;
+    @FXML private Button menuReturn;
+    @FXML private Button menuResume;
 
     @FXML
     public void initialize(){
