@@ -53,29 +53,6 @@ public class GameHistory {
         return checkpoints;
     }
 
-    /**
-     * Gets stream.
-     *
-     * @return the stream
-     */
-    public HistoryStream getStream() {
-        return stream;
-    }
-
-    /**
-     * Sets stream.
-     *
-     * @param stream the stream
-     */
-    public void setStream(HistoryStream stream) {
-        this.stream = stream;
-    }
-
-    /**
-     * Gets events.
-     *
-     * @return the events
-     */
     public List<Event> getEvents() {
         return Events;
     }
@@ -143,11 +120,6 @@ public class GameHistory {
         return Callsigns;
     }
 
-    /**
-     * Gets logins.
-     *
-     * @return the logins
-     */
     public HashMap<Integer, String> getLogins() {
         return Logins;
     }

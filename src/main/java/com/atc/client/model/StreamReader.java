@@ -61,7 +61,7 @@ public class StreamReader extends StreamController {
         connected=true;
 
         try {
-            out.writeObject(new Message());
+            out.writeObject(new Message(CLIENT_HELLO));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -91,16 +91,16 @@ public class StreamReader extends StreamController {
                 lastMsgType = msg.getMsgType();
                 switch (lastMsgType){
                     case AIRPLANES_LIST:
-                        msg.getAirplanes().forEach((k, airplane) -> gameActivity.updateAirplane(airplane));
+                        gameActivity.updateAirplanes(msg.getAirplanes());
+//                        msg.getAirplanes().forEach((k, airplane) -> gameActivity.updateAirplane(airplane));
                         Platform.runLater(
                                 () -> gameActivity.wrapPrinting());
                         System.out.println("Got airplanes");
                         break;
                     case CHECKPOINTS_LIST:
                         ConcurrentHashMap<UUID, Checkpoint> tempMap = msg.getCheckpoints();
-                        msg.getCheckpointsAirplanesMapping().forEach((pair)->{
-                            tempMap.get(pair.getKey()).passAirplane(pair.getValue());
-                        });
+                        msg.getCheckpointsAirplanesMapping().forEach(pair ->
+                                tempMap.get(pair.getKey()).passAirplane(pair.getValue()));
                         gameActivity.setCheckpoints(tempMap);
                         Platform.runLater(
                                 () -> gameActivity.wrapPrinting());

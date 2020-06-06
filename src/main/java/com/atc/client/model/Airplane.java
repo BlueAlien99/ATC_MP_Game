@@ -51,6 +51,7 @@ public class Airplane implements Cloneable, Serializable {
 	private double colAParam;
 	private double colBParam;
 	private boolean collisionCourse;
+	private boolean crashed;
 
 	static{
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -98,6 +99,7 @@ public class Airplane implements Cloneable, Serializable {
 		this.speedAcceleration = 0;
 
 		this.collisionCourse = false;
+		this.crashed = false;
 		calculateABParams();
 	}
 
@@ -133,6 +135,10 @@ public class Airplane implements Cloneable, Serializable {
 	 * @param steps indicates how many steps we want our airplane to make
 	 */
 	public void moveAirplane(double steps){
+		if(crashed){
+			return;
+		}
+
 		collisionCourse = false;
 
 		if(Dimensions.DEBUGGING_MODE){
@@ -413,6 +419,14 @@ public class Airplane implements Cloneable, Serializable {
 	 */
 	public void setCollisionCourse() {
 		this.collisionCourse = true;
+	}
+
+	public boolean isCrashed() {
+		return crashed;
+	}
+
+	public void setCrashed() {
+		this.crashed = true;
 	}
 
 	/**

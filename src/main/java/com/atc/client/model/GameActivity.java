@@ -40,15 +40,11 @@ public class GameActivity {
      * @param checkpoints the checkpoints
      */
     public void setCheckpoints(ConcurrentHashMap<UUID, Checkpoint> checkpoints) {
-        checkpoints.forEach(((uuid, checkpoint) -> {
-            this.checkpoints.put(uuid, checkpoint);
-        }));
+        checkpoints.forEach(((uuid, checkpoint) -> this.checkpoints.put(uuid, checkpoint)));
         System.out.println("SET CHECKPOINTS");
         checkpoints.forEach(((uuid, checkpoint) -> {
             System.out.println(uuid);
-            checkpoint.airplanes.forEach(((uuid1, aBoolean) -> {
-                System.out.println(uuid1.toString() + aBoolean);
-            }));
+            checkpoint.airplanes.forEach(((uuid1, aBoolean) -> System.out.println(uuid1.toString() + aBoolean)));
         }));
         System.out.println("END SET CHECKPOINTS");
     }
@@ -63,6 +59,7 @@ public class GameActivity {
         public double heading;
         public double altitude;
         public double speed;
+
         public long creationTime;
 
         /**
@@ -126,21 +123,24 @@ public class GameActivity {
     }
 
     /**
-     * Updates airplane - replaces old airplane with new one from GameActivity and adds trail dot for it.
+     * Updates airplanes - replaces old airplanes with new ones from GameActivity and adds trail dot for it.
      *
-     * @param airplane the airplane
+     * @param airplanes the airplane
      */
-    public void updateAirplane(Airplane airplane){
-        if (!gameAirplanes.containsKey(airplane.getUuid())){
-            gameAirplanes.put(airplane.getUuid(), airplane);
-        }
-        else{
-            gameAirplanes.replace(airplane.getUuid(), airplane);
-        }
-        if(!gameHistory.containsKey(airplane.getUuid())){
-            gameHistory.put(airplane.getUuid(), new ArrayList<>());
-        }
-        gameHistory.get(airplane.getUuid()).add(new TrailDot(airplane));
+    public void updateAirplanes(ConcurrentHashMap<UUID, Airplane> airplanes) {
+        gameAirplanes = airplanes;
+        airplanes.forEach((k, v) -> {
+            if (!gameHistory.containsKey(k)) {
+                gameHistory.put(k, new ArrayList<>());
+            }
+            gameHistory.get(k).add(new TrailDot(v));
+        });
+
+        gameHistory.forEach((k, v) -> {
+            if (gameAirplanes.get(k) == null) {
+                gameHistory.remove(k);
+            }
+        });
     }
 
     /**
@@ -171,7 +171,17 @@ public class GameActivity {
      * @param airplane the airplane
      */
     public void printAirplane(Airplane airplane){
+        /*
+        if(gameHistory.containsKey(airplane.getUid())) {
+            gameHistory.get(airplane.getUid()).add(new TrailDot(airplane));
+        }
+        else{
+            gameHistory.put(airplane.getUid(), new ArrayList<>());
+            gameHistory.get(airplane.getUid()).add(new TrailDot(airplane));
+        }*/
+
         radar.print_airplane(airplane, airplane.getUuid() == activeAirplane, airplane.getOwner().equals(clientUUID));
+
     }
 
     /**

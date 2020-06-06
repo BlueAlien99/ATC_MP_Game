@@ -3,7 +3,6 @@ package com.atc.client.model;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
 import java.util.ArrayList;
@@ -104,12 +103,18 @@ public class GameCanvas extends StackPane {
         String callsign = airplane.getRadarsign();
 
         boolean collisionCourse = airplane.isCollisionCourse() && (ownership || DEBUGGING_MODE);
+        boolean crashed = airplane.isCrashed() && (ownership || DEBUGGING_MODE);
 
-//        double x_line = LEADING_LINE_LENGTH*sin(Math.toRadians(heading));
-//        double y_line = LEADING_LINE_LENGTH*cos(Math.toRadians(heading));
+        if(active)
+        System.out.println(airplane.getPosX() + "    " + airplane.getPosY());
 
-        double x_line = speed*sin(Math.toRadians(heading));
-        double y_line = speed*cos(Math.toRadians(heading));
+        double x_line = LEADING_LINE_LENGTH*sin(Math.toRadians(heading));
+        double y_line = LEADING_LINE_LENGTH*cos(Math.toRadians(heading));
+
+        if(DEBUGGING_MODE) {
+            x_line = speed * sin(Math.toRadians(heading));
+            y_line = speed * cos(Math.toRadians(heading));
+        }
 
         String alt_symbol = "=";
         if(altitude < targetAltitude) alt_symbol="↑";
@@ -128,7 +133,7 @@ public class GameCanvas extends StackPane {
         GraphicsContext gc = radarAirplanes.getGraphicsContext2D();
         GraphicsContext gcDots = radarTrails.getGraphicsContext2D();
 
-        Paint radarPaint = active ? RADAR_ACTIVE_COLOR : collisionCourse ? RADAR_COLLISION_COLOR : ownership ? RADAR_USER_COLOR : RADAR_COLOR;
+        Paint radarPaint = crashed ? RADAR_CRASHED_COLOR : active ? RADAR_ACTIVE_COLOR : collisionCourse ? RADAR_COLLISION_COLOR : ownership ? RADAR_USER_COLOR : RADAR_COLOR;
 
         gc.setFill(radarPaint);
         gc.setStroke(radarPaint);

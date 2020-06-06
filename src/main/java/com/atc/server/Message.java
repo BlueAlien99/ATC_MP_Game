@@ -26,24 +26,10 @@ public class Message implements Serializable {
      * dummy constructors such as Message(char c).
      */
     public enum msgTypes{
-        CHAT_MESSAGE,
-        AIRPLANE_COMMAND,
-        AIRPLANES_LIST,
-        CLIENT_HELLO,
-        CLIENT_SETTINGS,
-        GAME_HISTORY,
-        GAME_HISTORY_END,
-        GAME_PAUSE,
-        GAME_RESUME,
-        CLIENT_GOODBYE,
-        SERVER_GOODBYE,
-        FETCH_AIRPLANES,
-        SEND_INITIAL,
-        NEW_GAME,
-        FETCH_CHECKPOINTS,
-        CHECKPOINTS_LIST,
-        FETCH_PLAYERS,
-        PLAYERS_LIST
+        CHAT_MESSAGE,  AIRPLANE_COMMAND,  AIRPLANES_LIST,  CLIENT_HELLO,  CLIENT_SETTINGS,  GAME_HISTORY,
+        GAME_HISTORY_END,  GAME_PAUSE,  GAME_RESUME,  CLIENT_GOODBYE,  SERVER_GOODBYE,  FETCH_AIRPLANES,
+        SEND_INITIAL, NEW_GAME, FETCH_CHECKPOINTS, CHECKPOINTS_LIST, FETCH_PLAYERS, PLAYERS_LIST,
+        DISCONNECT
     }
 
     private int gameid;
@@ -69,7 +55,6 @@ public class Message implements Serializable {
      * Default constructor for Message.
      * @param m type of msg (enum msgTypes)
      */
-//TODO: ENUM-erize constructors
     public Message(msgTypes m){
         msgType=m;
     }

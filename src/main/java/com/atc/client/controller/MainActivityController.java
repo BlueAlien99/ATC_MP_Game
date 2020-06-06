@@ -1,5 +1,7 @@
 package com.atc.client.controller;
 
+import com.atc.client.model.ClientStreamHandler;
+import com.atc.server.ServerMain;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -7,6 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 
+import java.io.IOException;
 import java.util.Optional;
 
 public class MainActivityController extends GenericController{
@@ -46,6 +49,12 @@ public class MainActivityController extends GenericController{
     @FXML
     public void initialize(){
 
+        try {
+            ClientStreamHandler.getInstance().setStreamState(ClientStreamHandler.StreamStates.STREAM_IDLE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         multiPlayerGameButton.setOnAction(e -> {
             Optional<ButtonType> result = new MultiPlayerChoice().showAndWait();
             ButtonType buttonType = result.get();
@@ -62,6 +71,11 @@ public class MainActivityController extends GenericController{
                 }
             } else if (MultiPlayerChoice.bHost.equals(buttonType)) {
                 gameSettings.setIpAddress("localhost");
+                try {
+                    ClientStreamHandler.getInstance().updateIP();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
                 windowController.loadAndSetScene("/fxml/GameActivity.fxml", gameSettings);
             }
         });
@@ -73,6 +87,11 @@ public class MainActivityController extends GenericController{
                 windowController.loadAndSetScene("/fxml/GameHistory.fxml", gameSettings);
             } else if (HistoryChoice.bLocal.equals(buttonType)) {
                 gameSettings.setIpAddress("localhost");
+                try {
+                    ClientStreamHandler.getInstance().updateIP();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
                 windowController.loadAndSetScene("/fxml/GameHistory.fxml", gameSettings);
             }
         });
@@ -83,6 +102,10 @@ public class MainActivityController extends GenericController{
             windowController.loadAndSetScene("/fxml/GameCreator.fxml", gameSettings));
         settingsButton.setOnAction(e ->
                 windowController.loadAndSetScene("/fxml/GameSettings.fxml", gameSettings));
-        quitButton.setOnAction(e -> Platform.exit());
+        quitButton.setOnAction(e -> {
+            ServerMain.getInstance().interrupt();
+            ClientStreamHandler.getInstance().interrupt();
+            Platform.exit();
+        });
     }
 }

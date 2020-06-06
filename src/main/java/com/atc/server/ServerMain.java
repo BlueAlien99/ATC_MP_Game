@@ -16,14 +16,21 @@ public class ServerMain implements Runnable{
         return singleton;
     }
 
+    public void interrupt(){
+        try {
+            gameState.disconnectAll();
+            ss.close();
+        } catch (IOException ignored) {}
+        t.interrupt();
+    }
+
     static boolean running = false;
+    private ServerSocket ss;
+    private GameState gameState = new GameState();
 
 
     @Override
     public void run() {
-
-        GameState gameState = new GameState();
-        ServerSocket ss;
         try {
             ss = new ServerSocket(2137);
             running=true;
@@ -32,7 +39,7 @@ public class ServerMain implements Runnable{
             return;
         }
 
-        while(running) {
+        while(running && !Thread.currentThread().isInterrupted()) {
             try {
                 Socket s;
 
@@ -45,9 +52,17 @@ public class ServerMain implements Runnable{
                 connectionThread.start();
 
                 gameState.addConnection(s.toString(), connection);
-            } catch (IOException ex) {
-                ex.printStackTrace();
+            }
+            catch (IOException ex) {
+                if(!ss.isClosed())
+                    ex.printStackTrace();
             }
         }
+        try {
+            ss.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
 }

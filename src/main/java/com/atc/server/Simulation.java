@@ -31,9 +31,15 @@ public class Simulation extends TimerTask {
 
     @Override
     public void run() {
-        if(!gameState.simulationPaused())
+        if(!gameState.simulationPaused()){
             return;
+        }
+
         airplanes.forEach((k, v) -> {
+            if(v.isCrashed()){
+                gameState.generateNewAirplanes(1, v.getOwner());
+                airplanes.remove(k);
+            }
             //Used to calculate distance between a trajectory of airplane and checkpoint
             v.setLastPosX(v.getPosX());
             v.setLastPosY(v.getPosY());

@@ -137,25 +137,10 @@ public class GameHistoryController  extends GenericController {
             if (actualTimeTick == maxTimeTick) {
                 stop();
             }
-            T = new Thread(() -> {
                 mySlider.setValue(activeTimeTick);
                 activeTimeTick += 1;
-            });
-            T.start();
             actualTimeTick +=1;
         }
-    }
-
-    /**
-     * Creates and initializes streams needed to get information from the database.
-     */
-
-    private void initializeStream() {
-        stream = (HistoryStream) StreamController.setInstance(new HistoryStream(gameSettings.getIpAddress()));
-
-        gameHistory.setStream(stream);
-        streamThread = new Thread(stream);
-        streamThread.start();
     }
 
     /**
@@ -165,17 +150,17 @@ public class GameHistoryController  extends GenericController {
      * @param gameId ID of the game that user want to replay
      */
     private void handleDataTransaction(int gameId) {
-        stream.setSearchedGameId(gameId);
+        ClientStreamHandler.getInstance().setSearchedGameId(gameId);
         try {
-            stream.sendRequestForData();
+            ClientStreamHandler.getInstance().sendRequestForData();
             if (gameId < 0) {
-                gameHistory.setAvailableReplayGames(stream.getAvailableGames());
+                gameHistory.setAvailableReplayGames(ClientStreamHandler.getInstance().getAvailableGames());
             } else {
-                gameHistory.setEvents(stream.getEvents());
-                gameHistory.setCallsigns(stream.getCallsigns());
-                gameHistory.setLogins(stream.getLogins());
-                gameHistory.setCheckpoints(stream.getCheckpoints());
-                populateAirplaneHashmap(stream.getEvents());
+                gameHistory.setEvents(ClientStreamHandler.getInstance().getEvents());
+                gameHistory.setCallsigns(ClientStreamHandler.getInstance().getCallsigns());
+                gameHistory.setLogins(ClientStreamHandler.getInstance().getLogins());
+                gameHistory.setCheckpoints(ClientStreamHandler.getInstance().getCheckpoints());
+                populateAirplaneHashmap(ClientStreamHandler.getInstance().getEvents());
             }
         }catch (IOException| InterruptedException | NullPointerException ex){
             createAlert("Server message",
@@ -195,7 +180,12 @@ public class GameHistoryController  extends GenericController {
             if (isComboBoxEmpty.test(gameIdComboBox)) {
                 System.out.println("COMBO BOX SHOULD BE EMPTY");
                 gameHistory = new GameHistory();
-                initializeStream();
+                try {
+                    ClientStreamHandler.getInstance().setStreamState(ClientStreamHandler.StreamStates.STREAM_HISTORY);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    return;
+                }
                 handleDataTransaction(SENDGAMESID);
                 populateComboBox(gameIdComboBox);
                 if (!isComboBoxEmpty.test(gameIdComboBox)) {
@@ -224,7 +214,7 @@ public class GameHistoryController  extends GenericController {
                     createAlert("ComboBox issue",
                             "Please select an option.");
                 }
-                }
+            }
 
         });
         commandsList.getSelectionModel().selectedItemProperty().addListener(e->{
@@ -250,8 +240,8 @@ public class GameHistoryController  extends GenericController {
 
         mySlider.valueProperty().addListener(
                 (observable, oldValue, newValue) -> {
-                   activeTimeTick = newValue.intValue();
-                   populateAirplaneHashmap(gameHistory.getEvents());
+                    activeTimeTick = newValue.intValue();
+                    populateAirplaneHashmap(gameHistory.getEvents());
                     radar.removeAirplanes();
                     airplaneHashmap.forEach((key, value) -> radar.print_airplane(value));
                     Platform.runLater(()->radar.finish_printing());
@@ -266,10 +256,10 @@ public class GameHistoryController  extends GenericController {
                 task = new airplaneTimerTask(maxTimeTick, events);
                 task.init();
                 stopButton.setOnAction(eventHandler-> task.stop());
-               mySlider.setOnMouseClicked(event -> {
-                   System.out.println("Zatrzymać SLIDER");
-                   task.stop();
-               });
+                mySlider.setOnMouseClicked(event -> {
+                    System.out.println("Zatrzymać SLIDER");
+                    task.stop();
+                });
             }
 
         });
@@ -277,16 +267,26 @@ public class GameHistoryController  extends GenericController {
             if(task != null){
                 task.stop();
             }
-            if(stream!= null)
-            stream.sayGoodbye();
+            if(ClientStreamHandler.getInstance() != null) {
+                try {
+                    ClientStreamHandler.getInstance().setStreamState(ClientStreamHandler.StreamStates.STREAM_IDLE);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
             windowController.loadAndSetScene("/fxml/MainActivity.fxml", gameSettings);
         });
         settingsButton.setOnAction(e -> {
             if(task != null){
                 task.stop();
             }
-            if(stream!= null)
-            stream.sayGoodbye();
+            if(ClientStreamHandler.getInstance() != null) {
+                try {
+                    ClientStreamHandler.getInstance().sayGoodbye();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
             windowController.loadAndSetScene("/fxml/GameSettings.fxml", gameSettings);
         });
         eventsList.getSelectionModel().getSelectedItem();
@@ -378,7 +378,7 @@ public class GameHistoryController  extends GenericController {
     private void populateComboBox(ComboBox gameIdComboBox) {
         List<Integer> availableReplayGames = gameHistory.getAvailableReplayGames();
         if(availableReplayGames != null )
-        gameIdComboBox.setItems(FXCollections.observableArrayList(availableReplayGames));
+            gameIdComboBox.setItems(FXCollections.observableArrayList(availableReplayGames));
     }
 
     /**
