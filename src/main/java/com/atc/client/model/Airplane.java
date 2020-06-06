@@ -53,6 +53,7 @@ public class Airplane implements Cloneable, Serializable {
 	static{
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		InputStream is = classLoader.getResourceAsStream(Dimensions.AIRLINES_FILE);
+		assert is != null;
 		Scanner sc = new Scanner(is);
 
 		numOfAirlines = 0;
@@ -118,19 +119,18 @@ public class Airplane implements Cloneable, Serializable {
 		}
 
 		double headingRad = Math.toRadians(heading);
-		double xShift = steps*Math.sin(headingRad) * speed/10 * SIM_TICK_DELAY/1000;
-		double yShift = steps*Math.cos(headingRad) * speed/10 * SIM_TICK_DELAY/1000;
+		double xShift = steps * Math.sin(headingRad) * speed/10 * SIM_TICK_DELAY/1000;
+		double yShift = steps * Math.cos(headingRad) * speed/10 * SIM_TICK_DELAY/1000;
+
+		// Used to calculate distance between a trajectory of an airplane and a checkpoint
+		lastPosX = posX;
+		lastPosY = posY;
 
 		posX += xShift;
 		posY -= yShift;
 
 		calculateABParams();
 	}
-
-	public double getLastPosX() { return lastPosX;}
-	public void setLastPosX(double lastPosX) {this.lastPosX = lastPosX;}
-	public double getLastPosY() {return lastPosY;}
-	public void setLastPosY(double lastPosY) {this.lastPosY = lastPosY;}
 
 	public String getCallsign() {
 		return callsign;
@@ -162,6 +162,14 @@ public class Airplane implements Cloneable, Serializable {
 
 	public void setPosY(double posY){
 		this.posY = posY;
+	}
+
+	public double getLastPosX() {
+		return lastPosX;
+	}
+
+	public double getLastPosY() {
+		return lastPosY;
 	}
 
 	public double getAltitude() {
@@ -330,6 +338,7 @@ public class Airplane implements Cloneable, Serializable {
 	private void registerAircraft() {
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		InputStream is = classLoader.getResourceAsStream(Dimensions.AIRLINES_FILE);
+		assert is != null;
 		Scanner sc = new Scanner(is);
 
 		Random rand = new Random();
@@ -349,7 +358,6 @@ public class Airplane implements Cloneable, Serializable {
 
 		uuid = UUID.randomUUID();
 	}
-
 
 	@Override
 	public Object clone() throws CloneNotSupportedException {

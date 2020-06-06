@@ -37,11 +37,8 @@ public class Simulation extends TimerTask {
                 airplanes.remove(k);
             }
 
-            //Used to calculate distance between a trajectory of airplane and checkpoint
-            v.setLastPosX(v.getPosX());
-            v.setLastPosY(v.getPosY());
-
             v.moveAirplane();
+
             //This is just for testing, so that user does not loose airplanes
             try {
                 if (v.getPosX() < 0) v.setPosX(CANVAS_WIDTH);
