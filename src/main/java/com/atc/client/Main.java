@@ -1,6 +1,8 @@
 package com.atc.client;
 
 import com.atc.client.controller.WindowController;
+import com.atc.client.model.ClientStreamHandler;
+import com.atc.client.model.GameSettings;
 import com.atc.server.ServerMain;
 import javafx.application.Application;
 import javafx.scene.image.Image;
@@ -9,6 +11,8 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
     ServerMain sm;
+    GameSettings gs;
+    ClientStreamHandler csh;
 
     //TODO: close game after user closes its window
     //TODO: remove useless buttons from header menu
@@ -49,6 +53,8 @@ public class Main extends Application {
         primaryStage.show();
 
         sm = ServerMain.getInstance();
+        gs = GameSettings.getInstance();
+        csh = ClientStreamHandler.getInstance();
     }
 
     public static void main(String[] args) {

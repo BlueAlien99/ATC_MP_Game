@@ -1,12 +1,16 @@
 package com.atc.client.controller;
 
+import com.atc.client.model.ClientStreamHandler;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+
+import java.io.IOException;
 
 public class GameSettingsController extends GenericController{
 
@@ -33,6 +37,16 @@ public class GameSettingsController extends GenericController{
         applyButton.setOnAction(e->{
             gameSettings.setPlaneNum(airplanesComboBox.getValue());
             gameSettings.setIpAddress(ipAddressTextField.getText());
+            try {
+                ClientStreamHandler.getInstance().updateIP();
+            } catch (IOException ex) {
+                gameSettings.setIpAddress("localhost");
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Invalid IP");
+                alert.setHeaderText(null);
+                alert.setContentText("Unable to change IP. Reverted to localhost.");
+                alert.showAndWait();
+            }
             gameSettings.setClientName(loginTextField.getText());
             windowController.loadAndSetScene("/fxml/MainActivity.fxml", gameSettings);
         });

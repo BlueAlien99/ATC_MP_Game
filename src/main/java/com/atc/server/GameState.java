@@ -1,6 +1,5 @@
 package com.atc.server;
 
-import com.atc.client.Dimensions;
 import com.atc.client.model.Airplane;
 import com.atc.client.model.Checkpoint;
 import com.atc.client.model.GameSettings;
@@ -187,6 +186,18 @@ public class GameState {
 
     public ConcurrentHashMap<UUID, Airplane> getAirplanes() {
         return airplanes;
+    }
+
+    public ConcurrentHashMap<UUID, Airplane> getAirplanesList() {
+        ConcurrentHashMap<UUID, Airplane>out = new ConcurrentHashMap<>();
+        airplanes.forEach((k, v) -> {
+            try {
+                out.put(k, (Airplane) v.clone());
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+        });
+        return out;
     }
 
     public ConcurrentHashMap<UUID, Airplane> getAirplanesOutput() {

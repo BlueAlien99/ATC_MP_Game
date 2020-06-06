@@ -52,7 +52,7 @@ public class HistoryStream extends StreamController{
     }
 
     private void sayHello(ObjectOutputStream out) throws IOException{
-        Message message = new Message();
+        Message message = new Message(CLIENT_HELLO);
         out.writeObject(message);
     }
 

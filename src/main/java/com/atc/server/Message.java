@@ -21,7 +21,8 @@ public class Message implements Serializable {
     public enum msgTypes{
         CHAT_MESSAGE,  AIRPLANE_COMMAND,  AIRPLANES_LIST,  CLIENT_HELLO,  CLIENT_SETTINGS,  GAME_HISTORY,
         GAME_HISTORY_END,  GAME_PAUSE,  GAME_RESUME,  CLIENT_GOODBYE,  SERVER_GOODBYE,  FETCH_AIRPLANES,
-        SEND_INITIAL, NEW_GAME, FETCH_CHECKPOINTS, CHECKPOINTS_LIST, FETCH_PLAYERS, PLAYERS_LIST
+        SEND_INITIAL, NEW_GAME, FETCH_CHECKPOINTS, CHECKPOINTS_LIST, FETCH_PLAYERS, PLAYERS_LIST,
+        DISCONNECT
     }
 
     private int gameid;
@@ -43,15 +44,9 @@ public class Message implements Serializable {
     private msgTypes msgType;
 
 
-    //TODO: ENUM-erize constructors
     public Message(msgTypes m){
         msgType=m;
     }
-
-    public Message(){
-        this.msgType = msgTypes.CLIENT_HELLO;
-    }
-    public Message(char c){this.msgType = msgTypes.GAME_HISTORY_END;}
 
     public Message(List<Integer> availableGameId){
         this.msgType = msgTypes.GAME_HISTORY;

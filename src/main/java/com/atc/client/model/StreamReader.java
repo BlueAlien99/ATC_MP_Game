@@ -61,7 +61,7 @@ public class StreamReader extends StreamController {
         connected=true;
 
         try {
-            out.writeObject(new Message());
+            out.writeObject(new Message(CLIENT_HELLO));
         } catch (IOException e) {
             e.printStackTrace();
         }

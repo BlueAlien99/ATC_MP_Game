@@ -1,17 +1,18 @@
 package com.atc.client.controller;
 
-import com.atc.client.model.HistoryStream;
-import com.atc.client.model.StreamController;
+import com.atc.client.model.ClientStreamHandler;
 import com.atc.server.model.Login;
 import com.atc.server.model.Player;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.List;
 
 public class BestScoresController extends GenericController{
@@ -20,8 +21,6 @@ public class BestScoresController extends GenericController{
     @FXML TableColumn pointsCol;
     @FXML TableColumn airplanesCol;
     @FXML TableColumn gameIDCol;
-    HistoryStream stream;
-    Thread streamThread;
     List<Player> players;
     List <Login> logins;
     @FXML
@@ -58,7 +57,11 @@ public class BestScoresController extends GenericController{
     }
 
     public void initialize(){
-        getDataAboutPlayers();
+        try {
+            getDataAboutPlayers();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         createColumns();
         mainMenuButton.setOnAction(e->{
             windowController.loadAndSetScene("/fxml/MainActivity.fxml", gameSettings);
@@ -66,12 +69,10 @@ public class BestScoresController extends GenericController{
     }
 
 
-    private void getDataAboutPlayers(){
-        stream = (HistoryStream) StreamController.setInstance(new HistoryStream("localhost"));
-        streamThread = new Thread(stream);
-        streamThread.start();
+    private void getDataAboutPlayers() throws IOException {
         try {
-            stream.askForPlayers();
+            ClientStreamHandler.getInstance().setStreamState(ClientStreamHandler.StreamStates.STREAM_HISTORY);
+            ClientStreamHandler.getInstance().askForPlayers();
         }catch(Exception e){
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Database connection");
@@ -79,9 +80,9 @@ public class BestScoresController extends GenericController{
             alert.setContentText("Unexpected error occurred.");
             alert.showAndWait();
         }
-        players = stream.getPlayersList();
-        logins = stream.getBestScoresLoginsList();
-        stream.sayGoodbye();
+        players = ClientStreamHandler.getInstance().getPlayersList();
+        logins = ClientStreamHandler.getInstance().getBestScoresLoginsList();
+        ClientStreamHandler.getInstance().setStreamState(ClientStreamHandler.StreamStates.STREAM_IDLE);
     }
     private Login searchForLogin(int playerId){
         for(Login login: logins){

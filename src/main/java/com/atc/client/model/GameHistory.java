@@ -1,14 +1,6 @@
 package com.atc.client.model;
 
 import com.atc.server.model.Event;
-import com.atc.server.model.Login;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +13,6 @@ public class GameHistory {
     List<Integer> availableReplayGames;
     HashMap<UUID, String> Callsigns;
     HashMap<Integer, String> Logins;
-    HistoryStream stream=null;
 
     public void setAvailableReplayGames(List<Integer> availableReplayGames) {
         this.availableReplayGames = availableReplayGames;
@@ -33,14 +24,6 @@ public class GameHistory {
 
     public List<Checkpoint> getCheckpoints() {
         return checkpoints;
-    }
-
-    public HistoryStream getStream() {
-        return stream;
-    }
-
-    public void setStream(HistoryStream stream) {
-        this.stream = stream;
     }
 
     public List<Event> getEvents() {

@@ -151,6 +151,7 @@ public class ClientConnection implements Runnable{
                 try{
                     if(socket.isClosed()) {
                         gameState.removeConnection(socket.toString());
+                        output.interrupt();
                         break;
                     }
                     message = (Message) inputStream.readObject();
@@ -174,11 +175,18 @@ public class ClientConnection implements Runnable{
                 }
                 lastMsgType = message.getMsgType();
 
+                if(lastMsgType==DISCONNECT){
+                    output.interrupt();
+                    gameState.removeConnection(socket.toString());
+                    return;
+                }
+
                 if(!clientHello){
                     if (lastMsgType==CLIENT_HELLO)
                         clientHello=true;
                     continue;
                 }
+
 
                 if(connectionMode == CONNECTION_IDLE){
                     if (lastMsgType==CLIENT_SETTINGS) {
@@ -210,7 +218,8 @@ public class ClientConnection implements Runnable{
                         continue;
                     }
                     if(lastMsgType == FETCH_AIRPLANES){
-                        Message outMsg = new Message(gameState.getAirplanes());
+                        Message outMsg = new Message(gameState.getAirplanesList());
+//                        Message outMsg = new Message(gameState.getAirplanesOutput());
                         try {
                             outputStream.writeObject(outMsg);
                         } catch (IOException e) {
@@ -346,7 +355,7 @@ public class ClientConnection implements Runnable{
                         try {
                             outputBufferLock.wait();
                         } catch (InterruptedException e) {
-                            e.printStackTrace();
+                            return;
                         }
                     }
                 }

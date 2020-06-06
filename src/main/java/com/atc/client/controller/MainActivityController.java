@@ -1,5 +1,6 @@
 package com.atc.client.controller;
 
+import com.atc.client.model.ClientStreamHandler;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -7,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 
+import java.io.IOException;
 import java.util.Optional;
 
 public class MainActivityController extends GenericController{
@@ -46,6 +48,12 @@ public class MainActivityController extends GenericController{
     @FXML
     public void initialize(){
 
+        try {
+            ClientStreamHandler.getInstance().setStreamState(ClientStreamHandler.StreamStates.STREAM_IDLE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         multiPlayerGameButton.setOnAction(e -> {
             Optional<ButtonType> result = new MultiPlayerChoice().showAndWait();
             ButtonType buttonType = result.get();
@@ -62,6 +70,11 @@ public class MainActivityController extends GenericController{
                 }
             } else if (MultiPlayerChoice.bHost.equals(buttonType)) {
                 gameSettings.setIpAddress("localhost");
+                try {
+                    ClientStreamHandler.getInstance().updateIP();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
                 windowController.loadAndSetScene("/fxml/GameActivity.fxml", gameSettings);
             }
         });
@@ -73,6 +86,11 @@ public class MainActivityController extends GenericController{
                 windowController.loadAndSetScene("/fxml/GameHistory.fxml", gameSettings);
             } else if (HistoryChoice.bLocal.equals(buttonType)) {
                 gameSettings.setIpAddress("localhost");
+                try {
+                    ClientStreamHandler.getInstance().updateIP();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
                 windowController.loadAndSetScene("/fxml/GameHistory.fxml", gameSettings);
             }
         });
