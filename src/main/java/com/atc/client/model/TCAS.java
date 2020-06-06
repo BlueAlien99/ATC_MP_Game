@@ -13,9 +13,6 @@ public class TCAS {
 	public final static double criticalHorizontal = 24;
 	public final static double criticalVertical = 375;
 
-	//TODO: planes flying at each other
-	//TODO: samoloty AI
-
 	public static void calculateSingleCollision(ConcurrentHashMap<UUID, Airplane> airplanes, UUID chosen){
 		Airplane iel = airplanes.get(chosen);
 		airplanes.forEach((k, v) -> {

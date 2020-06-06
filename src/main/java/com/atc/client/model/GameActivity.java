@@ -144,7 +144,7 @@ public class GameActivity {
             gameHistory.get(airplane.getUid()).add(new TrailDot(airplane));
         }*/
 
-        radar.print_airplane(airplane, airplane.getUuid() == activeAirplane, airplane.getOwner().equals(clientUUID));
+        radar.print_airplane(airplane, airplane.getUuid() == activeAirplane, airplane.getOwner() != null && airplane.getOwner().equals(clientUUID));
 
     }
 
@@ -169,7 +169,7 @@ public class GameActivity {
         double min = 2048;
         UUID ret = null;
         for (Map.Entry<UUID, Airplane> pair: gameAirplanes.entrySet()) {
-            if(pair.getValue().getOwner().equals(clientUUID)) {
+            if(pair.getValue().getOwner() != null && pair.getValue().getOwner().equals(clientUUID)) {
                 double val = (pair.getValue().getPosY() - y) * (pair.getValue().getPosY() - y)
                         + (pair.getValue().getPosX() - x) * (pair.getValue().getPosX() - x);
                 if (val < min) {

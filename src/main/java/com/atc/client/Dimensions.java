@@ -57,7 +57,8 @@ public class Dimensions {
 
     public static final int TIMEOUT_TRIES = 50;
 
-
+    public static final int AI_GENERATION_FREQUENCY = 12;
+    public static final int MAX_AI_PLANES = 6;
 
     public static final String AIRLINES_FILE = "csv/airlines.csv";
 }
