@@ -13,11 +13,17 @@ import static com.atc.client.Dimensions.*;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
+/**
+ * Class representing radar in game. All the graphics operations are displayed on GameCanvas.
+ */
 public class GameCanvas extends StackPane {
     private Canvas radarAirplanes;
     private Canvas radarCheckpoints;
     private Canvas radarTrails;
 
+    /**
+     * Instantiates a new Game canvas.
+     */
     public GameCanvas(){
         radarAirplanes = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
         radarTrails = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -30,6 +36,9 @@ public class GameCanvas extends StackPane {
         resize_canvas();
     }
 
+    /**
+     * Starts printing - erases everything from canvas.
+     */
     public void start_printing(){
         GraphicsContext gc = radarAirplanes.getGraphicsContext2D();
         GraphicsContext gcDots = radarTrails.getGraphicsContext2D();
@@ -40,6 +49,9 @@ public class GameCanvas extends StackPane {
         gcCheckpoints.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
     }
 
+    /**
+     * Removes airplanes - layer with airplanes is cleaned, so checkpoints and background stay unchanged.
+     */
     public void removeAirplanes(){
         GraphicsContext gc = radarAirplanes.getGraphicsContext2D();
         GraphicsContext gcDots = radarTrails.getGraphicsContext2D();
@@ -49,12 +61,36 @@ public class GameCanvas extends StackPane {
 
     //TODO: this abomination of a function will need some thinking. It works though
 
+    /**
+     * Print airplane - one of the printing methods.
+     * This one is used when we want to print AI airplane without it being active (it changes colour to blue).
+     *
+     * @param airplane the airplane
+     */
     public void print_airplane(Airplane airplane){
         print_airplane(airplane, false, false);
     }
+
+    /**
+     * Prints AI airplanes.
+     *
+     * @param airplane the airplane
+     * @param active   the active
+     */
     public void print_airplane(Airplane airplane, Boolean active){
         print_airplane(airplane, active, false);
     }
+
+    /**
+     * Prints user airplane on GameCanvas with its trailing dots, radarsign and symbols indicating whether it is increasing
+     * or decreasing its altitude.
+     * ACTIVE COLOUR -> Blue
+     * NONACTIVE COLOUR -> Green
+     *
+     * @param airplane  the airplane
+     * @param active    the active
+     * @param ownership the ownership
+     */
     public void print_airplane(Airplane airplane, Boolean active, Boolean ownership){
 
         double altitude = airplane.getAltitude();
@@ -126,15 +162,36 @@ public class GameCanvas extends StackPane {
 //        gcDots.clearRect(x-3, y-3, 6, 6);
     }
 
+    /**
+     * Prints trailing dot on given point on GameCanvas.
+     *
+     * @param x the x
+     * @param y the y
+     */
     void printDot(double x, double y){
         printDot(x, y, RADAR_COLOR);
     }
 
+    /**
+     * Prints trailing dot in given colour and on given point.
+     *
+     * @param x        the x
+     * @param y        the y
+     * @param dotColor the dot color
+     */
     void printDot(double x, double y, Paint dotColor){
         GraphicsContext gcDots = radarTrails.getGraphicsContext2D();
         gcDots.setFill(dotColor);
         gcDots.fillOval(x, y, 2, 2);
     }
+
+    /**
+     * Prints checkpoint and checks if active airplane has already passed it. If so, it is being filled with olive green colour,
+     * otherwise it is yellow.
+     *
+     * @param checkpoint     the checkpoint
+     * @param activeAirplane the active airplane
+     */
     public void printCheckpoint(Checkpoint checkpoint, UUID activeAirplane){
         GraphicsContext gcCheckpoints = radarCheckpoints.getGraphicsContext2D();
         double radius = checkpoint.getRadius();
@@ -152,10 +209,18 @@ public class GameCanvas extends StackPane {
         gcCheckpoints.setGlobalAlpha(1);
     }
 
+    /**
+     * Prints checkpoint, but without checking any airplanes.
+     *
+     * @param checkpoint the checkpoint
+     */
     public void printCheckpoint(Checkpoint checkpoint) {
         printCheckpoint(checkpoint, null);
     }
 
+    /**
+     * Finishes printing - adds all the layers (checkpoints, airplanes, background) to GameCanvas.
+     */
     public void finish_printing(){
         this.getChildren().clear();
         this.getChildren().add(radarCheckpoints);
@@ -163,6 +228,9 @@ public class GameCanvas extends StackPane {
         this.getChildren().add(radarAirplanes);
     }
 
+    /**
+     * Resizes canvas.
+     */
     public void resize_canvas(){
         radarAirplanes.setScaleX(xCoeff());
         radarAirplanes.setScaleY(yCoeff());
@@ -172,12 +240,28 @@ public class GameCanvas extends StackPane {
         radarCheckpoints.setScaleY(yCoeff());
     }
 
+    /**
+     * Coefficient between canvases width as determined in Dimensions class and its width determined by the size of thw window.
+     *
+     * @return value of coeff x
+     */
     public double xCoeff(){ return this.getPrefWidth() / CANVAS_WIDTH; }
 
+    /**
+     * Coefficient between canvases height as determined in Dimensions class and its height determined by the size of thw window.
+     *
+     * @return value of coeff y
+     */
     public double yCoeff(){
         return this.getPrefHeight() / CANVAS_HEIGHT;
     }
 
+    /**
+     * Prints airplanes array.
+     *
+     * @param airplanes the airplanes
+     * @param radar     the radar
+     */
     public void print_airplanes_array(ArrayList<Airplane> airplanes, StackPane radar){
         start_printing();
         for(Airplane airplane : airplanes){

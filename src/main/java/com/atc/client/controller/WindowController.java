@@ -11,7 +11,9 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-// This class makes it easy to switch scenes in a window.
+/**
+ * This class makes it easy to switch scenes in a window.
+ */
 public class WindowController {
 
     private Stage window;

@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Class to detect collisions. Only Rafał Kulus knows how it works.
+ */
 public class TCAS {
 
 	//TODO: it doesnt take altitude into calculations, but its easy peasy to implement
@@ -12,6 +15,11 @@ public class TCAS {
 	//TODO: add detection, when two aircrafts are just too close to each other
 	//TODO: planes flying at each other
 
+	/**
+	 * Calculates collisions.
+	 *
+	 * @param airplanes the airplanes
+	 */
 	public static void calculateCollisions(ConcurrentHashMap<UUID, Airplane> airplanes){
 		ArrayList<Airplane> airList = new ArrayList<>(airplanes.values());
 		double tooClose = 256;
@@ -88,6 +96,12 @@ public class TCAS {
 			}
 		}
 	}
+
+	/**
+	 * Switch funtion used to differentiate cases of collisions.
+	 * @param heading
+	 * @return
+	 */
 
 	private static char getTcasCase(double heading){
 		double delta = 2.5;

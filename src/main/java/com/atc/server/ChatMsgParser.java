@@ -2,7 +2,18 @@ package com.atc.server;
 
 import com.atc.client.model.Airplane;
 
+/**
+ * Helper class to generate messages based on new airplane's targets entered by user.
+ */
+
 public class ChatMsgParser {
+
+    /**
+     * Generates a message for the chat that informs users about a new trajectory of given plane.
+     * @param oldPlane version of plane from the last tick
+     * @param newPlane version of plane from actual tick
+     * @return String message
+     */
 
     public static String parseNewMsg(Airplane oldPlane, Airplane newPlane){
 

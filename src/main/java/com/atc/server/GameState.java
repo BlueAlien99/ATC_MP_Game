@@ -38,9 +38,7 @@ public class GameState {
     private boolean checkpointsUpdated = false;
 
     private final Object outputBufferLock = new Object();
-    private final Object checkpointBufferLock = new Object();
 
-    private GameSettings gs;
     private int gameCount = log.selectGameId();
 
     private boolean shutdown = false;
@@ -246,12 +244,10 @@ public class GameState {
 
     public void setNewCheckpointsAirplanesMapping(){
         checkpointsAirplanesMapping = new Vector<>();
-        checkpoints.forEach(((uuid, checkpoint) -> {
-            checkpoint.airplanes.forEach(((uuid1, aBoolean) -> {
-                if(aBoolean)
-                    checkpointsAirplanesMapping.add(new Pair<UUID, UUID>(uuid, uuid1));
-            }));
-        }));
+        checkpoints.forEach(((uuid, checkpoint) -> checkpoint.airplanes.forEach(((uuid1, aBoolean) -> {
+            if(aBoolean)
+                checkpointsAirplanesMapping.add(new Pair<>(uuid, uuid1));
+        }))));
     }
 
     public ConcurrentHashMap<UUID, Checkpoint> getCheckpoints() {
@@ -263,9 +259,7 @@ public class GameState {
         this.checkpoints = checkpoints;
     }
     public void addCheckpoint(Checkpoint checkpoint) {
-        airplanes.forEach(((uuid, airplane) -> {
-            checkpoint.addAirplane(uuid);
-        }));
+        airplanes.forEach(((uuid, airplane) -> checkpoint.addAirplane(uuid)));
         checkpoints.put(checkpoint.getCheckpointUUID(), checkpoint);
         log.insertCheckpoints(checkpoint.getCheckpointUUID(), gameCount, checkpoint.getPoints(),
                 checkpoint.getxPos(), checkpoint.getyPos(), checkpoint.getRadius());
@@ -276,9 +270,7 @@ public class GameState {
     }
 
     public void addAirplane(Airplane airplane){
-        checkpoints.forEach(((uuid, checkpoint) -> {
-            checkpoint.addAirplane(airplane.getUuid());
-        }));
+        checkpoints.forEach(((uuid, checkpoint) -> checkpoint.addAirplane(airplane.getUuid())));
         airplanes.put(airplane.getUuid(), airplane);
         log.insertCallsign(gameCount, airplane.getUuid(), airplane.getCallsign());
     }

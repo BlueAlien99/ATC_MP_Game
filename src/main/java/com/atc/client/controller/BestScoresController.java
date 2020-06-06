@@ -14,6 +14,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Class controlling exchange of data about players with the database.
+ */
 public class BestScoresController extends GenericController{
     @FXML Button mainMenuButton;
     @FXML TableColumn loginCol;
@@ -24,15 +27,25 @@ public class BestScoresController extends GenericController{
     Thread streamThread;
     List<Player> players;
     List <Login> logins;
-    @FXML
-    TableView playersTableView = new TableView();
+    @FXML TableView playersTableView = new TableView();
 
-    public class PlayerEntry{
+    /**
+     * Class container used to display data in playersTableView
+     */
+    class PlayerEntry{
         String login;
         int points;
         int airplanesNum;
         int gameID;
 
+        /**
+         * Instantiates a new Player entry.
+         *
+         * @param login        the login
+         * @param points       the points
+         * @param airplanesNum the airplanes num
+         * @param gameID       the game id
+         */
         public PlayerEntry(String login, int points, int airplanesNum,int gameID) {
             this.login = login;
             this.points = points;
@@ -40,18 +53,38 @@ public class BestScoresController extends GenericController{
             this.gameID = gameID;
         }
 
+        /**
+         * Gets game id - necessary for TableView to work.
+         *
+         * @return the game id
+         */
         public int getGameID() {
             return gameID;
         }
 
+        /**
+         * Gets login - necessary for TableView to work.
+         *
+         * @return the login
+         */
         public String getLogin() {
             return login;
         }
 
+        /**
+         * Gets points - necessary for TableView to work.
+         *
+         * @return the points
+         */
         public int getPoints() {
             return points;
         }
 
+        /**
+         * Gets airplanes num necessary for TableView to work.
+         *
+         * @return the airplanes num
+         */
         public int getAirplanesNum() {
             return airplanesNum;
         }
@@ -60,11 +93,13 @@ public class BestScoresController extends GenericController{
     public void initialize(){
         getDataAboutPlayers();
         createColumns();
-        mainMenuButton.setOnAction(e->{
-            windowController.loadAndSetScene("/fxml/MainActivity.fxml", gameSettings);
-        });
+        mainMenuButton.setOnAction(e-> windowController.loadAndSetScene("/fxml/MainActivity.fxml", gameSettings));
     }
 
+    /**
+     * Manages data exchange with database. Writes a message to stream asking for data about players, waits for it
+     * to be sent and then uploads it.
+     */
 
     private void getDataAboutPlayers(){
         stream = (HistoryStream) StreamController.setInstance(new HistoryStream("localhost"));
@@ -83,6 +118,12 @@ public class BestScoresController extends GenericController{
         logins = stream.getBestScoresLoginsList();
         stream.sayGoodbye();
     }
+
+    /**
+     * Searches for a login corresponding to given playerID in the database.
+     * @param playerId
+     * @return login or null, whether a search is successful or not.
+     */
     private Login searchForLogin(int playerId){
         for(Login login: logins){
             if(login.getPlayerId() == playerId)
@@ -90,6 +131,10 @@ public class BestScoresController extends GenericController{
         }
         return null;
     }
+
+    /**
+     * Adds columns to TableView and populates them with data.
+     */
 
     private void createColumns(){
         loginCol.setCellValueFactory(new PropertyValueFactory<PlayerEntry, String>("login"));
@@ -99,8 +144,12 @@ public class BestScoresController extends GenericController{
         populateTableView();
     }
 
+    /**
+     * Creates PlayerEntries for every row from database and puts it in TableView.
+     */
+
     private void populateTableView(){
-        final ObservableList<PlayerEntry> playerEntries =  FXCollections.observableArrayList();;
+        final ObservableList<PlayerEntry> playerEntries =  FXCollections.observableArrayList();
         if (logins!= null && players != null){
             for(Player player: players){
                 Login login = searchForLogin(player.getIdPlayer());

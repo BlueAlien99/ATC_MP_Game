@@ -8,6 +8,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 
+/**
+ * Class controlling everything that happens in GameSettings window.
+ */
+
 public class GameSettingsController extends GenericController{
 
     @FXML TextField loginTextField;
