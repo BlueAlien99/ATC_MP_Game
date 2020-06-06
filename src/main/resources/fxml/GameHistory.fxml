@@ -68,17 +68,17 @@
                     <padding>
                         <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
                     </padding>
-                    <Button fx:id="playButton" visible="false">
+                    <Button fx:id="playButton" visible="false" minWidth="20" maxHeight="20">
                             <graphic>
-                                <ImageView image="$playImage" />
+                                <ImageView image="$playImage" fitWidth="20" fitHeight="20"/>
                             </graphic>
                     </Button>
                     <fx:define>
                         <Image fx:id="stopImage" url="/images/stop.png" />
                     </fx:define>
-                    <Button fx:id="stopButton" visible="false">
+                    <Button fx:id="stopButton" visible="false" minWidth="20" maxHeight="20">
                         <graphic>
-                            <ImageView image="$stopImage" />
+                            <ImageView image="$stopImage" fitWidth="20" fitHeight="20"/>
                         </graphic>
                     </Button>
                     <Slider fx:id="mySlider"

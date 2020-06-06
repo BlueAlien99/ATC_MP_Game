@@ -1,0 +1,78 @@
+.root {
+    -fx-font-size: 14px;
+    -fx-font-family: sans-serif;
+    -fx-background-color: #003366;
+}
+Button{
+    -fx-alignment: CENTER;
+    -fx-background-color: linear-gradient(from 25% 25% to 100% 100%, #0080ff, #0059b3);
+    -fx-font-size: 20;
+    -fx-font-family: Orbitron;
+    -fx-text-fill: WHITE;
+}
+.button:hover{
+    -fx-background-color: #0080ff;
+}
+Label{
+    -fx-font-family: Orbitron;
+    -fx-background-color: transparent;
+    -fx-font-size: 20;
+    -fx-text-fill: WHITE;
+}
+#eventsList{
+    -fx-text-alignment: CENTER;
+    -fx-background-color:transparent;
+}
+#commandsList{
+    -fx-text-alignment: CENTER;
+    -fx-background-color: transparent;
+}
+.list-cell:odd{
+    -fx-background-color: #9fbfdf;
+}
+.list-cell:even{
+    -fx-background-color: #79a6d2;
+}
+
+.list-cell:odd:selected{
+    -fx-background-color: #3f71a6;
+    -fx-text-fill: WHITE;
+}
+.list-cell:even:selected{
+    -fx-background-color: #3f71a6;
+    -fx-text-fill: WHITE;
+}
+.text-field{
+    -fx-background-color: #79a6d2;
+    -fx-text-fill: WHITE;
+    -fx-font-family: Orbitron;
+    -fx-font-weight: BOLD;
+    -fx-prompt-text-fill: WHITE;
+}
+
+.header {
+    -fx-alignment: CENTER;
+    -fx-font-size: 30;
+    -fx-font-family: "Press Start 2P";
+    -fx-font-weight: BOLD;
+    -fx-fill: WHITE;
+}
+.table-row-cell:odd{
+    -fx-background-color: #79a6d2;
+}
+.table-row-cell:even{
+    -fx-background-color: #9fbfdf;
+}
+.table-row-cell:focused{
+    -fx-background-color: #233f5c;
+}
+.table-view .column-header .label{
+    -fx-text-fill: #52677A;
+    -fx-alignment: CENTER;
+}
+.scroll-pane{
+    -fx-base:  #404040;
+}
+Text{
+    -fx-fill: WHITE;
+}
