@@ -11,6 +11,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.atc.client.Dimensions.*;
 
+/**
+ * Class with simulation thread that manages movements of airplanes on canvas,
+ * detects collisions and checks for passing checkpoint.
+ */
 public class Simulation extends TimerTask {
 
     private GameState gameState;
@@ -80,7 +84,7 @@ public class Simulation extends TimerTask {
                 }
             });
 
-
+            //Inserting data about the airplane's movements to database
             gameState.getLog().insertEvent(
                     gameState.getGameCount(), Event.eventType.MOVEMENT.toString().toUpperCase(),
                     gameState.getTickCount(), v.getOwner(),0,

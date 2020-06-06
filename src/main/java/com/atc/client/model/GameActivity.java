@@ -8,6 +8,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.atc.client.Dimensions.RADAR_DOTS_HISTORY;
 import static java.lang.System.currentTimeMillis;
 
+/**
+ * Class container that keeps necessary information to display current state of game on GameCanvas.
+ */
 public class GameActivity {
 
     private long gameStartedTime;
@@ -22,10 +25,20 @@ public class GameActivity {
 
     private GameActivityController gameActivityController;
 
+    /**
+     * Gets checkpoints.
+     *
+     * @return the checkpoints
+     */
     public ConcurrentHashMap<UUID, Checkpoint> getCheckpoints() {
         return checkpoints;
     }
 
+    /**
+     * Adds checkpoints to GameActivity.
+     *
+     * @param checkpoints the checkpoints
+     */
     public void setCheckpoints(ConcurrentHashMap<UUID, Checkpoint> checkpoints) {
         checkpoints.forEach(((uuid, checkpoint) -> this.checkpoints.put(uuid, checkpoint)));
         System.out.println("SET CHECKPOINTS");
@@ -37,6 +50,9 @@ public class GameActivity {
     }
 
 
+    /**
+     * Class representing trailing dots.
+     */
     static class TrailDot{
         public double xPos;
         public double yPos;
@@ -46,6 +62,11 @@ public class GameActivity {
 
         public long creationTime;
 
+        /**
+         * Instantiates a new Trail dot.
+         *
+         * @param airplane the airplane
+         */
         TrailDot(Airplane airplane){
             xPos = airplane.getPosX();
             yPos = airplane.getPosY();
@@ -57,6 +78,11 @@ public class GameActivity {
         }
     }
 
+    /**
+     * Instantiates a new Game activity.
+     *
+     * @param controller the controller
+     */
     public GameActivity(GameActivityController controller){
         gameHistory = new ConcurrentHashMap<>();
         gameAirplanes = new ConcurrentHashMap<>();
@@ -69,18 +95,38 @@ public class GameActivity {
         gameActivityController = controller;
     }
 
+    /**
+     * Sets radar.
+     *
+     * @param newRadar the new radar
+     */
     public void setRadar(GameCanvas newRadar){
         radar = newRadar;
     }
 
+    /**
+     * Sets client uuid.
+     *
+     * @param clientUUID the client uuid
+     */
     public void setClientUUID(UUID clientUUID){
         this.clientUUID = clientUUID;
     }
 
+    /**
+     * Adds airplane.
+     *
+     * @param airplane the airplane
+     */
     public void addAirplane(Airplane airplane){
         gameAirplanes.put(airplane.getUuid(), airplane);
     }
 
+    /**
+     * Updates airplane - replaces old airplane with new one from GameActivity and adds trail dot for it.
+     *
+     * @param airplane the airplane
+     */
     public void updateAirplanes(ConcurrentHashMap<UUID, Airplane> airplanes){
         gameAirplanes = airplanes;
 /*        if (!gameAirplanes.containsKey(airplane.getUuid())){
@@ -103,6 +149,9 @@ public class GameActivity {
 		});
     }
 
+    /**
+     * Wrap printing - used in GameActivity to print airplanes and trailing dots.
+     */
     public void wrapPrinting(){
         radar.start_printing();
 //        System.out.println(gameAirplanes.size());
@@ -134,6 +183,11 @@ public class GameActivity {
         });
     }
 
+    /**
+     * Prints airplane.
+     *
+     * @param airplane the airplane
+     */
     public void printAirplane(Airplane airplane){
         /*
         if(gameHistory.containsKey(airplane.getUid())) {
@@ -148,10 +202,16 @@ public class GameActivity {
 
     }
 
+    /**
+     * Resizes canvas.
+     */
     public void resizeCanvas(){
         radar.resize_canvas();
     }
 
+    /**
+     * Method only used in debugging mode to move a random airplane in random direction.
+     */
     public void moveAirplanes_DEBUG(){
         gameAirplanes.forEach((k, airplane) -> {
             if(new Random().nextBoolean() && new Random().nextBoolean() && new Random().nextBoolean()){
@@ -165,6 +225,12 @@ public class GameActivity {
         gameAirplanes.forEach((k, airplane) -> airplane.moveAirplane());
     }
 
+    /**
+     * Gets the closest airplane to mouse click.
+     * @param x - x position of mouse click
+     * @param y - y position of mouse click
+     * @return uuid of the nearest airplane
+     */
     private UUID getClosest(double x, double y){
         double min = 2048;
         UUID ret = null;
@@ -184,11 +250,20 @@ public class GameActivity {
 
     }
 
+    /**
+     * Sets the closest airplane as active.
+     *
+     * @param x the x
+     * @param y the y
+     */
     public void setActive(double x, double y){
         activeAirplane = getClosest(x,y);
         updateChatBoxes();
     }
 
+    /**
+     * Updates chat boxes after user sending new targets for the airplane.
+     */
     public void updateChatBoxes(){
         if(activeAirplane != null){
             Airplane plane = gameAirplanes.get(activeAirplane);
@@ -198,10 +273,21 @@ public class GameActivity {
         }
     }
 
+    /**
+     * Gets an active airplane's uuid.
+     *
+     * @return the uuid
+     */
     public UUID getActiveAirplane(){
         return activeAirplane;
     }
 
+    /**
+     * Gets airplane by uuid airplane.
+     *
+     * @param uuid the uuid
+     * @return the airplane
+     */
     public Airplane getAirplaneByUUID(UUID uuid){
         return gameAirplanes.get(uuid);
     }

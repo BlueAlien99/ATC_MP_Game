@@ -12,6 +12,9 @@ import static com.atc.client.Dimensions.SIM_TICK_DELAY;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
+/**
+ * Class representing airplanes in game.
+ */
 public class Airplane implements Cloneable, Serializable {
 
 	private static final double climbAccStep = 10;
@@ -63,6 +66,16 @@ public class Airplane implements Cloneable, Serializable {
 		}
 	}
 
+	/**
+	 * Instantiates a new Airplane.
+	 *
+	 * @param owner    the owner
+	 * @param posX     the pos x
+	 * @param posY     the pos y
+	 * @param altitude the altitude
+	 * @param heading  the heading
+	 * @param speed    the speed
+	 */
 	public Airplane(UUID owner, double posX, double posY, double altitude, double heading, double speed){
 		registerAircraft();
 		this.owner = owner;
@@ -90,6 +103,18 @@ public class Airplane implements Cloneable, Serializable {
 		calculateABParams();
 	}
 
+	/**
+	 * Instantiates a new Airplane.
+	 *
+	 * @param uuid      the uuid
+	 * @param callsign  the callsign
+	 * @param radarsign the radarsign
+	 * @param posX      the pos x
+	 * @param posY      the pos y
+	 * @param altitude  the altitude
+	 * @param heading   the heading
+	 * @param speed     the speed
+	 */
 	public Airplane(UUID uuid, String callsign, String radarsign, double posX, double posY, double altitude, double heading, double speed){
 		this(null, posX, posY, altitude, heading, speed);
 		this.uuid = uuid;
@@ -97,10 +122,18 @@ public class Airplane implements Cloneable, Serializable {
 		this.radarsign = radarsign;
 	}
 
+	/**
+	 * Default method to move airplane by one step. Used in game to move airplanes.
+	 */
 	public void moveAirplane(){
 		moveAirplane(1);
 	}
 
+	/**
+	 * Moves airplanes by given number of steps. Used in collision detection and spawning airplanes on canvas at specified time.
+	 *
+	 * @param steps indicates how many steps we want our airplane to make
+	 */
 	public void moveAirplane(double steps){
 		if(crashed){
 			return;
@@ -132,50 +165,110 @@ public class Airplane implements Cloneable, Serializable {
 		calculateABParams();
 	}
 
+	/**
+	 * Gets callsign.
+	 *
+	 * @return the callsign
+	 */
 	public String getCallsign() {
 		return callsign;
 	}
 
+	/**
+	 * Gets radarsign.
+	 *
+	 * @return the radarsign
+	 */
 	public String getRadarsign() {
 		return radarsign;
 	}
 
+	/**
+	 * Gets uuid.
+	 *
+	 * @return the uuid
+	 */
 	public UUID getUuid() {
 		return uuid;
 	}
 
+	/**
+	 * Gets owner.
+	 *
+	 * @return the owner
+	 */
 	public UUID getOwner() {
 		return owner;
 	}
 
+	/**
+	 * Gets pos x.
+	 *
+	 * @return the pos x
+	 */
 	public double getPosX() {
 		return posX;
 	}
 
+	/**
+	 * Sets pos x.
+	 *
+	 * @param posX the pos x
+	 */
 	public void setPosX(double posX) {
 		this.posX = posX;
 	}
 
+	/**
+	 * Gets pos y.
+	 *
+	 * @return the pos y
+	 */
 	public double getPosY() {
 		return posY;
 	}
 
+	/**
+	 * Set pos y.
+	 *
+	 * @param posY the pos y
+	 */
 	public void setPosY(double posY){
 		this.posY = posY;
 	}
 
+	/**
+	 * Gets last pos x.
+	 *
+	 * @return the last pos x
+	 */
 	public double getLastPosX() {
 		return lastPosX;
 	}
 
+	/**
+	 * Gets last pos y.
+	 *
+	 * @return the last pos y
+	 */
 	public double getLastPosY() {
 		return lastPosY;
 	}
 
+	/**
+	 * Gets altitude.
+	 *
+	 * @return the altitude
+	 */
 	public double getAltitude() {
 		return altitude;
 	}
 
+	/**
+	 * Gets heading.
+	 *
+	 * @return the heading
+	 */
 	public double getHeading() {
 		if(heading == 0){
 			return 360;
@@ -183,14 +276,29 @@ public class Airplane implements Cloneable, Serializable {
 		return heading;
 	}
 
+	/**
+	 * Gets speed.
+	 *
+	 * @return the speed
+	 */
 	public double getSpeed() {
 		return speed;
 	}
 
+	/**
+	 * Gets target altitude.
+	 *
+	 * @return the target altitude
+	 */
 	public double getTargetAltitude() {
 		return targetAltitude;
 	}
 
+	/**
+	 * Gets target heading.
+	 *
+	 * @return the target heading
+	 */
 	public double getTargetHeading() {
 		if(targetHeading == 0){
 			return 360;
@@ -198,16 +306,33 @@ public class Airplane implements Cloneable, Serializable {
 		return targetHeading;
 	}
 
+	/**
+	 * Gets target speed.
+	 *
+	 * @return the target speed
+	 */
 	public double getTargetSpeed() {
 		return targetSpeed;
 	}
 
+	/**
+	 * Sets target params.
+	 *
+	 * @param speed    the speed
+	 * @param heading  the heading
+	 * @param altitude the altitude
+	 */
 	public void setTargetParams(double speed, double heading, double altitude){
 		setTargetAltitude(altitude);
 		setTargetHeading(heading);
 		setTargetSpeed(speed);
 	}
 
+	/**
+	 * Set target altitude and corrects it if user set it wrongly in the chat.
+	 *
+	 * @param altitude the altitude
+	 */
 	public void setTargetAltitude(double altitude){
 		if(altitude < Dimensions.AIRPLANE_MIN_ALTITUDE){
 			targetAltitude = Dimensions.AIRPLANE_MIN_ALTITUDE;
@@ -216,6 +341,11 @@ public class Airplane implements Cloneable, Serializable {
 		}
 	}
 
+	/**
+	 * Sets target heading.
+	 *
+	 * @param heading the heading
+	 */
 	public void setTargetHeading(double heading) {
 		heading %= 360;
 
@@ -226,6 +356,11 @@ public class Airplane implements Cloneable, Serializable {
 		targetHeading = heading;
 	}
 
+	/**
+	 * Sets target speed and corrects it if user set it wrong in the chat.
+	 *
+	 * @param speed the speed
+	 */
 	public void setTargetSpeed(double speed){
 		if(speed < minSpeed){
 			targetSpeed = minSpeed;
@@ -234,6 +369,9 @@ public class Airplane implements Cloneable, Serializable {
 		}
 	}
 
+	/**
+	 * Calculates ab params.
+	 */
 	public void calculateABParams(){
 		double x = posX + speed * sin(Math.toRadians(heading));
 		double y = posY + speed * cos(Math.toRadians(heading));
@@ -243,18 +381,36 @@ public class Airplane implements Cloneable, Serializable {
 		colBParam = posY - (colAParam * posX);
 	}
 
+	/**
+	 * Gets col a param.
+	 *
+	 * @return the col a param
+	 */
 	public double getColAParam() {
 		return colAParam;
 	}
 
+	/**
+	 * Gets col b param.
+	 *
+	 * @return the col b param
+	 */
 	public double getColBParam() {
 		return colBParam;
 	}
 
+	/**
+	 * Checks if airplane is on collision course.
+	 *
+	 * @return the boolean
+	 */
 	public boolean isCollisionCourse() {
 		return collisionCourse;
 	}
 
+	/**
+	 * Sets collision course.
+	 */
 	public void setCollisionCourse() {
 		this.collisionCourse = true;
 	}
@@ -267,6 +423,9 @@ public class Airplane implements Cloneable, Serializable {
 		this.crashed = true;
 	}
 
+	/**
+	 * Updates airplane's altitude
+	 */
 	private void updateAltitude(){
 		double diff = targetAltitude - altitude;
 
@@ -285,6 +444,9 @@ public class Airplane implements Cloneable, Serializable {
 		altitude += altitudeAcceleration;
 	}
 
+	/**
+	 * Updates airplane's speed
+	 */
 	private void updateSpeed(){
 		double diff = targetSpeed - speed;
 
@@ -303,6 +465,9 @@ public class Airplane implements Cloneable, Serializable {
 		speed += speedAcceleration;
 	}
 
+	/**
+	 * Updates airplane's heading
+	 */
 	private void updateHeading(){
 		double diff = targetHeading - heading;
 
@@ -335,6 +500,9 @@ public class Airplane implements Cloneable, Serializable {
 		}
 	}
 
+	/**
+	 * Gives airplane its callsign and radarsign - it simply randoms it from the list.
+	 */
 	private void registerAircraft() {
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		InputStream is = classLoader.getResourceAsStream(Dimensions.AIRLINES_FILE);

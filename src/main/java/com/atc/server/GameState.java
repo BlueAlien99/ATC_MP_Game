@@ -40,9 +40,7 @@ public class GameState {
     private boolean checkpointsUpdated = false;
 
     private final Object outputBufferLock = new Object();
-    private final Object checkpointBufferLock = new Object();
 
-    private GameSettings gs;
     private int gameCount = log.selectGameId();
 
     private boolean shutdown = false;

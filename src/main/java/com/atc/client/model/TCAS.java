@@ -6,6 +6,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.atc.client.Dimensions.*;
 
+/**
+ * Class to detect collisions. Only Rafał Kulus knows how it works.
+ */
 public class TCAS {
 
 	public final static double warningHorizontal = 72;
@@ -22,6 +25,11 @@ public class TCAS {
 		});
 	}
 
+	/**
+	 * Calculates collisions.
+	 *
+	 * @param airplanes the airplanes
+	 */
 	public static void calculateCollisions(ConcurrentHashMap<UUID, Airplane> airplanes){
 		ArrayList<Airplane> airList = new ArrayList<>(airplanes.values());
 
@@ -130,6 +138,12 @@ public class TCAS {
 			jel.setCollisionCourse();
 		}
 	}
+
+	/**
+	 * Switch funtion used to differentiate cases of collisions.
+	 * @param heading
+	 * @return
+	 */
 
 	private static char getTcasCase(double heading){
 		double delta = 2.5;

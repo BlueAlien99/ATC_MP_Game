@@ -12,6 +12,10 @@ import javafx.scene.control.TextField;
 
 import java.io.IOException;
 
+/**
+ * Class controlling everything that happens in GameSettings window.
+ */
+
 public class GameSettingsController extends GenericController{
 
     @FXML TextField loginTextField;

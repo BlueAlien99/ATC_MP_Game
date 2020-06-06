@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Class representing checkpoints in game.
+ */
 public class Checkpoint implements Serializable, Cloneable {
     private final int standardRadius = 50;
     private UUID checkpointUUID;
@@ -15,20 +18,37 @@ public class Checkpoint implements Serializable, Cloneable {
     private int points;
     private double xPos;
     private double yPos;
-    private double altitude;
     private double radius;
 
-    //TODO: TO BE PRIVATE
+    /**
+     * Every checkpoint has his own checkpoint with airplanes to check whether it passed it or not.
+     */
+//TODO: TO BE PRIVATE
     public ConcurrentHashMap<UUID, Boolean> airplanes = new ConcurrentHashMap<>();
 
+    /**
+     * Instantiates a new Checkpoint - used only to make tests.
+     */
     public Checkpoint() {}
 
+    /**
+     * Instantiates a new Checkpoint.
+     *
+     * @param points the points
+     */
     public Checkpoint(int points) {
         this.radius = calculateRadius(points);
         this.points = points;
         checkpointUUID = UUID.randomUUID();
     }
 
+    /**
+     * Instantiates a new Checkpoint.
+     *
+     * @param x      the x
+     * @param y      the y
+     * @param points the points
+     */
     public Checkpoint(double x, double y, int points) {
         this.xPos = x;
         this.yPos = y;
@@ -37,6 +57,16 @@ public class Checkpoint implements Serializable, Cloneable {
         checkpointUUID = UUID.randomUUID();
     }
 
+    /**
+     * Instantiates a new Checkpoint.
+     *
+     * @param checkpointUUID the checkpoint uuid
+     * @param gameID         the game id
+     * @param points         the points
+     * @param xPos           the x pos
+     * @param yPos           the y pos
+     * @param radius         the radius
+     */
     public Checkpoint(UUID checkpointUUID, int gameID, int points, double xPos,
                       double yPos, double radius) {
     this.checkpointUUID = checkpointUUID;
@@ -47,6 +77,12 @@ public class Checkpoint implements Serializable, Cloneable {
     this.radius = radius;
     }
 
+    /**
+     * Checks if airplane passed a checkpoint.
+     *
+     * @param airplane the airplane
+     * @return true if airplane passed, false otherwise
+     */
     public boolean checkAirplane(Airplane airplane) {
         if(airplanes.get(airplane.getUuid())==null) {
             addAirplane(airplane.getUuid());
@@ -58,6 +94,12 @@ public class Checkpoint implements Serializable, Cloneable {
         return false;
     }
 
+    /**
+     * Checks if airplane with given UUID is in checkpoint's hashmap.
+     *
+     * @param airplaneUUID the airplane UUID
+     * @return  true if airplane is on the list, false otherwise
+     */
     public boolean getAirplane(UUID airplaneUUID) {
         if(airplaneUUID == null)
             return false;
@@ -68,6 +110,11 @@ public class Checkpoint implements Serializable, Cloneable {
     }
 
 
+    /**
+     * Marks airplane on checkpoint's hashmap as passed.
+     *
+     * @param airplaneUUID the airplane uuid
+     */
     public void passAirplane(UUID airplaneUUID){
         System.out.println(airplaneUUID+" passes checkpoint");
         airplanes.put(airplaneUUID, true);
@@ -76,17 +123,28 @@ public class Checkpoint implements Serializable, Cloneable {
 
     }
 
+    /**
+     * Add an airplane to checkpoint's hashmap.
+     *
+     * @param airplaneUUID the airplane uuid
+     */
     public void addAirplane(UUID airplaneUUID){
         airplanes.put(airplaneUUID, false);
     }
 
-    public boolean checkAllAirplanes(){
-        for(Map.Entry<UUID, Boolean> pair : airplanes.entrySet()){
-            if(!pair.getValue())
-                return false;
-        }
-        return true;
-    }
+    /**
+     * Method to calculate distance between a checkpoint (seen as a point) and airplane trajectory
+     * (seen as a segment).
+     * @param airplane
+     * x - position x of a checkpoint
+     * y - position y of a checkpoint
+     * x1 - position x of last step of an airplane
+     * y1 - position y of last step of an airplane
+     * x2 - actual x position of an airplane
+     * y2 - actual y position of an airplane
+     * u - parameter used to indicate a point in a segment that has the smallest distance to checkpoint.
+     * @return
+     */
     private double calculateDistanceCheckAirplane(Airplane airplane){
         double x = xPos;
         double y = yPos;
@@ -106,64 +164,120 @@ public class Checkpoint implements Serializable, Cloneable {
         }
     }
 
-
+    /**
+     * Calculate radius of checkpoint. The more points it has, the smaller it gets.
+     * @param points
+     * @return radius of a checkpoint
+     */
 
     private double calculateRadius(int points) {
         return 10 * (standardRadius/points);
     }
 
+    /**
+     * Gets points.
+     *
+     * @return the points
+     */
     public int getPoints() {
         return points;
     }
 
+    /**
+     * Sets points.
+     *
+     * @param points the points
+     */
     public void setPoints(int points) {
         this.points = points;
     }
 
+    /**
+     * Gets pos.
+     *
+     * @return the pos
+     */
     public double getxPos() {
         return xPos;
     }
 
+    /**
+     * Sets pos.
+     *
+     * @param xPos the x pos
+     */
     public void setxPos(double xPos) {
         this.xPos = xPos;
     }
 
+    /**
+     * Gets pos.
+     *
+     * @return the pos
+     */
     public double getyPos() {
         return yPos;
     }
 
+    /**
+     * Sets pos.
+     *
+     * @param yPos the y pos
+     */
     public void setyPos(double yPos) {
         this.yPos = yPos;
     }
 
-    public double getAltitude() {
-        return altitude;
-    }
-
-    public void setAltitude(double altitude) {
-        this.altitude = altitude;
-    }
-
+    /**
+     * Gets radius.
+     *
+     * @return the radius
+     */
     public double getRadius() {
         return radius;
     }
 
+    /**
+     * Sets radius.
+     *
+     * @param radius the radius
+     */
     public void setRadius(double radius) {
         this.radius = radius;
     }
 
+    /**
+     * Gets checkpoint uuid.
+     *
+     * @return the checkpoint uuid
+     */
     public UUID getCheckpointUUID() {
         return checkpointUUID;
     }
 
+    /**
+     * Sets checkpoint uuid.
+     *
+     * @param checkpointUUID the checkpoint uuid
+     */
     public void setCheckpointUUID(UUID checkpointUUID) {
         this.checkpointUUID = checkpointUUID;
     }
 
+    /**
+     * Gets game id.
+     *
+     * @return the game id
+     */
     public int getGameID() {
         return gameID;
     }
 
+    /**
+     * Sets game id.
+     *
+     * @param gameID the game id
+     */
     public void setGameID(int gameID) {
         this.gameID = gameID;
     }

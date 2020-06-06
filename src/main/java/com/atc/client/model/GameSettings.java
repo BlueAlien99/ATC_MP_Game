@@ -3,6 +3,11 @@ package com.atc.client.model;
 import java.io.Serializable;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * Container singleton class with settings needed in establishing new game.
+ */
+
 public class GameSettings implements Serializable {
 
     private static GameSettings singleton;
