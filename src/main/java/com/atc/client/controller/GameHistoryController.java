@@ -73,7 +73,6 @@ public class GameHistoryController  extends GenericController {
         List<Event> events;
         int maxTimeTick;
         int actualTimeTick;
-        Thread T;
         Timer time;
         public airplaneTimerTask(int maxTimeTick, List<Event> events){
             this.events = events;
@@ -84,10 +83,8 @@ public class GameHistoryController  extends GenericController {
             time.schedule(this, 0, 1000);
         }
         public void stop(){
-            System.out.println("KONIEC");
             if(task != null){
                 time.cancel();
-                T.interrupt();
             }
             threadSemaphore.release();
         }
@@ -101,23 +98,11 @@ public class GameHistoryController  extends GenericController {
             if (actualTimeTick == maxTimeTick) {
                 stop();
             }
-            T = new Thread(() -> {
                 mySlider.setValue(activeTimeTick);
                 activeTimeTick += 1;
-                System.out.println("SRAKA");
-            });
-            T.start();
             actualTimeTick +=1;
         }
     }
-//  LOL NOPE
-//    private void initializeStream() {
-//        stream = (HistoryStream) StreamController.setInstance(new HistoryStream(gameSettings.getIpAddress()));
-//
-//        gameHistory.setStream(stream);
-//        streamThread = new Thread(stream);
-//        streamThread.start();
-//    }
 
     private void handleDataTransaction(int gameId) {
         ClientStreamHandler.getInstance().setSearchedGameId(gameId);

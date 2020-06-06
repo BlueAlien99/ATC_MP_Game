@@ -43,7 +43,7 @@ public class ClientConnection implements Runnable{
     private int searchedGameId = 0;
 
 
-    private UUID clientUUID;
+    private UUID clientUUID = UUID.randomUUID();
     private String clientName;
     private GameSettings gs;
 
@@ -54,6 +54,13 @@ public class ClientConnection implements Runnable{
         this.gameState = gameState;
         this.outputBufferLock = gameState.getOutputBufferLock();
         this.socket = socket;
+    }
+
+    public void disconnect() throws IOException {
+        outputStream.writeObject(new Message(DISCONNECT));
+        output.interrupt();
+        input.interrupt();
+        socket.close();
     }
 
     public String getClientName() {
@@ -147,7 +154,7 @@ public class ClientConnection implements Runnable{
         public void run() {
             Message message = null;
             //this "thing" below is a state machine. Looks how it looks but allows for easier handling than previous ideas
-            while(true){
+            while(!Thread.currentThread().isInterrupted()){
                 try{
                     if(socket.isClosed()) {
                         gameState.removeConnection(socket.toString());
@@ -303,7 +310,7 @@ public class ClientConnection implements Runnable{
         @Override
         public void run() {
             ConcurrentHashMap<Integer, String> chatMsg = gameState.getChatMessages();
-            run: while(true){
+            run: while(!Thread.currentThread().isInterrupted()){
                 if(currentTick != gameState.getTickCount() && connectionMode == CONNECTION_GAME){
                     currentTick = gameState.getTickCount();
                     Message msg = new Message(gameState.getAirplanesOutput());

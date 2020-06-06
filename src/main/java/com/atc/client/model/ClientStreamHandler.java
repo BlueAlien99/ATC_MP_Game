@@ -42,6 +42,11 @@ public class ClientStreamHandler implements Runnable {
         return singleton;
     }
 
+
+    public void interrupt(){
+        thread.interrupt();
+    }
+
     public void setChatBox(VBox chatBox) {
         this.chatBox = chatBox;
     }
@@ -130,7 +135,7 @@ public class ClientStreamHandler implements Runnable {
         streamNotifier.release();
         connected=true;
 
-        while (connected && !terminated) {
+        while (connected && !Thread.currentThread().isInterrupted()) {
             Message msg = null;
             try {
                 msg = (Message) in.readObject();
@@ -143,6 +148,14 @@ public class ClientStreamHandler implements Runnable {
             if (msg == null)
                 continue;
             lastMsgType = msg.getMsgType();
+            if(lastMsgType==DISCONNECT){
+                try {
+                    disconnect();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
             try {
                 switch (streamState) {
                     case STREAM_IDLE:
@@ -161,6 +174,18 @@ public class ClientStreamHandler implements Runnable {
             }
         }
 
+    }
+
+    private void disconnect() throws IOException {
+        if(!socket.isClosed())
+            socket.close();
+        try{
+            updateIP();
+        }
+        catch (IOException e){
+            GameSettings.getInstance().setIpAddress("localhost");
+            updateIP();
+        }
     }
 
     private void idleSwitch(Message msg){
