@@ -9,7 +9,7 @@ import static com.atc.client.Dimensions.RADAR_DOTS_HISTORY;
 import static java.lang.System.currentTimeMillis;
 
 /**
- * Class container that keeps necessary information to display current state of game on GameCanvas.
+ * Container class that keeps necessary information to display current state of game on GameCanvas.
  */
 public class GameActivity {
 
@@ -123,18 +123,12 @@ public class GameActivity {
     }
 
     /**
-     * Updates airplane - replaces old airplane with new one from GameActivity and adds trail dot for it.
+     * Updates airplanes - replaces old airplanes with new ones from GameActivity and adds trail dot for it.
      *
-     * @param airplane the airplane
+     * @param airplanes the airplane
      */
     public void updateAirplanes(ConcurrentHashMap<UUID, Airplane> airplanes){
         gameAirplanes = airplanes;
-/*        if (!gameAirplanes.containsKey(airplane.getUuid())){
-            gameAirplanes.put(airplane.getUuid(), airplane);
-        }
-        else{
-            gameAirplanes.replace(airplane.getUuid(), airplane);
-        }*/
         airplanes.forEach((k,v) -> {
 			if(!gameHistory.containsKey(k)){
 				gameHistory.put(k, new ArrayList<>());
@@ -142,11 +136,11 @@ public class GameActivity {
 			gameHistory.get(k).add(new TrailDot(v));
         });
 
-        gameHistory.forEach((k,v) -> {
-        	if(gameAirplanes.get(k) == null){
-        		gameHistory.remove(k);
-			}
-		});
+        gameHistory.forEach((k, v) -> {
+            if (gameAirplanes.get(k) == null) {
+                gameHistory.remove(k);
+            }
+        });
     }
 
     /**
@@ -154,7 +148,6 @@ public class GameActivity {
      */
     public void wrapPrinting(){
         radar.start_printing();
-//        System.out.println(gameAirplanes.size());
         gameAirplanes.forEach((k, airplane)-> printAirplane(airplane));
         gameHistory.forEach((k, trailDot)-> {
             int trailCounter = 0;

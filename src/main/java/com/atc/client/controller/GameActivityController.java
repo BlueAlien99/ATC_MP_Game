@@ -44,10 +44,6 @@ public class GameActivityController extends GenericController {
         }
     }
     public GameActivity gameActivity;
-
-//    private StreamReader s;
-//    private Thread streamThread;
-
     public TimeOutManager t;
 
     @FXML private Pane root;

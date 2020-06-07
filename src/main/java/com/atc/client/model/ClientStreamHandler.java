@@ -23,11 +23,21 @@ import java.util.concurrent.Semaphore;
 
 import static com.atc.server.Message.msgTypes.*;
 
+/**
+ * Class that enables communication between the server, client and database.
+ */
+
 public class ClientStreamHandler implements Runnable {
     public static ClientStreamHandler singleton;
     public static Thread thread;
 
     private static String ipAddress = "localhost";
+
+    /**
+     * ClientStreamHandler is a singleton, that means there can be only one object of this class,
+     * and this method permits to obtain it.
+     * @return ClientStremHandler object
+     */
 
     public static ClientStreamHandler getInstance(){
         if(thread!=null && singleton!=null) {
@@ -42,14 +52,26 @@ public class ClientStreamHandler implements Runnable {
         return singleton;
     }
 
+    /**
+     * Interrupts thread inside class.
+     */
 
     public void interrupt(){
         thread.interrupt();
     }
 
+    /**
+     * Sets chatBox
+     * @param chatBox
+     */
     public void setChatBox(VBox chatBox) {
         this.chatBox = chatBox;
     }
+
+    /**
+     * Sets gameActivity obejct.
+     * @param gameActivity
+     */
 
     public void setGameActivity(GameActivity gameActivity) {
         this.gameActivity = gameActivity;
@@ -73,29 +95,61 @@ public class ClientStreamHandler implements Runnable {
     private Semaphore dataSemaphore = new Semaphore(0,true);
     private Semaphore initializeSemaphore = new Semaphore(0, true);
 
+    /**
+     * Gets list of Events
+     * @return list of Events
+     */
 
     public List<Event> getEvents() {
         return Events;
     }
 
+    /**
+     * Gets list of checkpoints.
+     * @return list of checkpoints
+     */
     public List<Checkpoint> getCheckpoints() {
         return checkpoints;
     }
 
+    /**
+     * Sets searched gameID so we could tell database which replay we want to get.
+     * @param searchedGameId searched gameID
+     */
     public void setSearchedGameId(int searchedGameId) {
         this.searchedGameId = searchedGameId;
     }
 
+    /**
+     * Gets hashmap of airplanes' callsigns and their UUIDs
+     * @return hashmap of UUIDs and Callsigns
+     */
     public HashMap<UUID, String> getCallsigns(){ return Callsigns;}
 
+    /**
+     * Gets hashmap of players' logins.
+     * @return hashmap of players' logins.
+     */
     public HashMap<Integer, String> getLogins() {return Logins;}
 
+    /**
+     * Gets a list of available replays from database
+     * @return list of available replays
+     */
     public List<Integer> getAvailableGames() { return availableGames; }
 
+    /**
+     * Gets list of players
+     * @return list of players
+     */
     public List<Player> getPlayersList() {
         return playersList;
     }
 
+    /**
+     * Gets list of Logins that will be displayed in Best Scores.
+     * @return list of logins
+     */
     public List<Login> getBestScoresLoginsList() {
         return bestScoresLoginsList;
     }
@@ -176,6 +230,11 @@ public class ClientStreamHandler implements Runnable {
 
     }
 
+    /**
+     * Forces client connection with local server.
+     * @throws IOException
+     */
+
     private void disconnect() throws IOException {
         if(!socket.isClosed())
             socket.close();
@@ -187,6 +246,11 @@ public class ClientStreamHandler implements Runnable {
             updateIP();
         }
     }
+
+    /**
+     * Manages stream operation when server is in idle state.
+     * @param msg last message sent to server
+     */
 
     private void idleSwitch(Message msg){
         switch (lastMsgType){
@@ -200,6 +264,18 @@ public class ClientStreamHandler implements Runnable {
                 break;
         }
     }
+
+    /**
+     * Manages stream operation when server is in history state.
+     * <br>
+     *     GAME_HISTORY - searchedGameID>=0 client asks for events about corresponding game from the database, otherwise he asks about available replays
+     *<br>
+     *     PLAYERS_LIST - client wants to know best scores of players
+     * <br>
+     *     GAME_HISTORY_END - client don't want to exchange data with the database anymore
+     * @param msg last message sent to server
+     * @throws IOException
+     */
 
     private void historySwitch(Message msg) throws IOException {
         switch (lastMsgType){
@@ -230,15 +306,27 @@ public class ClientStreamHandler implements Runnable {
         }
     }
 
+    /**
+     *  Manages stream operation when server is in game state.
+     * <br>
+     *     AIRPLANES_LIST - message sent to client every tick to update his list of airplanes
+     * <br>
+     *     CHECKPOINTS_LIST - message to client with list of checkpoint, when something related to checkpoints happened in game
+     * <br>
+     *     CHAT_MESSAGE - message with label to display on player's chatBox (usually it's a comment about event that happened in game)
+     * <br>
+     *     SERVER_GOODBYE - ends communication with server
+     * @param msg last message sent to server
+     * @throws IOException
+     */
+
     private void gameSwitch(Message msg) throws IOException {
         switch (lastMsgType) {
             case AIRPLANES_LIST:
                 gameActivity.updateAirplanes(msg.getAirplanes());
                 Platform.runLater(
                         () -> gameActivity.wrapPrinting());
-                msg.getAirplanes().forEach((k,v)->{
-                    System.out.println(v.getCallsign()+" "+v.getPosX()+" "+v.getPosY());
-                });
+                msg.getAirplanes().forEach((k,v)-> System.out.println(v.getCallsign()+" "+v.getPosX()+" "+v.getPosY()));
                 System.out.println("Got airplanes");
                 break;
             case CHECKPOINTS_LIST:
@@ -264,7 +352,11 @@ public class ClientStreamHandler implements Runnable {
         }
     }
 
-
+    /**
+     * Sends request to server for players' logins and other parameters needed in BestSCoreController.
+     * @throws InterruptedException
+     * @throws IOException
+     */
     public void askForPlayers() throws InterruptedException, IOException {
         initializeSemaphore.acquire();
         Message message = new Message(FETCH_PLAYERS);
@@ -273,6 +365,12 @@ public class ClientStreamHandler implements Runnable {
         initializeSemaphore.release();
         dataSemaphore.acquire();
     }
+
+    /**
+     * Used in GameHistoryController to either ask for available replays or get events from certain game.
+     * @throws InterruptedException
+     * @throws IOException
+     */
 
     public void sendRequestForData() throws InterruptedException, IOException {
         initializeSemaphore.acquire();
@@ -283,6 +381,9 @@ public class ClientStreamHandler implements Runnable {
         dataSemaphore.acquire();
     }
 
+    /**
+     * Resets connection with current server
+     */
     private void resetConnection(){
         if(!socket.isClosed())
             return;
@@ -297,6 +398,11 @@ public class ClientStreamHandler implements Runnable {
         }
     }
 
+    /**
+     * Sets stream to given state
+     * @param newState - new state for stream
+     * @throws IOException
+     */
     public void setStreamState(StreamStates newState) throws IOException {
         if(streamState==newState)
             return;
@@ -344,10 +450,19 @@ public class ClientStreamHandler implements Runnable {
 
     }
 
+    /**
+     * Sends message that initialize communication with server
+     * @throws IOException
+     */
+
     public void sayHello() throws IOException {
         out.writeObject(new Message(Message.msgTypes.CLIENT_HELLO));
     }
 
+    /**
+     * Sends message that ends communication with server
+     * @throws IOException
+     */
     public void sayGoodbye() throws IOException {
         Message message = new Message(GAME_HISTORY_END);
         out.writeObject(message);
@@ -355,11 +470,20 @@ public class ClientStreamHandler implements Runnable {
         dataSemaphore.release();
     }
 
+    /**
+     * Writes message to stream so it can be transported to server
+     * @param msg - message to write
+     * @throws IOException
+     */
     public void writeMessage(Message msg) throws IOException {
         out.writeObject(msg);
     }
 
-
+    /**
+     * Changes stream's IP address, so it can communicate with a remote server, closes communication with old one
+     * and then initializes contact with new.
+     * @throws IOException
+     */
     public void updateIP() throws IOException {
         if(ipAddress.equals(GameSettings.getInstance().ipAddress))
             return;

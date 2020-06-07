@@ -24,6 +24,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 
+/**
+ * Class that permits player to create his own game scenario.
+ */
 public class GameCreatorController extends GenericController{
     @FXML Button undoAirplaneButton;
     @FXML Button undoCheckpointButton;
@@ -57,7 +60,9 @@ public class GameCreatorController extends GenericController{
         Platform.runLater(this::resize);
     }
 
-
+    /**
+     * Resizes GameCanvas so it can better fit new dimensions of the window.
+     */
     private void resize(){
         int radarDimensions = Math.min((int)gameCanvasVBox.getHeight(),
                 (int)gameCanvasVBox.getWidth());
@@ -66,9 +71,24 @@ public class GameCreatorController extends GenericController{
         System.out.println("RadarDims: "+radarDimensions);
     }
 
+    /**
+     * Adds graphic to buttons
+     * @param airplaneImage - graphic' url to add on addAirplaneButton
+     * @param checkpointImage  graphic' url to add on addCheckpointButton
+     * @param undoAirplane - graphic' url to add on removeAirplaneButton
+     * @param undoCheckpoint- graphic' url to add on removeCheckpointButton
+     */
     public void addGraphicToButtons(String airplaneImage, String checkpointImage,
                                     String undoAirplane, String undoCheckpoint){
+        /**
+         * Helper class created only for purpose of adding graphics on buttons
+         */
         class ButtonSetter{
+            /**
+             * Creates ImageView that can resize itself to dimensions of button and diaplays a graphic on it.
+             * @param button - button
+             * @param imageName - url of graphiic to add on button
+             */
             public void setGraphicOnButton(Button button, String imageName){
                 ImageView iv = new ImageView(new Image(imageName));
                 iv.fitHeightProperty().setValue(button.getMaxHeight());
@@ -83,6 +103,11 @@ public class GameCreatorController extends GenericController{
         bt.setGraphicOnButton(undoCheckpointButton, undoCheckpoint);
     }
 
+    /**
+     * Simple method to create a new widow to alert player that something went wrong
+     * @param header header of the alert - where this happened?
+     * @param message the message itself - what happened?
+     */
     private void createAlert(String header, String message){
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(header);
@@ -92,14 +117,25 @@ public class GameCreatorController extends GenericController{
 
     }
 
+    /**
+     * addCheckpointButton dragDone event handler
+     * @param dragEvent
+     */
     public void checkpointDragDone(DragEvent dragEvent) {
         System.out.println("DRAG CHECKPOINT DONE");
     }
-
+    /**
+     * addAirplaneButton dragDone event handler
+     * @param dragEvent
+     */
     public void airplaneDragDone(DragEvent dragEvent) {
         System.out.println("DRAG AIRPLANE DONE");
     }
 
+    /**
+     * dragOver event handler - it allows GameCanvas to be the target of dragAndDropSequence.
+     * @param dragEvent
+     */
     public void dragOver(DragEvent dragEvent) {
         if (dragEvent.getGestureSource() != radar &&
                 (dragEvent.getDragboard().hasString() || dragEvent.getDragboard().hasContent(airplaneDF))) {
@@ -109,6 +145,14 @@ public class GameCreatorController extends GenericController{
         dragEvent.consume();
     }
 
+    /**
+     * GameCanvas's daragDropped event handler - it has two versions:
+     * <br>
+     *     FOR AIRPLANES: Airplanes are already securely stored in dragboard, so we must only update their xPos and yPos according to where they were dropped and print it on canvas.
+     * <br>
+     *     FOR CHECKPOINTS - Dragboard in this case only keeps number of points, so it must be created from scratch and printed on GameCanvas.
+     * @param dragEvent
+     */
     public void dragDropped(DragEvent dragEvent) {
         Dragboard db = dragEvent.getDragboard();
         if (db.hasString()) {
@@ -132,6 +176,13 @@ public class GameCreatorController extends GenericController{
         System.out.println("DRAG DROPPED CANVAS");
     }
 
+    /**
+     * DragDetected event handler for addCheckpointButton - it checks if all the fields are filled with valid
+     * data and stores number of points in dragboard, so it would not be lost during dragAndDropSequence
+     *
+     * @param event
+     */
+
     public void checkpointDragDetected(MouseEvent event) {
         if(chatEnterPoints.getText().trim().isEmpty()){
             createAlert("Creator message", "One of the fields is empty. Please enter data!");
@@ -149,7 +200,12 @@ public class GameCreatorController extends GenericController{
             }
         }
     }
-
+    /**
+     * DragDetected event handler for addAirplaneButton - it checks if all the fields are filled with valid
+     * data, creates new dummy airplane with data provided by player and stores it in dragboard so it would not be lost during dragAndDropSequence.
+     *
+     * @param event
+     */
     public void airplaneDragDetected(MouseEvent event) {
         if(chatEnterAltitude.getText().trim().isEmpty()
                 || chatEnterHeading.getText().trim().isEmpty()
@@ -177,6 +233,11 @@ public class GameCreatorController extends GenericController{
             }
         }
     }
+
+    /**
+     * ButtonClicked event handler - it removes last placed airplane on canvas.
+     * @param event
+     */
     public void undoAirplaneButtonClicked(MouseEvent event) {
         if(!newAirplanes.isEmpty()){
             radar.start_printing();
@@ -193,7 +254,10 @@ public class GameCreatorController extends GenericController{
         }else
             createAlert("Creator message", "Nothing left to remove from canvas!");
     }
-
+    /**
+     * ButtonClicked event handler - it removes last placed checkpoint on canvas.
+     * @param event
+     */
     public void undoCheckpointButtonClicked(MouseEvent event) {
         if(!newCheckpoints.isEmpty()){
             radar.start_printing();
@@ -211,6 +275,9 @@ public class GameCreatorController extends GenericController{
             createAlert("Creator message", "Nothing left to remove from canvas!");
     }
 
+    /**
+     * Starts new game with data provided by player - sends checkpoints and airplanes to server.
+     */
     private void startGame(){
         ConcurrentHashMap<UUID, Airplane> msgAirplanes = new ConcurrentHashMap<>();
         ConcurrentHashMap<UUID, Checkpoint> msgCheckpoints = new ConcurrentHashMap<>();
@@ -233,6 +300,9 @@ public class GameCreatorController extends GenericController{
         windowController.loadAndSetScene("/fxml/GameActivity.fxml", GameSettings.getInstance());
     }
 
+    /**
+     * Class that permits player to pass his game scenario to server and helps to differentiate single player game (that has been built by player) and multiplayer (generated based on gameSettings).
+     */
     public static class creatorMessage{
         public static boolean msgSet = false;
         public static Message msg = null;

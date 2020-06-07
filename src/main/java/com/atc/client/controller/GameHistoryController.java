@@ -89,6 +89,7 @@ public class GameHistoryController  extends GenericController {
         List<Event> events;
         int maxTimeTick;
         int actualTimeTick;
+        Thread T;
         Timer time;
 
         /**
@@ -114,8 +115,10 @@ public class GameHistoryController  extends GenericController {
          * Stops the timer.
          */
         public void stop(){
+            System.out.println("KONIEC");
             if(task != null){
                 time.cancel();
+                T.interrupt();
             }
             threadSemaphore.release();
         }

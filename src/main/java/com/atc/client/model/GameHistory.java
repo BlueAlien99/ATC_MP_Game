@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * This class is basically a container for all the information needed in recreating .
+ * This class is basically a container for all the information needed in recreating gameplays.
  */
 public class GameHistory {
     int currentGameId;
