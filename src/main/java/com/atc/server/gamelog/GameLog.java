@@ -25,6 +25,7 @@ public class GameLog {
             connect();
             createTables();
             playersUUIDHashmap = selectPlayerUUIDs();
+            closeConnection();
         } catch (ClassNotFoundException e) {
             System.err.println("ERROR: missing JDBC driver.");
             e.printStackTrace();
@@ -36,7 +37,6 @@ public class GameLog {
             con = DriverManager.getConnection(DB_URL);
             con.createStatement().execute("PRAGMA foreign_keys = ON");
             stat = con.createStatement();
-            createTables();
         } catch (SQLException e) {
             System.err.println("ERROR: cannot open connection.");
             e.printStackTrace();
@@ -100,6 +100,7 @@ public class GameLog {
                 "END; ";
         String aiPlayer = "insert or ignore into players(player_id, player_uuid) values(-1, null)";
         try {
+            connect();
             stat.execute(createPlayers);
             stat.execute(createEvents);
             stat.execute(createLogins);
@@ -107,6 +108,7 @@ public class GameLog {
             stat.execute(createCheckpoints);
             stat.execute(createTrigger);
             stat.execute(aiPlayer);
+            closeConnection();
         } catch (SQLException e) {
             System.err.println("ERROR: Cannot create tables");
             e.printStackTrace();
@@ -118,6 +120,7 @@ public class GameLog {
     public void  insertCheckpoints(UUID checkpointUUID, int gameID, int points,
                                    double xPos, double yPos, double radius){
         try{
+            connect();
             PreparedStatement prepStmt = con.prepareStatement(
                     "INSERT INTO CHECKPOINTS VALUES(NULL,?,?,?,?,?,?);");
             prepStmt.setBytes(1,getBytesFromUUID(checkpointUUID));
@@ -127,6 +130,7 @@ public class GameLog {
             prepStmt.setDouble(5, yPos);
             prepStmt.setDouble(6, radius);
             prepStmt.execute();
+            closeConnection();
         }catch (SQLException e){
             System.err.println("ERROR: Cannot add checkpoint for:" + checkpointUUID.toString());
             e.printStackTrace();
@@ -134,12 +138,14 @@ public class GameLog {
     }
     private void insertLogin(int gameId,int playerId, String login){
         try{
+            connect();
             PreparedStatement prepStmt = con.prepareStatement(
                     "INSERT INTO LOGINS VALUES(NULL,?,?,?);");
             prepStmt.setInt(1,gameId);
             prepStmt.setInt(2, playerId);
             prepStmt.setString(3,login);
             prepStmt.execute();
+            closeConnection();
         }catch (SQLException e){
             System.err.println("ERROR: Cannot add login for :" + playerId);
             e.printStackTrace();
@@ -148,13 +154,14 @@ public class GameLog {
 
     public void  insertCallsign(int game_id, UUID airplaneUUID, String callsign){
         try{
-
+            connect();
             PreparedStatement prepStmt = con.prepareStatement(
                     "INSERT INTO CALLSIGNS VALUES(NULL,?,?,?);");
             prepStmt.setInt(1,game_id);
             prepStmt.setBytes(2, getBytesFromUUID(airplaneUUID));
             prepStmt.setString(3,callsign);
             prepStmt.execute();
+            closeConnection();
         }catch (SQLException e){
             System.err.println("ERROR: Cannot add callsign for:" + airplaneUUID);
             e.printStackTrace();
@@ -163,6 +170,7 @@ public class GameLog {
 
     public boolean insertPlayer(int gameId, UUID playerUUID, int points, int airplanesNum, double timeInGame){
         try{
+            connect();
             PreparedStatement prepStmt = con.prepareStatement(
                     "INSERT INTO PLAYERS VALUES(NULL,?,?,?,?);");
             prepStmt.setBytes(1, getBytesFromUUID(playerUUID));
@@ -170,6 +178,7 @@ public class GameLog {
             prepStmt.setInt(3, airplanesNum);
             prepStmt.setDouble(4,timeInGame);
             prepStmt.execute();
+            closeConnection();
         }catch (SQLException e){
             System.err.println("ERROR: Cannot add player:" + playerUUID);
             e.printStackTrace();
@@ -196,12 +205,12 @@ public class GameLog {
             insertPlayer(gameId,playerUUID, 0, airplanesNum, 0);
             int playerIdinDatabese = findPlayerId(playerUUID);
             insertLogin(gameId,playerIdinDatabese, login);
-//            commit();
             playersUUIDHashmap.put(playerUUID, playerIdinDatabese);
         }
         int playerId = playerUUID == null ? -1 : playersUUIDHashmap.get(playerUUID);
         //System.out.println(playerId +" " + (playerUUID == null ? "AI" : playerUUID.toString()));
         try{
+            connect();
             PreparedStatement prepStmt = con.prepareStatement(
                     "INSERT INTO EVENTS VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?);");
             prepStmt.setInt(1,gameId);
@@ -216,6 +225,7 @@ public class GameLog {
             prepStmt.setDouble(10, height);
             prepStmt.setBytes(11, getBytesFromUUID(airplaneUUID));
             prepStmt.execute();
+            closeConnection();
         }catch (SQLException e){
             System.err.println("ERROR: Cannot add event:" + eventType + ":" + timeTick);
             e.printStackTrace();
@@ -227,8 +237,10 @@ public class GameLog {
     public List<Event> selectAllEvents(){
         List<Event> Events;
         try {
+            connect();
             ResultSet result = stat.executeQuery("SELECT * FROM EVENTS");
             Events = getEventResults(result);
+            closeConnection();
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -239,8 +251,10 @@ public class GameLog {
     public List<Player> selectAllPlayers(){
         List<Player> Players;
         try {
+            connect();
             ResultSet result = stat.executeQuery("SELECT * FROM PLAYERS");
             Players = getPlayersResult(result);
+            closeConnection();
         }
         catch (SQLException e) {
             e.printStackTrace();
@@ -252,6 +266,7 @@ public class GameLog {
     public HashMap<UUID, Integer> selectPlayerUUIDs(){
         HashMap<UUID, Integer> UUIDs = new HashMap<>();
         try {
+            connect();
             ResultSet result = stat.executeQuery("SELECT PLAYER_ID, PLAYER_UUID FROM PLAYERS");
             int player_ID;
             UUID playerUUID;
@@ -260,6 +275,7 @@ public class GameLog {
                 playerUUID = getUUIDFromBytes(result.getBytes("player_UUID"));
                 UUIDs.put(playerUUID,player_ID);
             }
+            closeConnection();
         }
         catch (SQLException e) {
             e.printStackTrace();
@@ -291,11 +307,13 @@ public class GameLog {
     private int findPlayerId(UUID playersUUID){
         int playerId;
         try {
+            connect();
             PreparedStatement prepStmt = con.prepareStatement(
                     "SELECT PLAYER_ID FROM PLAYERS WHERE PLAYER_UUID = ?;");
             prepStmt.setBytes(1, getBytesFromUUID(playersUUID));
             ResultSet result  = prepStmt.executeQuery();
             playerId = result.getInt(1);
+            closeConnection();
         } catch (SQLException e) {
             e.printStackTrace();
             return 0;
@@ -305,11 +323,13 @@ public class GameLog {
     public List<Event> selectGameIdEvents(int gameId){
         List<Event> Events;
         try {
+            connect();
             PreparedStatement prepStmt = con.prepareStatement(
                     "SELECT * FROM EVENTS WHERE GAME_ID = ?;");
             prepStmt.setInt(1,gameId);
             ResultSet result  = prepStmt.executeQuery();
             Events = getEventResults(result);
+            closeConnection();
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -323,6 +343,7 @@ public class GameLog {
         int gameID, points;
         double yPos, xPos, radius;
         try {
+            connect();
             PreparedStatement prepStmt = con.prepareStatement(
                     "SELECT * FROM CHECKPOINTS WHERE GAME_ID = ?;");
             prepStmt.setInt(1,gameId);
@@ -337,6 +358,7 @@ public class GameLog {
                 Checkpoints.add(new Checkpoint(checkpointUUID,gameID,points,
                         xPos, yPos, radius));
             }
+            closeConnection();
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -347,10 +369,12 @@ public class GameLog {
     public int selectGameId (){
         int numberOfGames;
         try {
+            connect();
             PreparedStatement prepStmt = con.prepareStatement(
                     "SELECT COUNT(DISTINCT GAME_ID) FROM EVENTS;");
             ResultSet result  = prepStmt.executeQuery();
             numberOfGames = result.getInt(1);
+            closeConnection();
         } catch (SQLException e) {
             e.printStackTrace();
             return 0;
@@ -360,12 +384,14 @@ public class GameLog {
     public Vector<Integer> selectAvailableGameId (){
         Vector<Integer> availableGames = new Vector<>();
         try {
+            connect();
             PreparedStatement prepStmt = con.prepareStatement(
                     "SELECT DISTINCT GAME_ID FROM EVENTS;");
             ResultSet result  = prepStmt.executeQuery();
             while(result.next()){
                 availableGames.add(result.getInt(1));
             }
+            closeConnection();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -375,6 +401,7 @@ public class GameLog {
     public HashMap<Integer, String> selectPlayerLogin(int gameId){
         HashMap<Integer, String> logins = new HashMap<>();
         try {
+            connect();
             int playerId;
             String login;
             PreparedStatement prepStmt = con.prepareStatement(
@@ -386,7 +413,7 @@ public class GameLog {
                 login = result.getString(2);
                 logins.put(playerId,login);
             }
-
+            closeConnection();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -396,6 +423,7 @@ public class GameLog {
     public List<Login> selectAllLogins(){
         List<Login> logins = new Vector<>();
         try {
+            connect();
             int playerId, gameID;
             String login;
             PreparedStatement prepStmt = con.prepareStatement(
@@ -407,7 +435,7 @@ public class GameLog {
                 gameID = result.getInt("game_id");
                 logins.add(new Login(gameID, playerId, login));
             }
-
+            closeConnection();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -418,6 +446,7 @@ public class GameLog {
     public HashMap<UUID, String> selectAirplaneCallsigns(int gameId){
         HashMap<UUID, String> callsigns = new HashMap<>();
         try {
+            connect();
             UUID airplaneUUID;
             String callsign;
             PreparedStatement prepStmt = con.prepareStatement(
@@ -429,7 +458,7 @@ public class GameLog {
                 callsign = result.getString(2);
                 callsigns.put(airplaneUUID,callsign);
             }
-
+            closeConnection();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -469,10 +498,12 @@ public class GameLog {
 
     public void deleteFromEvents(int game_id, int timeTick){
         try {
+            connect();
             PreparedStatement prepStmt = con.prepareStatement(
                     "DELETE FROM EVENTS WHERE GAME_ID = ? ;");
             prepStmt.setInt(1,game_id);
             prepStmt.executeUpdate();
+            closeConnection();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -480,10 +511,12 @@ public class GameLog {
 
     public void deleteFromPlayers(int player_id){
         try {
+            connect();
             PreparedStatement prepStmt = con.prepareStatement(
                     "DELETE FROM PLAYERS WHERE PLAYER_ID = ? ;");
             prepStmt.setInt(1,player_id);
             prepStmt.executeUpdate();
+            closeConnection();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -491,6 +524,7 @@ public class GameLog {
 
     public void cleanDatabase(){
         try {
+            connect();
             PreparedStatement prepStmt = con.prepareStatement(
                     "DELETE FROM PLAYERS ;");
             prepStmt.executeUpdate();
@@ -502,6 +536,7 @@ public class GameLog {
             prepStmt.executeUpdate();
             prepStmt = con.prepareStatement("DELETE FROM LOGINS ;");
             prepStmt.executeUpdate();
+            closeConnection();
         } catch (SQLException e) {
             e.printStackTrace();
         }
