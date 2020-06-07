@@ -9,7 +9,7 @@ import static com.atc.client.Dimensions.RADAR_DOTS_HISTORY;
 import static java.lang.System.currentTimeMillis;
 
 /**
- * Class container that keeps necessary information to display current state of game on GameCanvas.
+ * Container class that keeps necessary information to display current state of game on GameCanvas.
  */
 public class GameActivity {
 

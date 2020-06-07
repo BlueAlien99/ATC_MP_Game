@@ -18,6 +18,9 @@ import java.util.concurrent.Semaphore;
 
 import static com.atc.client.Dimensions.*;
 
+/**
+ * Class responsible for all events occurring in game
+ */
 public class GameState {
 
     private Timer simulationTimer;
@@ -66,15 +69,25 @@ public class GameState {
         }
     }
 
+    /**
+     * Checks if player paused game.
+     * @return true if game is paused, false otherwise
+     */
     public boolean simulationPaused() {
         return gameRunning.tryAcquire();
     }
 
+    /**
+     * Resumes game
+     */
     public void simulationResume() {
         if (!gameRunning.tryAcquire())
             gameRunning.release();
     }
 
+    /**
+     * Pauses game, causing simulation TimerTask not run until semaphore is released
+     */
     public void simulationPause() {
         //pausing the game on player connection. This is the way to do it as not-a-toggle
         while (true) {
@@ -82,10 +95,17 @@ public class GameState {
         }
     }
 
+    /**
+     * Resumes simulation
+     */
     public void simulationPauseResume() {
         simulationResume();
     }
 
+    /**
+     * Removes player from game
+     * @param key - string representation of socket
+     */
     public void removeConnection(String key) {
         connections.remove(key);
         if (connections.isEmpty()) {
@@ -94,6 +114,12 @@ public class GameState {
                                             edit: maybe it will now, idk ~BJ*/
         }
     }
+
+    /**
+     * Generates airplanes in multiplayer game
+     * @param num - number of airplanes
+     * @param owner- owner of airplanes aka player
+     */
 
     public void generateNewAirplanes(int num, UUID owner) {
         int generated = 0;
@@ -134,6 +160,12 @@ public class GameState {
         }
     }
 
+    /**
+     * Updates targets for airplane after player sending a command
+     * @param airplane - airplane that has to be updated
+     * @param clientUUID - UUID of player that sent the command
+     */
+
     public void updateAirplane(Airplane airplane, UUID clientUUID) {
         if (airplane == null || clientUUID == null) {
             return;
@@ -154,6 +186,11 @@ public class GameState {
         }
     }
 
+    /**
+     * Sends data about the command to database
+     * @param airplane - airplane
+     * @param clientUUID- player's UUID that sent nhe command
+     */
     private void sendCommandToDatabase(Airplane airplane, UUID clientUUID) {
         log.insertEvent(gameCount, Event.eventType.COMMAND.toString().toUpperCase(),
                 tickCount, clientUUID, 0,
@@ -163,7 +200,9 @@ public class GameState {
 //        log.commit();
     }
 
-
+    /**
+     * Creates a copy of airplanes that has been update in simulation - it prevents collisions while trying to replace old airplane object with new one.
+     */
     public void setNewAirplanesOutput() {
         airplanesOutput = new ConcurrentHashMap<>();
         airplanes.forEach((k, v) -> {
@@ -179,14 +218,26 @@ public class GameState {
         }
     }
 
+    /**
+     * Gets monitor object outputBufferLock - all the players waits there each tick for a new list of airplanes.
+     * @return
+     */
     public Object getOutputBufferLock() {
         return outputBufferLock;
     }
 
+    /**
+     * Gets hashmap of airplanes with their UUID's
+     * @return hashmap of airplanes
+     */
     public ConcurrentHashMap<UUID, Airplane> getAirplanes() {
         return airplanes;
     }
 
+    /**
+     * Gets an update hashmap of airplanes from current tick
+     * @return hashmap of airplanes
+     */
     public ConcurrentHashMap<UUID, Airplane> getAirplanesList() {
         ConcurrentHashMap<UUID, Airplane>out = new ConcurrentHashMap<>();
         airplanes.forEach((k, v) -> {
@@ -203,30 +254,60 @@ public class GameState {
         return airplanesOutput;
     }
 
+    /**
+     * Gets number of ticks that has passed after beginning of the game.
+     * @return
+     */
     public int getTickCount() {
         return tickCount;
     }
 
+    /**
+     * Gets chat messages from players
+     * @return hashmap of chat messages
+     */
     public ConcurrentHashMap<Integer, String> getChatMessages() {
         return chatMessages;
     }
 
+    /**
+     * Gets handle to database
+     * @return handle to database
+     */
     public GameLog getLog() {
         return log;
     }
 
+    /**
+     * Gets id of current gameplay
+     * @return id of current gameplay
+     */
     public int getGameCount() {
         return gameCount;
     }
 
+    /**
+     * Adds player's login to hashmap
+     * @param playerUUID - player's UUID
+     * @param playerLogin - player's login
+     */
     public void addPlayerLogin(UUID playerUUID, String playerLogin) {
         playersLogins.put(playerUUID, playerLogin);
     }
 
+    /**
+     * Searches for player's login given his UUID
+     * @param playerUUID - player's UUID
+     * @return
+     */
     public String searchPlayerLogin(UUID playerUUID) {
         return playersLogins.get(playerUUID);
     }
 
+    /**
+     * Sends message to all the players
+     * @param s message to be send
+     */
     public void sendMessageToAll(String s) {
         chatMessages.put(chatMessages.size(), s);
         synchronized (outputBufferLock) {
@@ -234,10 +315,16 @@ public class GameState {
         }
     }
 
+    /**
+     * Increments number of players
+     */
     public void incCurrPlaying() {
         currPlaying++;
     }
 
+    /**
+     * Decrements number of players
+     */
     public void decCurrPlaying() {
         currPlaying--;
         if (currPlaying == 0) {
@@ -245,6 +332,11 @@ public class GameState {
         }
     }
 
+    /**
+     * amd inserts data about passing a checkpoint to database.
+     * @param airplaneUUID - UUID of an airplane that has passed a checkpoint
+     * @param checkpointUUID - UUID of the checkpoint that has been passed
+     */
     public void passCheckpoint(UUID airplaneUUID, UUID checkpointUUID){
         if(checkpoints.get(checkpointUUID)==null || airplanes.get(airplaneUUID)==null)
             return;
@@ -267,6 +359,11 @@ public class GameState {
                 happyAirplane.getAltitude(), happyAirplane.getUuid(),findAirplanesByPlayer(happyAirplane.getOwner()));
     }
 
+    /**
+     * Counts airplanes that belongs to player of given UUID
+     * @param playerUUID - player's UUID
+     * @return
+     */
     public int findAirplanesByPlayer(UUID playerUUID){
         final int[] planeNum = {0};
         airplanes.forEach((k,v)->{
@@ -277,6 +374,9 @@ public class GameState {
 
     }
 
+    /**
+     * Disconnects all players
+     */
     public void disconnectAll(){
         connections.forEach((k,v)->{
             try {
@@ -288,6 +388,10 @@ public class GameState {
         });
     }
 
+    /**
+     * Creates a vector of pairs airplane-checkpoint. In each pair airplane has already passed this checkpoint.
+     */
+
     public void setNewCheckpointsAirplanesMapping(){
         checkpointsAirplanesMapping = new Vector<>();
         checkpoints.forEach(((uuid, checkpoint) -> {
@@ -298,14 +402,26 @@ public class GameState {
         }));
     }
 
+    /**
+     * Gets hashmap of checkpoints with their corresponding ID
+     * @return hashmap of checkpoints
+     */
     public ConcurrentHashMap<UUID, Checkpoint> getCheckpoints() {
         return checkpoints;
     }
 
-
+    /**
+     * Sets checkpoints.
+     * @param checkpoints - hashmap of checkpoints
+     */
     public void setCheckpoints(ConcurrentHashMap<UUID, Checkpoint> checkpoints) {
         this.checkpoints = checkpoints;
     }
+
+    /**
+     * Adds airplanes to checkpoint's hashmap and stores information about a new checkpoint to database.
+     * @param checkpoint
+     */
     public void addCheckpoint(Checkpoint checkpoint) {
         airplanes.forEach(((uuid, airplane) -> checkpoint.addAirplane(uuid)));
         checkpoints.put(checkpoint.getCheckpointUUID(), checkpoint);
@@ -313,9 +429,19 @@ public class GameState {
                 checkpoint.getxPos(), checkpoint.getyPos(), checkpoint.getRadius());
     }
 
+    /**
+     * Sets airplanes
+     * @param airplanes - hashmap of airplanes
+     */
     public void setAirplanes(ConcurrentHashMap<UUID, Airplane> airplanes) {
         this.airplanes = airplanes;
     }
+
+    /**
+     * Adds new airplane to game - that means that all checkpoints'
+     * lists have to be updated and its callsign has to be inserted to database.
+     * @param airplane
+     */
 
     public void addAirplane(Airplane airplane){
         checkpoints.forEach(((uuid, checkpoint) -> checkpoint.addAirplane(airplane.getUuid())));
@@ -323,14 +449,26 @@ public class GameState {
         log.insertCallsign(gameCount, airplane.getUuid(), airplane.getCallsign());
     }
 
+    /**
+     * Checks if checkpoint has been updated in last tick
+     * @return true if checkpoints have been updated, false otherwise
+     */
     public boolean getCheckpointsUpdated() {
         return checkpointsUpdated;
     }
 
+    /**
+     * Changes the value of variable checkpointsUpdated that informs server if an event related to checkpoints has happened.
+     * @param checkpointsUpdated
+     */
     public void setCheckpointsUpdated(boolean checkpointsUpdated) {
         this.checkpointsUpdated = checkpointsUpdated;
     }
 
+    /**
+     * Gets a vector of pairs airplane-checkpoint
+     * @return
+     */
     public Vector<Pair<UUID, UUID>> getCheckpointsAirplanesMapping() {
         return checkpointsAirplanesMapping;
     }

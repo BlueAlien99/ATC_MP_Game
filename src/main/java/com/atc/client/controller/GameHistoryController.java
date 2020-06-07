@@ -38,8 +38,6 @@ public class GameHistoryController  extends GenericController {
     HashMap<UUID, Airplane> airplaneHashmap = new HashMap<>();
     GameHistory gameHistory;
     Semaphore threadSemaphore = new Semaphore(1);
-    HistoryStream stream;
-    Thread streamThread;
     airplaneTimerTask task;
 
     final int SENDGAMESID = -1;

@@ -3,6 +3,9 @@ package com.atc.client;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
+/**
+ * Container class with all the constants used in application
+ */
 public class Dimensions {
 
     public static final boolean DEBUGGING_MODE = true;

@@ -19,6 +19,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.atc.server.Message.msgTypes.*;
 
+/**
+ * Class with a state machine, that allows easier handling of connection client-server.
+ */
+
 //TODO: Safe casting and proper connection closing!
 public class ClientConnection implements Runnable{
 
@@ -50,11 +54,22 @@ public class ClientConnection implements Runnable{
     private Thread input;
     private Thread output;
 
+    /**
+     * Constructor of client Connection.
+     * @param socket - client's socket
+     * @param gameState - gameState
+     */
+
     public ClientConnection(Socket socket, GameState gameState) {
         this.gameState = gameState;
         this.outputBufferLock = gameState.getOutputBufferLock();
         this.socket = socket;
     }
+
+    /**
+     * Ends connection with server.
+     * @throws IOException
+     */
 
     public void disconnect() throws IOException {
         outputStream.writeObject(new Message(DISCONNECT));
@@ -63,14 +78,9 @@ public class ClientConnection implements Runnable{
         socket.close();
     }
 
-    public String getClientName() {
-        return clientName;
-    }
-
-    public GameSettings getGs(){
-        return gs;
-    }
-
+    /**
+     * Initialize input and output stream
+     */
     @Override
     public void run() {
         try {
@@ -88,9 +98,14 @@ public class ClientConnection implements Runnable{
         output.start();
     }
 
-    //TODO: Test syncing, eg. getTickCount()!
-    //TODO: Validate and improve connection loss detection!
+    /**
+     * Input stream class - through this stream messages form client to server and vice versa are transported to their receivers.
+     */
     private class Input implements Runnable{
+        /**
+         * Stores data passed in message with game settings on server, (MULTIPLAYER GAME VERSION)
+         * @param message
+         */
 
         private void passSettings(Message message){
             gs = message.getGameSettings();
@@ -107,6 +122,10 @@ public class ClientConnection implements Runnable{
             }
         }
 
+        /**
+         * Stores data passed in message with game settings and game scenario on server, (SINGLEPLAYER GAME VERSION)
+         * @param message
+         */
         private void passInitial(Message message){
             gs = message.getGameSettings();
             clientUUID = gs.getClientUUID();
@@ -125,6 +144,11 @@ public class ClientConnection implements Runnable{
             }
         }
 
+        /**
+         * Gets data about players and their logins from database and sends them to client
+         * @return
+         */
+
         private Message sendPlayers(){
             List<Player> plavers = gameState.getLog().selectAllPlayers();
             List<Login> logins = gameState.getLog().selectAllLogins();
@@ -135,12 +159,21 @@ public class ClientConnection implements Runnable{
             return msg;
         }
 
+        /**
+         * Sends list of available game replays to client.
+         * @return
+         */
         private Message sendAvailableReplays(){
             List<Integer> availableGames = gameState.getLog().selectAvailableGameId();
             System.out.println("Got data from database!");
             return new Message(availableGames);
         }
 
+        /**
+         * Sends data about the requested gameplay to client.
+         * @param searchedGameId - requested gameID
+         * @return
+         */
         private Message sendDataAboutGame(int searchedGameId){
             List<Checkpoint> checkpoints = gameState.getLog().selectCheckpoints(searchedGameId);
             List<Event> Events = gameState.getLog().selectGameIdEvents(searchedGameId);
@@ -150,6 +183,16 @@ public class ClientConnection implements Runnable{
             return new Message(searchedGameId, Events, Callsigns, Logins, checkpoints);
         }
 
+        /**
+         * State machine itself - depending on what was the last message and state it manages events occuring in current game,
+         * data exchange with database etc.
+         * <br>
+         *     CONNECTION_IDLE - server waits for client to make a next move
+         * <br>
+         *     CONNECTION_HISTORY - server handles data transactions with database
+         * <br>
+         *     CONNECTION_GAME - server manages events in game
+         */
         @Override
         public void run() {
             Message message = null;
@@ -305,6 +348,11 @@ public class ClientConnection implements Runnable{
             }
         }
     }
+
+    /**
+     *  Output stream class - through this client and server can write messages to each other.
+     *
+     */
 
     private class Output implements Runnable{
         @Override

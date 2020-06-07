@@ -505,7 +505,7 @@ public class Airplane implements Cloneable, Serializable {
 		}
 	}
 	/**
-	 * Gives airplane its callsign and radarsign - it simply randoms it from the list.
+	 * Gives airplane its callsign and radarsign - it simply randomly chooses it from the list.
 	 */
 	private void registerAircraft() {
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();

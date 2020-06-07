@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * Class realizing client-server communication and database operations. Each time user runs the application a new local server is created
+ * - it is one of the most important threads in game here lays its source code.
+ */
 public class ServerMain implements Runnable{
     private static ServerMain singleton;
     static Thread t;
@@ -16,6 +20,9 @@ public class ServerMain implements Runnable{
         return singleton;
     }
 
+    /**
+     * Disconnects all players and closes socket.
+     */
     public void interrupt(){
         try {
             gameState.disconnectAll();

@@ -12,9 +12,14 @@ import javafx.scene.control.ButtonType;
 import java.io.IOException;
 import java.util.Optional;
 
+/**
+ * Class responsible for everything that happens in Main Menu window.
+ */
 public class MainActivityController extends GenericController{
 
-
+    /**
+     * Helper class that creates a new window with prompt text for player whether he wants to connect to remote or local database with replays.
+     */
     private static class HistoryChoice extends Alert{
         public static ButtonType bRemote = new ButtonType("Remote");
         public static ButtonType bLocal = new ButtonType("Local");
@@ -27,6 +32,10 @@ public class MainActivityController extends GenericController{
             this.getButtonTypes().setAll(bRemote, bLocal, bCancel);
         }
     }
+
+    /**
+     * Helper class that creates a new window with prompt text for player if he wants to join a game on remote server or host it.
+     */
     private static class MultiPlayerChoice extends Alert{
         public static ButtonType bHost = new ButtonType("Host");
         public static ButtonType bJoin = new ButtonType("Join");

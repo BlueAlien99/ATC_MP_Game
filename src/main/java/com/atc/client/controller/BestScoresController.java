@@ -31,7 +31,7 @@ public class BestScoresController extends GenericController{
     /**
      * Class container used to display data in playersTableView
      */
-    class PlayerEntry{
+    public class PlayerEntry{
         String login;
         int points;
         int airplanesNum;
