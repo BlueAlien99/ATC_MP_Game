@@ -35,7 +35,7 @@ public class GameHistoryController  extends GenericController {
     @FXML Button mainMenuButton;
 
     private int activeTimeTick =0;
-    HashMap<UUID, Airplane> airplaneHashmap = new HashMap<>();
+    HashMap<UUID, Airplane> airplaneVector = new HashMap<>();
     GameHistory gameHistory;
     Semaphore threadSemaphore = new Semaphore(1);
     airplaneTimerTask task;
@@ -45,7 +45,6 @@ public class GameHistoryController  extends GenericController {
     /**
      * Class representing a cell in TableView that contains information about events.
      */
-
     public class EventCell extends ListCell<Event>{
         private Label eventLabel=new Label();
         private int timeTick;
@@ -55,7 +54,6 @@ public class GameHistoryController  extends GenericController {
          * @param event information included in this cell
          * @param empty variable that indicates if this cell is empty
          */
-
         @Override
         protected void updateItem(Event event , boolean empty) {
             super.updateItem(event, empty);
@@ -131,6 +129,10 @@ public class GameHistoryController  extends GenericController {
          */
         @Override
         public void run(){
+            System.out.println("W SORDKU TIMERA");
+            System.out.println("ACTIVE " + activeTimeTick);
+            System.out.println("ACTUAL " + actualTimeTick);
+            System.out.println("MAX TIME TICK " + maxTimeTick);
             actualTimeTick = activeTimeTick;
             if (actualTimeTick == maxTimeTick) {
                 stop();
@@ -224,7 +226,7 @@ public class GameHistoryController  extends GenericController {
                 UUID activeUUID = ((Event) commandsList.getSelectionModel().getSelectedItem()).getAirplaneUUID();
                 activeTimeTick = gameTimeTick;
                 mySlider.setValue(activeTimeTick);
-                radar.print_airplane(airplaneHashmap.get(activeUUID), true);
+                radar.print_airplane(airplaneVector.get(activeUUID), true);
             }
         });
 
@@ -241,7 +243,7 @@ public class GameHistoryController  extends GenericController {
                     activeTimeTick = newValue.intValue();
                     populateAirplaneHashmap(gameHistory.getEvents());
                     radar.removeAirplanes();
-                    airplaneHashmap.forEach((key, value) -> radar.print_airplane(value));
+                    airplaneVector.forEach((key, value) -> radar.print_airplane(value));
                     Platform.runLater(()->radar.finish_printing());
                 });
 
@@ -332,10 +334,10 @@ public class GameHistoryController  extends GenericController {
      * @param events list of events in game
      */
     private void populateAirplaneHashmap(List<Event> events){
-        airplaneHashmap.clear();
+        airplaneVector.clear();
         for(Event e : events){
             if(e.getTimeTick() == activeTimeTick){
-                airplaneHashmap.put(e.getAirplaneUUID(),new Airplane(e.getAirplaneUUID(),
+                airplaneVector.put(e.getAirplaneUUID(),new Airplane(e.getAirplaneUUID(),
                         gameHistory.getCallsigns().get(e.getAirplaneUUID()), "",
                         e.getxCoordinate(), e.getyCoordinate(),e.getHeight(),
                         e.getHeading(),e.getSpeed()));
@@ -365,7 +367,7 @@ public class GameHistoryController  extends GenericController {
     private void drawAirplanes(Event event){
         chooseAirplanes(event);
         radar.removeAirplanes();
-        airplaneHashmap.forEach((key, value) -> radar.print_airplane(value, value.getUuid() == event.getAirplaneUUID()));
+        airplaneVector.forEach((key, value) -> radar.print_airplane(value, value.getUuid() == event.getAirplaneUUID()));
         radar.finish_printing();
     }
 
@@ -412,7 +414,6 @@ public class GameHistoryController  extends GenericController {
      * @param event - commmand event, containing all the necessary data
      * @return command label
      */
-
     private String createCommandString(HashMap<Integer, String> Logins, HashMap<UUID, String> Callsigns, Event event) {
         return event.getTimeTick() +
                 ": " +
@@ -447,7 +448,6 @@ public class GameHistoryController  extends GenericController {
      * @param Callsigns
      * @return
      */
-
     private String createCheckpointString(Event event, HashMap<Integer, String> Logins,
                                           HashMap<UUID, String> Callsigns ){
         return event.getTimeTick() +

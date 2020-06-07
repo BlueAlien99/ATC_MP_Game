@@ -98,6 +98,7 @@ public class GameLog {
                 "SET POINTS = NEW.POINTS + (SELECT POINTS FROM PLAYERS WHERE PLAYER_ID = NEW.PLAYER_ID) " +
                 "WHERE PLAYER_ID = NEW.PLAYER_ID; " +
                 "END; ";
+        String aiPlayer = "insert or ignore into players(player_id, player_uuid) values(-1, null)";
         try {
             stat.execute(createPlayers);
             stat.execute(createEvents);
@@ -105,6 +106,7 @@ public class GameLog {
             stat.execute(createCallsigns);
             stat.execute(createCheckpoints);
             stat.execute(createTrigger);
+            stat.execute(aiPlayer);
         } catch (SQLException e) {
             System.err.println("ERROR: Cannot create tables");
             e.printStackTrace();
@@ -187,22 +189,21 @@ public class GameLog {
         return 0;
     }
     private void printHashmap(){
-        playersUUIDHashmap.entrySet().forEach(entry ->
-            System.out.println(entry.getKey() + " " + entry.getValue()));
+        playersUUIDHashmap.forEach((key, value) -> System.out.println(key + " " + value));
     }
 
     public boolean insertEvent(int gameId, String eventType, int timeTick, UUID playerUUID, int points,
                                String login, double xCoordinate, double yCoordinate,
                                double speed, double heading, double height,UUID airplaneUUID, int airplanesNum){
-        if (!checkUUIDInDatabase(playerUUID)) {
+        if (playerUUID != null && !checkUUIDInDatabase(playerUUID)) {
             insertPlayer(gameId,playerUUID, 0, airplanesNum, 0);
             int playerIdinDatabese = findPlayerId(playerUUID);
             insertLogin(gameId,playerIdinDatabese, login);
 //            commit();
             playersUUIDHashmap.put(playerUUID, playerIdinDatabese);
         }
-        int playerId = playersUUIDHashmap.get(playerUUID);
-        System.out.println(playerId +" " + playerUUID.toString());
+        int playerId = playerUUID == null ? -1 : playersUUIDHashmap.get(playerUUID);
+        System.out.println(playerId +" " + (playerUUID == null ? "AI" : playerUUID.toString()));
         try{
             PreparedStatement prepStmt = con.prepareStatement(
                     "INSERT INTO EVENTS VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?);");
@@ -535,8 +536,8 @@ public class GameLog {
 
     public static UUID getUUIDFromBytes(byte[] bytes) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-        Long high = byteBuffer.getLong();
-        Long low = byteBuffer.getLong();
+        long high = byteBuffer.getLong();
+        long low = byteBuffer.getLong();
 
         return new UUID(high, low);
     }

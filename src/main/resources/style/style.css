@@ -16,7 +16,7 @@ Button{
 Label{
     -fx-font-family: Orbitron;
     -fx-background-color: transparent;
-    -fx-font-size: 20;
+    -fx-font-size: 16;
     -fx-text-fill: WHITE;
 }
 #eventsList{

@@ -171,17 +171,7 @@ public class GameActivity {
      * @param airplane the airplane
      */
     public void printAirplane(Airplane airplane){
-        /*
-        if(gameHistory.containsKey(airplane.getUid())) {
-            gameHistory.get(airplane.getUid()).add(new TrailDot(airplane));
-        }
-        else{
-            gameHistory.put(airplane.getUid(), new ArrayList<>());
-            gameHistory.get(airplane.getUid()).add(new TrailDot(airplane));
-        }*/
-
         radar.print_airplane(airplane, airplane.getUuid() == activeAirplane, airplane.getOwner().equals(clientUUID));
-
     }
 
     /**
@@ -209,12 +199,11 @@ public class GameActivity {
      * @param y - y position of mouse click
      * @return uuid of the nearest airplane
      */
-
     private UUID getClosest(double x, double y){
         double min = 2048;
         UUID ret = null;
         for (Map.Entry<UUID, Airplane> pair: gameAirplanes.entrySet()) {
-            if(pair.getValue().getOwner().equals(clientUUID)) {
+            if(pair.getValue().getOwner() != null && pair.getValue().getOwner().equals(clientUUID)) {
                 double val = (pair.getValue().getPosY() - y) * (pair.getValue().getPosY() - y)
                         + (pair.getValue().getPosX() - x) * (pair.getValue().getPosX() - x);
                 if (val < min) {

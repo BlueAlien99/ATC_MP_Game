@@ -152,42 +152,18 @@ public class Airplane implements Cloneable, Serializable {
 		}
 
 		double headingRad = Math.toRadians(heading);
-		double xShift = steps*Math.sin(headingRad) * speed/10 * SIM_TICK_DELAY/1000;
-		double yShift = steps*Math.cos(headingRad) * speed/10 * SIM_TICK_DELAY/1000;
+		double xShift = steps * Math.sin(headingRad) * speed/10 * SIM_TICK_DELAY/1000;
+		double yShift = steps * Math.cos(headingRad) * speed/10 * SIM_TICK_DELAY/1000;
+
+		// Used to calculate distance between a trajectory of an airplane and a checkpoint
+		lastPosX = posX;
+		lastPosY = posY;
 
 		posX += xShift;
 		posY -= yShift;
 
 		calculateABParams();
 	}
-
-	/**
-	 * Gets last pos x.
-	 *
-	 * @return the last pos x
-	 */
-	public double getLastPosX() { return lastPosX;}
-
-	/**
-	 * Sets last pos x.
-	 *
-	 * @param lastPosX the last pos x
-	 */
-	public void setLastPosX(double lastPosX) {this.lastPosX = lastPosX;}
-
-	/**
-	 * Gets last pos y.
-	 *
-	 * @return the last pos y
-	 */
-	public double getLastPosY() {return lastPosY;}
-
-	/**
-	 * Sets last pos y.
-	 *
-	 * @param lastPosY the last pos y
-	 */
-	public void setLastPosY(double lastPosY) {this.lastPosY = lastPosY;}
 
 	/**
 	 * Gets callsign.
@@ -259,6 +235,24 @@ public class Airplane implements Cloneable, Serializable {
 	 */
 	public void setPosY(double posY){
 		this.posY = posY;
+	}
+
+	/**
+	 * Gets last pos x.
+	 *
+	 * @return the last pos x
+	 */
+	public double getLastPosX() {
+		return lastPosX;
+	}
+
+	/**
+	 * Gets last pos y.
+	 *
+	 * @return the last pos y
+	 */
+	public double getLastPosY() {
+		return lastPosY;
 	}
 
 	/**
@@ -470,6 +464,7 @@ public class Airplane implements Cloneable, Serializable {
 
 		speed += speedAcceleration;
 	}
+
 	/**
 	 * Updates airplane's heading
 	 */
@@ -504,12 +499,14 @@ public class Airplane implements Cloneable, Serializable {
 			heading -= 360;
 		}
 	}
+
 	/**
 	 * Gives airplane its callsign and radarsign - it simply randomly chooses it from the list.
 	 */
 	private void registerAircraft() {
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		InputStream is = classLoader.getResourceAsStream(Dimensions.AIRLINES_FILE);
+		assert is != null;
 		Scanner sc = new Scanner(is);
 
 		Random rand = new Random();
@@ -529,7 +526,6 @@ public class Airplane implements Cloneable, Serializable {
 
 		uuid = UUID.randomUUID();
 	}
-
 
 	@Override
 	public Object clone() throws CloneNotSupportedException {

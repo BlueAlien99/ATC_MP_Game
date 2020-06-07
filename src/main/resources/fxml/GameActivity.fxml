@@ -6,18 +6,10 @@
 <?import javafx.scene.layout.*?>
 <BorderPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.atc.client.controller.GameActivityController">
    <top>
-       <MenuBar BorderPane.alignment="CENTER">
-           <Menu text="_Game controls">
-               <MenuItem fx:id="menuResume" text="_Resume/Pause"/>
-               <MenuItem fx:id="menuReturn" text="_Main menu"/>
-           </Menu>
-           <Menu mnemonicParsing="false" text="Edit">
-               <MenuItem mnemonicParsing="false" text="Delete"/>
-           </Menu>
-           <Menu mnemonicParsing="false" text="Help">
-               <MenuItem mnemonicParsing="false" text="About"/>
-           </Menu>
-       </MenuBar>
+       <HBox spacing="12">
+           <Button fx:id="menuReturn" text="Main menu"/>
+           <Button fx:id="menuResume" text="Pause / Resume"/>
+       </HBox>
    </top>
    <center>
        <GridPane fx:id="centerGrid">

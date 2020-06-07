@@ -65,6 +65,7 @@ public class Message implements Serializable {
     public Message(){
         this.msgType = msgTypes.CLIENT_HELLO;
     }
+
     /**
      * Constructor of message passing list of available game replays
      *

@@ -50,6 +50,8 @@ public class GameState {
 
     private int currPlaying = 0;
 
+    private int aiPlanes = 0;
+
     public void setShutdown(boolean val) {
         shutdown = val;
     }
@@ -158,6 +160,54 @@ public class GameState {
             airplanes.put(newUUID, airplane);
             log.insertCallsign(gameCount, airplane.getUuid(), airplane.getCallsign());
         }
+    }
+
+    public void generateAiPlane() {
+        double u = new Random().nextInt((int) CANVAS_WIDTH);
+        double v = new Random().nextInt((int) CANVAS_WIDTH / 4) + CANVAS_WIDTH / 4;
+
+        int locationType = new Random().nextInt(4);
+
+        double pox = 0;
+        double poy = 0;
+        double head = 0;
+
+        switch(locationType){
+            case 0:
+                pox = u;
+                poy = -v;
+                head = new Random().nextInt(90) + 135;
+                break;
+            case 1:
+                pox = u;
+                poy = CANVAS_HEIGHT + v;
+                head = new Random().nextInt(90) + 315;
+                break;
+            case 2:
+                pox = -v;
+                poy = u;
+                head = new Random().nextInt(90) + 45;
+                break;
+            case 3:
+                pox = CANVAS_WIDTH + v;
+                poy = u;
+                head = new Random().nextInt(90) + 225;
+        }
+
+        double alt = new Random().nextInt(8)*500 + 8000;
+        double speed = new Random().nextInt((int) (DEFAULT_MAX_SPEED - DEFAULT_MIN_SPEED) / 2) + DEFAULT_MIN_SPEED;
+
+        if(DEBUGGING_MODE) {
+            alt = 5000;
+            speed = 160;
+        }
+
+        Airplane airplane = new Airplane(null, pox, poy, alt, head, speed);
+        UUID newUUID = airplane.getUuid();
+
+        airplanes.put(newUUID, airplane);
+        ++aiPlanes;
+        log.insertCallsign(gameCount, airplane.getUuid(), airplane.getCallsign());
     }
 
     /**
@@ -471,5 +521,14 @@ public class GameState {
      */
     public Vector<Pair<UUID, UUID>> getCheckpointsAirplanesMapping() {
         return checkpointsAirplanesMapping;
+    }
+
+    public int getAiPlanes() {
+        return aiPlanes;
+    }
+
+    public void removeAiPlane(UUID uuid){
+        airplanes.remove(uuid);
+        --aiPlanes;
     }
 }

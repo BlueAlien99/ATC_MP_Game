@@ -1,14 +1,6 @@
 package com.atc.client.model;
 
 import com.atc.server.model.Event;
-import com.atc.server.model.Login;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +44,11 @@ public class GameHistory {
         return checkpoints;
     }
 
+    /**
+     * Gets events.
+     *
+     * @return the events
+     */
     public List<Event> getEvents() {
         return Events;
     }
@@ -118,6 +115,11 @@ public class GameHistory {
     public HashMap<UUID, String> getCallsigns() {
         return Callsigns;
     }
+    /**
+     * Gets logins.
+     *
+     * @return the logins
+     */
 
     public HashMap<Integer, String> getLogins() {
         return Logins;
