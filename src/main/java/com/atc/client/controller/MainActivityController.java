@@ -69,7 +69,7 @@ public class MainActivityController extends GenericController{
             ButtonType buttonType = result.get();
             if (MultiPlayerChoice.bJoin.equals(buttonType)) {
                 if(gameSettings.getIpAddress() != null) {
-                    System.out.println(gameSettings.getClientUUID().toString() + " MainActivityController multiplayer");
+                    //System.out.println(gameSettings.getClientUUID().toString() + " MainActivityController multiplayer");
                     windowController.loadAndSetScene("/fxml/GameActivity.fxml", gameSettings);
                 }else{
                     Alert alert = new Alert(Alert.AlertType.ERROR);

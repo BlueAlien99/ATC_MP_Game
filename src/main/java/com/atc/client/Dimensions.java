@@ -52,7 +52,7 @@ public class Dimensions {
 //    public static final double AIRPLANE_MAX_TURN_RATE = 2.25;
 
     // temporary
-    public static final double AIRPLANE_MAX_TURN_RATE = 10;
+    public static final double AIRPLANE_MAX_TURN_RATE = 18;
 
     public static final double AIRPLANE_MAX_ACCELERATION = 3.2;
 

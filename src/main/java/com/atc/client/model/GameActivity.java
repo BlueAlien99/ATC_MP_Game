@@ -41,12 +41,12 @@ public class GameActivity {
      */
     public void setCheckpoints(ConcurrentHashMap<UUID, Checkpoint> checkpoints) {
         checkpoints.forEach(((uuid, checkpoint) -> this.checkpoints.put(uuid, checkpoint)));
-        System.out.println("SET CHECKPOINTS");
+        //System.out.println("SET CHECKPOINTS");
         checkpoints.forEach(((uuid, checkpoint) -> {
-            System.out.println(uuid);
-            checkpoint.getAirplanes().forEach(((uuid1, aBoolean) -> System.out.println(uuid1.toString() + aBoolean)));
+            //System.out.println(uuid);
+            //checkpoint.getAirplanes().forEach(((uuid1, aBoolean) -> System.out.println(uuid1.toString() + aBoolean)));
         }));
-        System.out.println("END SET CHECKPOINTS");
+        //System.out.println("END SET CHECKPOINTS");
     }
 
 
@@ -238,7 +238,7 @@ public class GameActivity {
             }
         }
 
-        System.out.println(x+" "+y+" "+ret);
+        //System.out.println(x+" "+y+" "+ret);
         return ret;
 
     }

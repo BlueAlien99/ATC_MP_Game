@@ -62,7 +62,7 @@ public class ClientStreamHandler implements Runnable {
 
     /**
      * Sets chatBox
-     * @param chatBox
+     * @param chatBox chatBox VBox
      */
     public void setChatBox(VBox chatBox) {
         this.chatBox = chatBox;
@@ -70,9 +70,8 @@ public class ClientStreamHandler implements Runnable {
 
     /**
      * Sets gameActivity obejct.
-     * @param gameActivity
+     * @param gameActivity gameActivity
      */
-
     public void setGameActivity(GameActivity gameActivity) {
         this.gameActivity = gameActivity;
     }
@@ -160,7 +159,7 @@ public class ClientStreamHandler implements Runnable {
     private ObjectOutputStream out;
     private ObjectInputStream in;
 
-    public enum StreamStates {STREAM_HISTORY, STREAM_GAME, STREAM_IDLE};
+    public enum StreamStates {STREAM_HISTORY, STREAM_GAME, STREAM_IDLE}
     private StreamStates streamState = StreamStates.STREAM_IDLE;
 
 
@@ -172,14 +171,14 @@ public class ClientStreamHandler implements Runnable {
     @Override
     public void run() {
         try {
-            System.out.println(GameSettings.getInstance().getClientUUID().toString());
+            //System.out.println(GameSettings.getInstance().getClientUUID().toString());
             socket = new Socket("localhost", 2137);
-            System.out.println("Connected!");
-            System.out.println(socket.toString());
+            //System.out.println("Connected!");
+            //System.out.println(socket.toString());
             in = new ObjectInputStream(socket.getInputStream());
             out = new ObjectOutputStream(socket.getOutputStream());
         } catch (IOException ex) {
-            System.out.println("Unable to connect. Are you sure about IP address?");
+            //System.out.println("Unable to connect. Are you sure about IP address?");
         }
 
         if(in==null || out==null || socket.isClosed()) {
@@ -232,7 +231,7 @@ public class ClientStreamHandler implements Runnable {
 
     /**
      * Forces client connection with local server.
-     * @throws IOException
+     * @throws IOException exception
      */
 
     private void disconnect() throws IOException {
@@ -253,15 +252,13 @@ public class ClientStreamHandler implements Runnable {
      */
 
     private void idleSwitch(Message msg){
-        switch (lastMsgType){
-            case DISCONNECT:
-                GameSettings.getInstance().setIpAddress("localhost");
-                try {
-                    updateIP();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                break;
+        if (lastMsgType == DISCONNECT) {
+            GameSettings.getInstance().setIpAddress("localhost");
+            try {
+                updateIP();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -274,14 +271,14 @@ public class ClientStreamHandler implements Runnable {
      * <br>
      *     GAME_HISTORY_END - client don't want to exchange data with the database anymore
      * @param msg last message sent to server
-     * @throws IOException
+     * @throws IOException exception
      */
 
     private void historySwitch(Message msg) throws IOException {
         switch (lastMsgType){
             case GAME_HISTORY:
                 if(searchedGameId >= 0){
-                    System.out.println("Received Events list from server!");
+                    //System.out.println("Received Events list from server!");
                     Events = msg.getEventsList();
                     Callsigns = msg.getCallsigns();
                     Logins = msg.getLogins();
@@ -289,7 +286,7 @@ public class ClientStreamHandler implements Runnable {
                     dataSemaphore.release();
                 }
                 else{
-                    System.out.println("Received available replays from server!");
+                    //System.out.println("Received available replays from server!");
                     availableGames = msg.getAvailableGameId();
                     dataSemaphore.release();
                 }
@@ -300,7 +297,7 @@ public class ClientStreamHandler implements Runnable {
                 dataSemaphore.release();
                 break;
             case GAME_HISTORY_END:
-                System.out.println("End of exchanging data with server");
+                //System.out.println("End of exchanging data with server");
                 setStreamState(StreamStates.STREAM_IDLE);
                 break;
         }
@@ -317,7 +314,7 @@ public class ClientStreamHandler implements Runnable {
      * <br>
      *     SERVER_GOODBYE - ends communication with server
      * @param msg last message sent to server
-     * @throws IOException
+     * @throws IOException exception
      */
 
     private void gameSwitch(Message msg) throws IOException {
@@ -326,8 +323,8 @@ public class ClientStreamHandler implements Runnable {
                 gameActivity.updateAirplanes(msg.getAirplanes());
                 Platform.runLater(
                         () -> gameActivity.wrapPrinting());
-                msg.getAirplanes().forEach((k,v)-> System.out.println(v.getCallsign()+" "+v.getPosX()+" "+v.getPosY()));
-                System.out.println("Got airplanes");
+                //msg.getAirplanes().forEach((k,v)-> System.out.println(v.getCallsign()+" "+v.getPosX()+" "+v.getPosY()));
+                //System.out.println("Got airplanes");
                 break;
             case CHECKPOINTS_LIST:
                 ConcurrentHashMap<UUID, Checkpoint> tempMap = msg.getCheckpoints();
@@ -336,7 +333,7 @@ public class ClientStreamHandler implements Runnable {
                 gameActivity.setCheckpoints(tempMap);
                 Platform.runLater(
                         () -> gameActivity.wrapPrinting());
-                System.out.println("Got checkpoints");
+                //System.out.println("Got checkpoints");
                 break;
             case CHAT_MESSAGE:
                 Label msgLabel = new Label(msg.getChatMsg());
@@ -354,29 +351,29 @@ public class ClientStreamHandler implements Runnable {
 
     /**
      * Sends request to server for players' logins and other parameters needed in BestSCoreController.
-     * @throws InterruptedException
-     * @throws IOException
+     * @throws InterruptedException exception
+     * @throws IOException exception
      */
     public void askForPlayers() throws InterruptedException, IOException {
         initializeSemaphore.acquire();
         Message message = new Message(FETCH_PLAYERS);
         out.writeObject(message);
-        System.out.println("Requested data!");
+        //System.out.println("Requested data!");
         initializeSemaphore.release();
         dataSemaphore.acquire();
     }
 
     /**
      * Used in GameHistoryController to either ask for available replays or get events from certain game.
-     * @throws InterruptedException
-     * @throws IOException
+     * @throws InterruptedException exception
+     * @throws IOException exception
      */
 
     public void sendRequestForData() throws InterruptedException, IOException {
         initializeSemaphore.acquire();
         Message message = new Message(searchedGameId);
         out.writeObject(message);
-        System.out.println("Requested data!");
+        //System.out.println("Requested data!");
         initializeSemaphore.release();
         dataSemaphore.acquire();
     }
@@ -401,7 +398,7 @@ public class ClientStreamHandler implements Runnable {
     /**
      * Sets stream to given state
      * @param newState - new state for stream
-     * @throws IOException
+     * @throws IOException exception
      */
     public void setStreamState(StreamStates newState) throws IOException {
         if(streamState==newState)
@@ -452,16 +449,15 @@ public class ClientStreamHandler implements Runnable {
 
     /**
      * Sends message that initialize communication with server
-     * @throws IOException
+     * @throws IOException exception
      */
-
     public void sayHello() throws IOException {
         out.writeObject(new Message(Message.msgTypes.CLIENT_HELLO));
     }
 
     /**
      * Sends message that ends communication with server
-     * @throws IOException
+     * @throws IOException exception
      */
     public void sayGoodbye() throws IOException {
         Message message = new Message(GAME_HISTORY_END);
@@ -473,7 +469,7 @@ public class ClientStreamHandler implements Runnable {
     /**
      * Writes message to stream so it can be transported to server
      * @param msg - message to write
-     * @throws IOException
+     * @throws IOException exception
      */
     public void writeMessage(Message msg) throws IOException {
         out.writeObject(msg);
@@ -482,7 +478,7 @@ public class ClientStreamHandler implements Runnable {
     /**
      * Changes stream's IP address, so it can communicate with a remote server, closes communication with old one
      * and then initializes contact with new.
-     * @throws IOException
+     * @throws IOException exception
      */
     public void updateIP() throws IOException {
         if(ipAddress.equals(GameSettings.getInstance().ipAddress))

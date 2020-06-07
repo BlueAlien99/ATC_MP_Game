@@ -115,10 +115,10 @@ public class Checkpoint implements Serializable, Cloneable {
      * @param airplaneUUID the airplane uuid
      */
     public void passAirplane(UUID airplaneUUID){
-        System.out.println(airplaneUUID+" passes checkpoint");
+        //System.out.println(airplaneUUID+" passes checkpoint");
         airplanes.put(airplaneUUID, true);
 
-        System.out.println("Pass result: " + getAirplane(airplaneUUID));
+        //System.out.println("Pass result: " + getAirplane(airplaneUUID));
 
     }
 
@@ -142,7 +142,7 @@ public class Checkpoint implements Serializable, Cloneable {
      * x2 - actual x position of an airplane
      * y2 - actual y position of an airplane
      * u - parameter used to indicate a point in a segment that has the smallest distance to checkpoint.
-     * @return
+     * @return distance between an airplane and a checkpoint
      */
     private double calculateDistanceCheckAirplane(Airplane airplane){
         double x = xPos;
@@ -165,7 +165,7 @@ public class Checkpoint implements Serializable, Cloneable {
 
     /**
      * Calculate radius of checkpoint. The more points it has, the smaller it gets.
-     * @param points
+     * @param points Value of a checkpoint in points
      * @return radius of a checkpoint
      */
 

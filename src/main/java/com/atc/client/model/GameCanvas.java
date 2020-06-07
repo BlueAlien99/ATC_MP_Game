@@ -103,8 +103,9 @@ public class GameCanvas extends StackPane {
         boolean collisionCourse = airplane.isCollisionCourse() && (ownership || DEBUGGING_MODE);
         boolean crashed = airplane.isCrashed() && (ownership || DEBUGGING_MODE);
 
-        if(active)
-        System.out.println(airplane.getPosX() + "    " + airplane.getPosY());
+        /*if(active) {
+            System.out.println(airplane.getPosX() + "    " + airplane.getPosY());
+        }*/
 
         double x_line = LEADING_LINE_LENGTH*sin(Math.toRadians(heading));
         double y_line = LEADING_LINE_LENGTH*cos(Math.toRadians(heading));
@@ -198,8 +199,8 @@ public class GameCanvas extends StackPane {
     public void printCheckpoint(Checkpoint checkpoint, UUID activeAirplane){
         GraphicsContext gcCheckpoints = radarCheckpoints.getGraphicsContext2D();
         double radius = checkpoint.getRadius();
-        System.out.println("Currently active: "+activeAirplane);
-        System.out.println(checkpoint.getAirplane(activeAirplane));
+        //System.out.println("Currently active: "+activeAirplane);
+        //System.out.println(checkpoint.getAirplane(activeAirplane));
         if(checkpoint.getAirplane(activeAirplane)) {
             gcCheckpoints.setFill(CHECKPOINT_PASSED);
         }

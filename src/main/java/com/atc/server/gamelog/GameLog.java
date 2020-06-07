@@ -188,9 +188,6 @@ public class GameLog {
         }
         return 0;
     }
-    private void printHashmap(){
-        playersUUIDHashmap.forEach((key, value) -> System.out.println(key + " " + value));
-    }
 
     public boolean insertEvent(int gameId, String eventType, int timeTick, UUID playerUUID, int points,
                                String login, double xCoordinate, double yCoordinate,
@@ -203,7 +200,7 @@ public class GameLog {
             playersUUIDHashmap.put(playerUUID, playerIdinDatabese);
         }
         int playerId = playerUUID == null ? -1 : playersUUIDHashmap.get(playerUUID);
-        System.out.println(playerId +" " + (playerUUID == null ? "AI" : playerUUID.toString()));
+        //System.out.println(playerId +" " + (playerUUID == null ? "AI" : playerUUID.toString()));
         try{
             PreparedStatement prepStmt = con.prepareStatement(
                     "INSERT INTO EVENTS VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?);");

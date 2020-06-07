@@ -21,26 +21,6 @@ public class GameActivityController extends GenericController {
         @Override
         public void run() {
             timeouted=false;
-//            for(int i=0; i<TIMEOUT_TRIES; i++){
-//                if(ClientStreamHandler.getInstance().streamNotifier.tryAcquire()){
-//                    timeouted=false;
-//                    return;
-//                }
-//                try {
-//                    Thread.sleep(TIMEOUT_TIME);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//                Platform.runLater(()->{
-//                    s.terminate();
-//                    Alert alert = new Alert(Alert.AlertType.ERROR);
-//                    alert.setTitle("Connection failed");
-//                    alert.setHeaderText("We were unable to reach the server");
-//                    alert.setContentText("Please check the IP address in Game Settings or Firewall settings and try again.");
-//                    alert.showAndWait();
-//                    windowController.loadAndSetScene("/fxml/MainActivity.fxml", gameSettings);
-//            });
         }
     }
     public GameActivity gameActivity;
@@ -89,16 +69,8 @@ public class GameActivityController extends GenericController {
                 }
             });
         }
-        System.out.println("XD: " + gameSettings);
+        //System.out.println("XD: " + gameSettings);
 
-//        if(checkInstance(SC_TYPE_STREAMREADER)){
-//            s = (StreamReader) getInstance();
-//        }
-//        else{
-//            s = (StreamReader) setInstance(new StreamReader(gameSettings, gameActivity, chatHistory));
-//            streamThread = new Thread(s);
-//            streamThread.start();
-//        }
         ClientStreamHandler.getInstance().setChatBox(chatHistory);
         ClientStreamHandler.getInstance().setGameActivity(gameActivity);
 
@@ -110,19 +82,14 @@ public class GameActivityController extends GenericController {
         }
 
         t = new TimeOutManager();
-            t.start();
+        t.start();
 
-
-
-        chatSend.setOnAction(e -> {
-            sendMessage();
-        });
+        chatSend.setOnAction(e -> sendMessage());
 
         menuResume.setOnAction(e-> {
                     try {
                         if(!t.timeouted)
                             ClientStreamHandler.getInstance().writeMessage(new Message(Message.msgTypes.GAME_RESUME));
-//                            s.out.writeObject(new Message(Message.msgTypes.GAME_RESUME));
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
@@ -132,14 +99,13 @@ public class GameActivityController extends GenericController {
             try {
                 if(!t.timeouted)
                     ClientStreamHandler.getInstance().writeMessage(new Message(Message.msgTypes.CLIENT_GOODBYE));
-//                    s.out.writeObject(new Message(Message.msgTypes.CLIENT_GOODBYE));
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
             windowController.loadAndSetScene("/fxml/MainActivity.fxml", GameSettings.getInstance());
         });
 
-        System.out.println("GAC end of Initialzie");
+        //System.out.println("GAC end of Initialzie");
         Platform.runLater(this::resize);
     }
 
@@ -168,7 +134,6 @@ private void sendMessage(){
         try {
             if(!t.timeouted)
                 ClientStreamHandler.getInstance().writeMessage(msgout);
-//                        s.out.writeObject(msgout);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -182,19 +147,12 @@ private void sendMessage(){
         int radarDimensions = Math.min((int)centerGrid.getHeight(), (int)centerGrid.getWidth());
         radar.setPrefSize(radarDimensions, radarDimensions);
 
-        System.out.println("RadarDims: "+radarDimensions);
+        //System.out.println("RadarDims: "+radarDimensions);
 
         chatRoot.setPrefSize(root.getWidth() - radarDimensions, 0);
 
         //gameActivity.resizeCanvas();
     }
-
-//    private void sendMessage(){
-//        String msg = gameActivity.getAirplaneByUUID(gameActivity.getActiveAirplane()).getId() + " HDG: " + chatEnterHeading.getText() + " KTS: " + chatEnterSpeed.getText() + " FL: " + chatEnterLevel.getText();
-//        Label msgLabel = new Label(msg);
-//        msgLabel.setFont(new Font("Comic Sans MS", 14));
-//        chatHistory.getChildren().add(msgLabel);
-//    }
 
     public void updateChatBoxes(double heading, double speed, double altitude){
         chatEnterHeading.clear();

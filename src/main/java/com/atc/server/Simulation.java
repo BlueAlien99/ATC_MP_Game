@@ -34,7 +34,7 @@ public class Simulation extends TimerTask {
         }
 
         if(gameState.getTickCount() % AI_GENERATION_FREQUENCY == 0 && gameState.getAiPlanes() < MAX_AI_PLANES){
-            System.out.println(gameState.getAiPlanes());
+            //System.out.println(gameState.getAiPlanes());
             gameState.generateAiPlane();
         }
 
@@ -78,7 +78,7 @@ public class Simulation extends TimerTask {
 
             checkpoints.forEach((ck, cv) -> {
                 if(cv.checkAirplane(v)){
-                    System.out.println(v.getUuid()+" JUST PASSED CHECKPOINT "+cv.getCheckpointUUID());
+                    //System.out.println(v.getUuid()+" JUST PASSED CHECKPOINT "+cv.getCheckpointUUID());
                     gameState.passCheckpoint(v.getUuid(), cv.getCheckpointUUID());
                 }
             });
@@ -96,7 +96,7 @@ public class Simulation extends TimerTask {
 
 //            gameState.getLog().commit();
         gameState.setNewAirplanesOutput();
-        System.out.println("1s has passed");
+        //System.out.println("1s has passed");
         gameState.simulationResume();
     }
 }

@@ -14,7 +14,7 @@ public class Main {
         while(true){
             Socket s;
             s = ss.accept();
-            System.out.println("New client connected: " + s);
+            //System.out.println("New client connected: " + s);
             ClientConnection connection = new ClientConnection(s, gameState);
             Thread connectionThread = new Thread(connection);
             connectionThread.start();

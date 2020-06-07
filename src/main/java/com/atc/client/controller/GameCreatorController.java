@@ -56,7 +56,7 @@ public class GameCreatorController extends GenericController{
                 "images/undoyellowballicon.png");
         mainMenuButton.setOnAction(e-> windowController.loadAndSetScene("/fxml/MainActivity.fxml", gameSettings));
         startGameButton.setOnAction(e->startGame());
-        radar.setOnMouseClicked(e-> System.out.println(e.getX()+", "+e.getY()));
+        //radar.setOnMouseClicked(e -> System.out.println(e.getX()+", "+e.getY()));
         Platform.runLater(this::resize);
     }
 
@@ -68,7 +68,7 @@ public class GameCreatorController extends GenericController{
                 (int)gameCanvasVBox.getWidth());
         radar.setPrefSize(radarDimensions, radarDimensions);
 
-        System.out.println("RadarDims: "+radarDimensions);
+        //System.out.println("RadarDims: "+radarDimensions);
     }
 
     /**
@@ -80,9 +80,6 @@ public class GameCreatorController extends GenericController{
      */
     public void addGraphicToButtons(String airplaneImage, String checkpointImage,
                                     String undoAirplane, String undoCheckpoint){
-        /**
-         * Helper class created only for purpose of adding graphics on buttons
-         */
         class ButtonSetter{
             /**
              * Creates ImageView that can resize itself to dimensions of button and diaplays a graphic on it.
@@ -119,27 +116,27 @@ public class GameCreatorController extends GenericController{
 
     /**
      * addCheckpointButton dragDone event handler
-     * @param dragEvent
+     * @param dragEvent dragEvent
      */
     public void checkpointDragDone(DragEvent dragEvent) {
-        System.out.println("DRAG CHECKPOINT DONE");
+        //System.out.println("DRAG CHECKPOINT DONE");
     }
     /**
      * addAirplaneButton dragDone event handler
-     * @param dragEvent
+     * @param dragEvent dragEvent
      */
     public void airplaneDragDone(DragEvent dragEvent) {
-        System.out.println("DRAG AIRPLANE DONE");
+        //System.out.println("DRAG AIRPLANE DONE");
     }
 
     /**
      * dragOver event handler - it allows GameCanvas to be the target of dragAndDropSequence.
-     * @param dragEvent
+     * @param dragEvent dragEvent
      */
     public void dragOver(DragEvent dragEvent) {
         if (dragEvent.getGestureSource() != radar &&
                 (dragEvent.getDragboard().hasString() || dragEvent.getDragboard().hasContent(airplaneDF))) {
-            System.out.println("DRAG OVER CANVAS");
+            //System.out.println("DRAG OVER CANVAS");
             dragEvent.acceptTransferModes(TransferMode.COPY_OR_MOVE);
         }
         dragEvent.consume();
@@ -151,7 +148,7 @@ public class GameCreatorController extends GenericController{
      *     FOR AIRPLANES: Airplanes are already securely stored in dragboard, so we must only update their xPos and yPos according to where they were dropped and print it on canvas.
      * <br>
      *     FOR CHECKPOINTS - Dragboard in this case only keeps number of points, so it must be created from scratch and printed on GameCanvas.
-     * @param dragEvent
+     * @param dragEvent dragEvent
      */
     public void dragDropped(DragEvent dragEvent) {
         Dragboard db = dragEvent.getDragboard();
@@ -163,7 +160,7 @@ public class GameCreatorController extends GenericController{
             radar.finish_printing();
             dragEvent.setDropCompleted(true);
         } else if (db.hasContent(airplaneDF)){
-            System.out.println("ITS AN AIRPLANE!");
+            //System.out.println("ITS AN AIRPLANE!");
             Airplane draggedAirplane = (Airplane) db.getContent(airplaneDF);
             draggedAirplane.setPosX(dragEvent.getX()/radar.xCoeff());
             draggedAirplane.setPosY(dragEvent.getY()/radar.yCoeff());
@@ -173,14 +170,14 @@ public class GameCreatorController extends GenericController{
             dragEvent.setDropCompleted(true);
         }
         dragEvent.consume();
-        System.out.println("DRAG DROPPED CANVAS");
+        //System.out.println("DRAG DROPPED CANVAS");
     }
 
     /**
      * DragDetected event handler for addCheckpointButton - it checks if all the fields are filled with valid
      * data and stores number of points in dragboard, so it would not be lost during dragAndDropSequence
      *
-     * @param event
+     * @param event mouseEvent
      */
 
     public void checkpointDragDetected(MouseEvent event) {
@@ -189,7 +186,7 @@ public class GameCreatorController extends GenericController{
         }else {
             try{
                 parseInt(chatEnterPoints.getText());
-                System.out.println("DRAG DETECTED");
+                //System.out.println("DRAG DETECTED");
                 Dragboard db = checkpointAddButton.startDragAndDrop(TransferMode.ANY);
                 ClipboardContent content = new ClipboardContent();
                 content.putString(chatEnterPoints.getText());
@@ -204,7 +201,7 @@ public class GameCreatorController extends GenericController{
      * DragDetected event handler for addAirplaneButton - it checks if all the fields are filled with valid
      * data, creates new dummy airplane with data provided by player and stores it in dragboard so it would not be lost during dragAndDropSequence.
      *
-     * @param event
+     * @param event mouseEvent
      */
     public void airplaneDragDetected(MouseEvent event) {
         if(chatEnterAltitude.getText().trim().isEmpty()
@@ -219,7 +216,7 @@ public class GameCreatorController extends GenericController{
                         parseDouble(chatEnterHeading.getText()),
                         parseDouble(chatEnterSpeed.getText()));
                 airplaneDelays.put(dummyAirplane.getUuid(), Integer.parseInt(chatEnterTime.getText()));
-                System.out.println("DRAG DETECTED");
+                //System.out.println("DRAG DETECTED");
                 event.setDragDetect(true);
                 Dragboard db = airplaneAddButton.startDragAndDrop(TransferMode.ANY);
                 ClipboardContent content = new ClipboardContent();
@@ -236,7 +233,7 @@ public class GameCreatorController extends GenericController{
 
     /**
      * ButtonClicked event handler - it removes last placed airplane on canvas.
-     * @param event
+     * @param event mouseEvent
      */
     public void undoAirplaneButtonClicked(MouseEvent event) {
         if(!newAirplanes.isEmpty()){
@@ -256,7 +253,7 @@ public class GameCreatorController extends GenericController{
     }
     /**
      * ButtonClicked event handler - it removes last placed checkpoint on canvas.
-     * @param event
+     * @param event mouseEvent
      */
     public void undoCheckpointButtonClicked(MouseEvent event) {
         if(!newCheckpoints.isEmpty()){

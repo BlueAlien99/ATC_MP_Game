@@ -1,14 +1,11 @@
 package test.com.atc.client.model;
 
-import com.atc.client.model.Checkpoint;
 import com.atc.server.gamelog.GameLog;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
 

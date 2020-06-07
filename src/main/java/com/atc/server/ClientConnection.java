@@ -67,7 +67,7 @@ public class ClientConnection implements Runnable{
 
     /**
      * Ends connection with server.
-     * @throws IOException
+     * @throws IOException exception
      */
 
     public void disconnect() throws IOException {
@@ -83,10 +83,10 @@ public class ClientConnection implements Runnable{
     @Override
     public void run() {
         try {
-            System.out.println("Streams being created! - " + socket.toString());
+            ////System.out.println("Streams being created! - " + socket.toString());
             this.outputStream = new ObjectOutputStream(socket.getOutputStream());
             this.inputStream = new ObjectInputStream(socket.getInputStream());
-            System.out.println("Streams created! - " + socket.toString());
+            ////System.out.println("Streams created! - " + socket.toString());
         } catch(IOException e){
             e.printStackTrace();
         }
@@ -103,7 +103,7 @@ public class ClientConnection implements Runnable{
     private class Input implements Runnable{
         /**
          * Stores data passed in message with game settings on server, (MULTIPLAYER GAME VERSION)
-         * @param message
+         * @param message message
          */
 
         private void passSettings(Message message){
@@ -112,7 +112,7 @@ public class ClientConnection implements Runnable{
             clientName = gs.getClientName();
             if(gameState.searchPlayerLogin(clientUUID)==null){
                 gameState.addPlayerLogin(clientUUID, clientName);
-                System.out.println("Client passed settings!");
+                ////System.out.println("Client passed settings!");
                 gameState.generateNewAirplanes(gs.getPlaneNum(), clientUUID);
                 gameState.sendMessageToAll(clientName + " connected!");
             }
@@ -123,7 +123,7 @@ public class ClientConnection implements Runnable{
 
         /**
          * Stores data passed in message with game settings and game scenario on server, (SINGLEPLAYER GAME VERSION)
-         * @param message
+         * @param message message
          */
         private void passInitial(Message message){
             gs = message.getGameSettings();
@@ -133,7 +133,7 @@ public class ClientConnection implements Runnable{
             message.getAirplanes().forEach((uuid, airplane)-> gameState.addAirplane(airplane));
             if(gameState.searchPlayerLogin(clientUUID)==null){
                 gameState.addPlayerLogin(clientUUID, clientName);
-                System.out.println("Client passed singleplayer data!");
+                ////System.out.println("Client passed singleplayer data!");
                 gameState.sendMessageToAll(clientName + " connected!");
             }
             else{
@@ -143,13 +143,13 @@ public class ClientConnection implements Runnable{
 
         /**
          * Gets data about players and their logins from database and sends them to client
-         * @return
+         * @return created message
          */
 
         private Message sendPlayers(){
             List<Player> plavers = gameState.getLog().selectAllPlayers();
             List<Login> logins = gameState.getLog().selectAllLogins();
-            System.out.println("Got data about players from database!");
+            //System.out.println("Got data about players from database!");
             Message msg = new Message(PLAYERS_LIST);
             msg.setPlayersList(plavers);
             msg.setBestScoresLoginList(logins);
@@ -158,25 +158,25 @@ public class ClientConnection implements Runnable{
 
         /**
          * Sends list of available game replays to client.
-         * @return
+         * @return created message
          */
         private Message sendAvailableReplays(){
             List<Integer> availableGames = gameState.getLog().selectAvailableGameId();
-            System.out.println("Got data from database!");
+            //System.out.println("Got data from database!");
             return new Message(availableGames);
         }
 
         /**
          * Sends data about the requested gameplay to client.
          * @param searchedGameId - requested gameID
-         * @return
+         * @return created message
          */
         private Message sendDataAboutGame(int searchedGameId){
             List<Checkpoint> checkpoints = gameState.getLog().selectCheckpoints(searchedGameId);
             List<Event> Events = gameState.getLog().selectGameIdEvents(searchedGameId);
             HashMap<Integer, String> Logins = gameState.getLog().selectPlayerLogin(searchedGameId);
             HashMap<UUID, String> Callsigns = gameState.getLog().selectAirplaneCallsigns(searchedGameId);
-            System.out.println("Got data from database!");
+            //System.out.println("Got data from database!");
             return new Message(searchedGameId, Events, Callsigns, Logins, checkpoints);
         }
 
@@ -206,10 +206,12 @@ public class ClientConnection implements Runnable{
                 catch (EOFException ignored) {}
                 catch(SocketException sex){
                     try{
-                        System.out.println("Socket close input.run() 1");
+                        //System.out.println("Socket close input.run() 1");
                         socket.close();}
-                    catch(Exception es) {System.out.println("Can't close connection");}
-                    System.out.println("Closing socket to "+ clientUUID.toString());
+                    catch(Exception es) {
+                        //System.out.println("Can't close connection");}
+                    }
+                    //System.out.println("Closing socket to "+ clientUUID.toString());
                     gameState.removeConnection(socket.toString());
                     break;
                 }
@@ -272,7 +274,7 @@ public class ClientConnection implements Runnable{
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        System.out.println("Sent airplanes to client");
+                        //System.out.println("Sent airplanes to client");
                         continue;
                     }
                     if(lastMsgType == FETCH_CHECKPOINTS){
@@ -284,7 +286,7 @@ public class ClientConnection implements Runnable{
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        System.out.println("Sent checkpoints to client");
+                        //System.out.println("Sent checkpoints to client");
                         continue;
                     }
                     if(lastMsgType == CLIENT_GOODBYE){
@@ -305,7 +307,7 @@ public class ClientConnection implements Runnable{
                             gameHistoryMessage = sendDataAboutGame(searchedGameId);
                         try {
                             outputStream.writeObject(gameHistoryMessage);
-                            System.out.println("Sent data to client!");
+                            //System.out.println("Sent data to client!");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -314,7 +316,7 @@ public class ClientConnection implements Runnable{
                         Message playersMessage = sendPlayers();
                         try {
                             outputStream.writeObject(playersMessage);
-                            System.out.println("Sent data to client!");
+                            //System.out.println("Sent data to client!");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -323,7 +325,7 @@ public class ClientConnection implements Runnable{
                     if(lastMsgType == GAME_HISTORY_END) {
                         try {
                             outputStream.writeObject(new Message(Message.msgTypes.GAME_HISTORY_END));
-                            System.out.println("Stopped exchanging data with client!");
+                            //System.out.println("Stopped exchanging data with client!");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -334,7 +336,7 @@ public class ClientConnection implements Runnable{
             }
             try {
                 if(!socket.isClosed()) {
-                    System.out.println("Socket close input.run() 2");
+                    //System.out.println("Socket close input.run() 2");
                     socket.close();
                     gameState.removeConnection(socket.toString());
                 }
@@ -363,11 +365,13 @@ public class ClientConnection implements Runnable{
                     }
                     catch(SocketException sex){
                         try{
-                            System.out.println("Socket close output.run() 1");
+                            //System.out.println("Socket close output.run() 1");
                             socket.close();
                         }
-                        catch(Exception es) {System.out.println("Can't close connection");}
-                        System.out.println("Closing socket to "+ clientUUID.toString());
+                        catch(Exception es) {
+                            //System.out.println("Can't close connection");
+                        }
+                        //System.out.println("Closing socket to "+ clientUUID.toString());
                         gameState.removeConnection(socket.toString());
                         break;
                     }
@@ -413,7 +417,7 @@ public class ClientConnection implements Runnable{
             }
             gameState.removeConnection(socket.toString());
             try {
-                System.out.println("Socket close output.run() 2");
+                //System.out.println("Socket close output.run() 2");
                 socket.close();
             } catch (IOException e) {
                 e.printStackTrace();

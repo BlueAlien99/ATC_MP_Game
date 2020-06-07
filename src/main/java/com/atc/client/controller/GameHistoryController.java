@@ -115,7 +115,7 @@ public class GameHistoryController  extends GenericController {
          * Stops the timer.
          */
         public void stop(){
-            System.out.println("KONIEC");
+            //System.out.println("KONIEC");
             if(task != null){
                 time.cancel();
                 T.interrupt();
@@ -129,10 +129,10 @@ public class GameHistoryController  extends GenericController {
          */
         @Override
         public void run(){
-            System.out.println("W SORDKU TIMERA");
-            System.out.println("ACTIVE " + activeTimeTick);
-            System.out.println("ACTUAL " + actualTimeTick);
-            System.out.println("MAX TIME TICK " + maxTimeTick);
+            //System.out.println("W SORDKU TIMERA");
+            //System.out.println("ACTIVE " + activeTimeTick);
+            //System.out.println("ACTUAL " + actualTimeTick);
+            //System.out.println("MAX TIME TICK " + maxTimeTick);
             actualTimeTick = activeTimeTick;
             if (actualTimeTick == maxTimeTick) {
                 stop();
@@ -178,7 +178,7 @@ public class GameHistoryController  extends GenericController {
                 task.stop();
             }
             if (isComboBoxEmpty.test(gameIdComboBox)) {
-                System.out.println("COMBO BOX SHOULD BE EMPTY");
+                //System.out.println("COMBO BOX SHOULD BE EMPTY");
                 gameHistory = new GameHistory();
                 try {
                     ClientStreamHandler.getInstance().setStreamState(ClientStreamHandler.StreamStates.STREAM_HISTORY);
@@ -195,10 +195,10 @@ public class GameHistoryController  extends GenericController {
                     createAlert("Database message","No available replays");
                 }
             } else {
-                System.out.println("COMBO BOX SHOULD BE FULL");
+                //System.out.println("COMBO BOX SHOULD BE FULL");
                 try{
                     int idGame = (int) gameIdComboBox.getValue();
-                    System.out.println(idGame);
+                    //System.out.println(idGame);
                     gameHistory.setCurrentGameId(idGame);
                     handleDataTransaction(idGame);
                     populateLists();
@@ -252,12 +252,12 @@ public class GameHistoryController  extends GenericController {
                 List<Event> events = gameHistory.getEvents();
 //                activeTimeTick = getMinOfTicks(events);
                 int maxTimeTick = getMaxOfTicks(events);
-                System.out.println("PRZED ZAINICJOWANIEM TIMERA");
+                //System.out.println("PRZED ZAINICJOWANIEM TIMERA");
                 task = new airplaneTimerTask(maxTimeTick, events);
                 task.init();
                 stopButton.setOnAction(eventHandler-> task.stop());
                 mySlider.setOnMouseClicked(event -> {
-                    System.out.println("Zatrzymać SLIDER");
+                    //System.out.println("Zatrzymać SLIDER");
                     task.stop();
                 });
             }
@@ -349,7 +349,7 @@ public class GameHistoryController  extends GenericController {
 
     /**
      * Sets new activeTimeTick, changes position on a slider and populates hashmap with airplanes from a given time tick.
-     * @param event
+     * @param event event
      */
     private void chooseAirplanes(Event event){
         int newTimeTick = event.getTimeTick();
@@ -443,10 +443,10 @@ public class GameHistoryController  extends GenericController {
 
     /**
      * Simple method to create a label for passing checkpoint event
-     * @param event
-     * @param Logins
-     * @param Callsigns
-     * @return
+     * @param event event
+     * @param Logins logins
+     * @param Callsigns callsings
+     * @return checkpoint string
      */
     private String createCheckpointString(Event event, HashMap<Integer, String> Logins,
                                           HashMap<UUID, String> Callsigns ){
