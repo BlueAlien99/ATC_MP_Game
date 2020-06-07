@@ -12,13 +12,12 @@ public class Main {
         ServerSocket ss = new ServerSocket(2137);
 
         while(true){
-            Socket s = null;
+            Socket s;
             s = ss.accept();
             System.out.println("New client connected: " + s);
             ClientConnection connection = new ClientConnection(s, gameState);
             Thread connectionThread = new Thread(connection);
             connectionThread.start();
-            //TODO: Move addConnection to ClientConnection itself!
             gameState.addConnection(s.toString(), connection);
         }
     }

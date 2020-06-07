@@ -23,7 +23,6 @@ import static com.atc.server.Message.msgTypes.*;
  * Class with a state machine, that allows easier handling of connection client-server.
  */
 
-//TODO: Safe casting and proper connection closing!
 public class ClientConnection implements Runnable{
 
     public final static int CONNECTION_IDLE = 0;
@@ -130,10 +129,8 @@ public class ClientConnection implements Runnable{
             gs = message.getGameSettings();
             clientUUID = gs.getClientUUID();
             clientName = gs.getClientName();
-            message.getCheckpoints().forEach((uuid, checkpoint) -> {gameState.addCheckpoint(checkpoint);});
-            message.getAirplanes().forEach((uuid, airplane)->{
-                gameState.addAirplane(airplane);
-            });
+            message.getCheckpoints().forEach((uuid, checkpoint) -> gameState.addCheckpoint(checkpoint));
+            message.getAirplanes().forEach((uuid, airplane)-> gameState.addAirplane(airplane));
             if(gameState.searchPlayerLogin(clientUUID)==null){
                 gameState.addPlayerLogin(clientUUID, clientName);
                 System.out.println("Client passed singleplayer data!");
@@ -332,7 +329,6 @@ public class ClientConnection implements Runnable{
                         }
                         searchedGameId=0;
                         connectionMode=CONNECTION_IDLE;
-                        continue;
                     }
                 }
             }

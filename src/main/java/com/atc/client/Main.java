@@ -15,11 +15,6 @@ public class Main extends Application {
     GameSettings gs;
     ClientStreamHandler csh;
 
-    //TODO: close game after user closes its window
-    //TODO: remove useless buttons from header menu
-    //TODO: player's score!
-    //TODO: remove all commented and no longer used code, also styling
-
     @Override
     public void start(Stage primaryStage) {
         WindowController mainWindowController = new WindowController(primaryStage);

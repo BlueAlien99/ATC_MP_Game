@@ -58,8 +58,6 @@ public class GameCanvas extends StackPane {
         gcDots.clearRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
     }
 
-    //TODO: this abomination of a function will need some thinking. It works though
-
     /**
      * Print airplane - one of the printing methods.
      * This one is used when we want to print AI airplane without it being active (it changes colour to blue).

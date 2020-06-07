@@ -2,7 +2,6 @@ package com.atc.server;
 
 import com.atc.client.model.Airplane;
 import com.atc.client.model.Checkpoint;
-import com.atc.client.model.GameSettings;
 import com.atc.client.model.TCAS;
 import com.atc.server.gamelog.GameLog;
 import com.atc.server.model.Event;
@@ -112,8 +111,7 @@ public class GameState {
         connections.remove(key);
         if (connections.isEmpty()) {
             if (simulationTimer != null)
-                simulationTimer.cancel(); /*TODO: it won't work, Rafał, as interrupts don't work on threads that have to do with ObjectStreams
-                                            edit: maybe it will now, idk ~BJ*/
+                simulationTimer.cancel();
         }
     }
 
@@ -388,7 +386,7 @@ public class GameState {
      * @param checkpointUUID - UUID of the checkpoint that has been passed
      */
     public void passCheckpoint(UUID airplaneUUID, UUID checkpointUUID){
-        if(checkpoints.get(checkpointUUID)==null || airplanes.get(airplaneUUID)==null)
+        if(checkpoints.get(checkpointUUID)==null || airplanes.get(airplaneUUID)==null || airplanes.get(airplaneUUID).getOwner() == null)
             return;
 
         checkpoints.get(checkpointUUID).passAirplane(airplaneUUID);
@@ -444,7 +442,7 @@ public class GameState {
 
     public void setNewCheckpointsAirplanesMapping(){
         checkpointsAirplanesMapping = new Vector<>();
-        checkpoints.forEach(((uuid, checkpoint) -> checkpoint.airplanes.forEach(((uuid1, aBoolean) -> {
+        checkpoints.forEach(((uuid, checkpoint) -> checkpoint.getAirplanes().forEach(((uuid1, aBoolean) -> {
             if(aBoolean)
                 checkpointsAirplanesMapping.add(new Pair<>(uuid, uuid1));
         }))));

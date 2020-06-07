@@ -44,7 +44,7 @@ public class GameActivity {
         System.out.println("SET CHECKPOINTS");
         checkpoints.forEach(((uuid, checkpoint) -> {
             System.out.println(uuid);
-            checkpoint.airplanes.forEach(((uuid1, aBoolean) -> System.out.println(uuid1.toString() + aBoolean)));
+            checkpoint.getAirplanes().forEach(((uuid1, aBoolean) -> System.out.println(uuid1.toString() + aBoolean)));
         }));
         System.out.println("END SET CHECKPOINTS");
     }

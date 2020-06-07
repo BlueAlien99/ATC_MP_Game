@@ -12,8 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.atc.client.Dimensions.*;
 
 /**
- * Class with simulation thread that manages movements of airplanes on canvas,
- * detects collisions and checks for passing checkpoint.
+ * Class with simulation thread which invokes all methods related to plane movement,
+ * collision detection and checkpoint passing. One run of run() methods equals one tick of a simulation.
  */
 public class Simulation extends TimerTask {
 
@@ -80,7 +80,6 @@ public class Simulation extends TimerTask {
                 if(cv.checkAirplane(v)){
                     System.out.println(v.getUuid()+" JUST PASSED CHECKPOINT "+cv.getCheckpointUUID());
                     gameState.passCheckpoint(v.getUuid(), cv.getCheckpointUUID());
-                    //TODO: gameLog event for checkpoints
                 }
             });
 

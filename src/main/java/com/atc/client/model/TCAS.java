@@ -7,7 +7,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.atc.client.Dimensions.*;
 
 /**
- * Class to detect collisions. Only Rafał Kulus knows how it works.
+ * Traffic Collision Avoidance System
+ * In short, sets a corresponding flag in the Airplane if it's crashed or is prone to collide
+ * with another aircraft in a near future.
  */
 public class TCAS {
 
@@ -16,6 +18,11 @@ public class TCAS {
 	public final static double criticalHorizontal = 24;
 	public final static double criticalVertical = 375;
 
+	/**
+	 * Calculates collisions of only a specified plane with all the others.
+	 * @param airplanes Hashmap of all airplanes.
+	 * @param chosen UUID of a specified airplane.
+	 */
 	public static void calculateSingleCollision(ConcurrentHashMap<UUID, Airplane> airplanes, UUID chosen){
 		Airplane iel = airplanes.get(chosen);
 		airplanes.forEach((k, v) -> {
@@ -28,7 +35,7 @@ public class TCAS {
 	/**
 	 * Calculates collisions.
 	 *
-	 * @param airplanes the airplanes
+	 * @param airplanes Hashmap of all airplanes to calculate collisions on.
 	 */
 	public static void calculateCollisions(ConcurrentHashMap<UUID, Airplane> airplanes){
 		ArrayList<Airplane> airList = new ArrayList<>(airplanes.values());
@@ -52,6 +59,13 @@ public class TCAS {
 		}
 	}
 
+	/**
+	 * Function sets CollisionCourse or Crashed flags in Airplane, if two given airplanes meet specific requirements
+	 * (basically if close or too close to each other respectively).
+	 * iel and jel come from iElement and jElement.
+	 * @param iel first airplane
+	 * @param jel second airplane
+	 */
 	private static void calculate(Airplane iel, Airplane jel){
 		double verticalSeparation = Math.abs(iel.getAltitude() - jel.getAltitude());
 		double horizontalSeparation = Math.sqrt(Math.pow(iel.getPosX() - jel.getPosX(), 2) + Math.pow(iel.getPosY() - jel.getPosY(), 2));
@@ -140,9 +154,10 @@ public class TCAS {
 	}
 
 	/**
-	 * Switch funtion used to differentiate cases of collisions.
-	 * @param heading
-	 * @return
+	 * Function returns a single digit (char) which tells in which direction the plane is moving,
+	 * digits correspond to digits on a numpad on a keyboard.
+	 * @param heading heading of an airplane
+	 * @return single digit as a char
 	 */
 
 	private static char getTcasCase(double heading){
