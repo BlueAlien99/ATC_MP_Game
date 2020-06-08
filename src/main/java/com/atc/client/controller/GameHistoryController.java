@@ -74,12 +74,17 @@ public class GameHistoryController  extends GenericController {
                     eventLabel.setText(createCheckpointString(event, gameHistory.getLogins(),
                             gameHistory.getCallsigns()));
                     setTextFill(Color.GHOSTWHITE);
+                }else if(event.getType() == Event.eventType.COLLISION){
+                    eventLabel.setText(createCollisionString(event, gameHistory.getLogins(),
+                            gameHistory.getCallsigns()));
+                    setTextFill(Color.RED);
                 }
                 timeTick = event.getTimeTick();
                 setText(eventLabel.getText());
             }
         }
     }
+
 
     /**
      * Timer simulating ticks on server - it helps to synchronize displaying movement of airplanes every second.
@@ -396,12 +401,11 @@ public class GameHistoryController  extends GenericController {
         ObservableList<Event> commandsObservableList = FXCollections.observableArrayList();
 
         for (Event event : Events) {
-            if (event.getType() == Event.eventType.MOVEMENT) {
+            if (event.getType() == Event.eventType.MOVEMENT || event.getType()== Event.eventType.CHECKPOINT
+            || event.getType() == Event.eventType.COLLISION) {
                 eventsObservableList.add(event);
-            } else if(event.getType() == Event.eventType.COMMAND){
+            } else {
                 commandsObservableList.add(event);
-            } else if(event.getType() == Event.eventType.CHECKPOINT){
-                eventsObservableList.add(event);
             }
         }
         eventsList.setItems(eventsObservableList);
@@ -442,6 +446,18 @@ public class GameHistoryController  extends GenericController {
                 ")";
     }
 
+    /**
+     *Simple method to create a label for collision event
+     * @param event - event
+     * @param logins - logins
+     * @param callsigns - callsigns
+     * @return collision string
+     */
+    private String createCollisionString(Event event, HashMap<Integer, String> logins, HashMap<UUID, String> callsigns) {
+    return "COLLISION! " + "(" + logins.get(event.getPlayerId()) +")"
+            + callsigns.get(event.getAirplaneUUID());
+
+    }
     /**
      * Simple method to create a label for passing checkpoint event
      * @param event event

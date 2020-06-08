@@ -160,6 +160,28 @@ public class GameState {
         }
     }
 
+    /**
+     * Generates checkpoints in multiplayer gameplay
+     */
+    public void generateCheckpoints(){
+        Random rand = new Random();
+        for(int i =0; i<MAX_CHECKPOINT; i++){
+            UUID checkpointUUID = UUID.randomUUID();
+            Checkpoint newCheckpoint = new Checkpoint(checkpointUUID,
+                    gameCount, rand.nextInt(MAXIMUM_CHECKPOINTS_POINTS)+MINIMUM_CHECKPOINTS_POINTS,
+                    rand.nextDouble()*CANVAS_WIDTH,
+                    rand.nextDouble()*CANVAS_HEIGHT);
+            addCheckpoint(newCheckpoint);
+            log.insertCheckpoints(checkpointUUID, gameCount, newCheckpoint.getPoints(),
+                    newCheckpoint.getxPos(), newCheckpoint.getyPos(), newCheckpoint.getRadius());
+        }
+    }
+
+
+    /**
+     * Generate AI airplanes in singleplayer gameplay
+     */
+
     public void generateAiPlane() {
         double u = new Random().nextInt((int) CANVAS_WIDTH);
         double v = new Random().nextInt((int) CANVAS_WIDTH / 4) + CANVAS_WIDTH / 4;
@@ -536,10 +558,26 @@ public class GameState {
         return checkpointsAirplanesMapping;
     }
 
+    /**
+     * Gets hashmap of players logins
+     * @return hashmap of players logins
+     */
+    public ConcurrentHashMap<UUID, String> getPlayersLogins() {
+        return playersLogins;
+    }
+
+    /**
+     * Returns number of AI airplanes
+     * @return number of AI airplanes
+     */
     public int getAiPlanes() {
         return aiPlanes;
     }
 
+    /**
+     * Removes AI airplane from game
+     * @param uuid
+     */
     public void removeAiPlane(UUID uuid){
         airplanes.remove(uuid);
         --aiPlanes;

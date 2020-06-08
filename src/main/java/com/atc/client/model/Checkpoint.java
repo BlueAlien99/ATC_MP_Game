@@ -64,16 +64,15 @@ public class Checkpoint implements Serializable, Cloneable {
      * @param points         the points
      * @param xPos           the x pos
      * @param yPos           the y pos
-     * @param radius         the radius
      */
     public Checkpoint(UUID checkpointUUID, int gameID, int points, double xPos,
-                      double yPos, double radius) {
+                      double yPos) {
     this.checkpointUUID = checkpointUUID;
     this.gameID = gameID;
     this.points = points;
     this.xPos = xPos;
     this.yPos = yPos;
-    this.radius = radius;
+    this.radius = calculateRadius(points);
     }
 
     /**

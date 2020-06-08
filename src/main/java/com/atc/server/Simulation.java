@@ -1,5 +1,6 @@
 package com.atc.server;
 
+import com.atc.client.Dimensions;
 import com.atc.client.model.Airplane;
 import com.atc.client.model.Checkpoint;
 import com.atc.client.model.TCAS;
@@ -52,6 +53,9 @@ public class Simulation extends TimerTask {
 
             if(v.isCrashed()){
                 if(v.getOwner() != null){
+                    gameState.getLog().insertEvent(gameState.getGameCount(), Event.eventType.COLLISION.toString(), gameState.getTickCount(),
+                            v.getOwner(), COLLISION_PENALTY ,gameState.getPlayersLogins().get(v.getOwner()), v.getPosX(), v.getPosY(),
+                            v.getSpeed(), v.getHeading(), v.getAltitude(), v.getUuid(), gameState.findAirplanesByPlayer(v.getOwner()));
                     gameState.generateNewAirplanes(1, v.getOwner());
                     airplanes.remove(k);
                 } else {

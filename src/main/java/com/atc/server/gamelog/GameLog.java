@@ -10,6 +10,9 @@ import java.nio.ByteBuffer;
 import java.sql.*;
 import java.util.*;
 
+/**
+ * Handle class managing every operation with database
+ */
 public class GameLog {
     public static final String DRIVER = "org.sqlite.JDBC";
     public static final String DB_URL = "jdbc:sqlite:gamelog.db";
@@ -19,6 +22,9 @@ public class GameLog {
     private Connection con;
     private Statement stat;
 
+    /**
+     * Constructor of Gamelog - it needs JDBC driver
+     */
     public GameLog(){
         try {
             Class.forName(GameLog.DRIVER);
@@ -32,6 +38,9 @@ public class GameLog {
         }
     }
 
+    /**
+     * Connects with database
+     */
     public void connect(){
         try {
             con = DriverManager.getConnection(DB_URL);
@@ -52,6 +61,10 @@ public class GameLog {
         }
     }
 
+    /**
+     * Creates all the tables and triggers
+     * @return true if operation was successful, false otherwise
+     */
     private boolean createTables(){
         String createPlayers = "CREATE TABLE IF NOT EXISTS PLAYERS" +
                 "(PLAYER_ID INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -91,13 +104,23 @@ public class GameLog {
                 "X_POS DOUBLE NOT NULL," +
                 "Y_POS DOUBLE NOT NULL," +
                 "RADIUS DOUBLE NOT NULL)";
-        String createTrigger ="CREATE TRIGGER IF NOT EXISTS UPDATE_POINTS " +
+        String createTrigger1 ="CREATE TRIGGER IF NOT EXISTS UPDATE_POINTS " +
                 "BEFORE INSERT ON EVENTS WHEN NEW.POINTS <> 0 " +
                 "BEGIN " +
                 "UPDATE PLAYERS " +
                 "SET POINTS = NEW.POINTS + (SELECT POINTS FROM PLAYERS WHERE PLAYER_ID = NEW.PLAYER_ID) " +
                 "WHERE PLAYER_ID = NEW.PLAYER_ID; " +
                 "END; ";
+        String createTrigger2 = "CREATE TRIGGER IF NOT EXISTS COMMAND_COOLDOWN_1\n" +
+                "BEFORE INSERT ON EVENTS WHEN NEW.EVENT_TYPE == \"COMMAND\" AND (NEW.TICK_TIME - (SELECT TICK_TIME FROM EVENTS WHERE AIRPLANE_UUID == NEW.AIRPLANE_UUID ORDER BY TICK_TIME DESC LIMIT 1) < 5)\n" +
+                "BEGIN\n" +
+                "UPDATE PLAYERS SET POINTS = (SELECT POINTS FROM PLAYERS WHERE PLAYER_ID = NEW.PLAYER_ID) -5;\n" +
+                "END;";
+        String createTrigger3 ="CREATE TRIGGER IF NOT EXISTS COMMAND_COOLDOWN_2\n" +
+                "BEFORE INSERT ON EVENTS WHEN NEW.EVENT_TYPE == \"COMMAND\" AND (NEW.TICK_TIME - (SELECT TICK_TIME FROM EVENTS WHERE AIRPLANE_UUID == NEW.AIRPLANE_UUID ORDER BY TICK_TIME DESC LIMIT 1) BETWEEN 5 AND 10)\n" +
+                "BEGIN\n" +
+                "UPDATE PLAYERS SET POINTS = (SELECT POINTS FROM PLAYERS WHERE PLAYER_ID = NEW.PLAYER_ID) -2;\n" +
+                "END;";
         String aiPlayer = "insert or ignore into players(player_id, player_uuid) values(-1, null)";
         try {
             connect();
@@ -106,7 +129,9 @@ public class GameLog {
             stat.execute(createLogins);
             stat.execute(createCallsigns);
             stat.execute(createCheckpoints);
-            stat.execute(createTrigger);
+            stat.execute(createTrigger1);
+            stat.execute(createTrigger2);
+            stat.execute(createTrigger3);
             stat.execute(aiPlayer);
             closeConnection();
         } catch (SQLException e) {
@@ -117,6 +142,15 @@ public class GameLog {
         return true;
     }
 
+    /**
+     * Inserts checkpoint to database
+     * @param checkpointUUID - UUID
+     * @param gameID - ID of game
+     * @param points - points
+     * @param xPos - x position on canvas
+     * @param yPos - y position on canvas
+     * @param radius - radius of checkpoint
+     */
     public void  insertCheckpoints(UUID checkpointUUID, int gameID, int points,
                                    double xPos, double yPos, double radius){
         try{
@@ -136,6 +170,13 @@ public class GameLog {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Inserts login into database
+     * @param gameId - ID of game
+     * @param playerId - player id in database
+     * @param login - player's login
+     */
     private void insertLogin(int gameId,int playerId, String login){
         try{
             connect();
@@ -152,6 +193,12 @@ public class GameLog {
         }
     }
 
+    /**
+     * Inserts airplane's callsign into database
+     * @param game_id - ID of game
+     * @param airplaneUUID - UUID of airplane
+     * @param callsign - airplane's callsign
+     */
     public void  insertCallsign(int game_id, UUID airplaneUUID, String callsign){
         try{
             connect();
@@ -168,6 +215,15 @@ public class GameLog {
         }
     }
 
+    /**
+     * Inserts player into database
+     * @param gameId - ID of game
+     * @param playerUUID - UUID of player
+     * @param points - points
+     * @param airplanesNum - number of airplanes
+     * @param timeInGame - time spent in game
+     * @return
+     */
     public boolean insertPlayer(int gameId, UUID playerUUID, int points, int airplanesNum, double timeInGame){
         try{
             connect();
@@ -187,10 +243,20 @@ public class GameLog {
         return true;
     }
 
+    /**
+     * Checks if player exists in database
+     * @param playersUUID - UUID os searched player
+     * @return true if exists, false otherwise
+     */
     private boolean checkUUIDInDatabase(UUID playersUUID){
         return playersUUIDHashmap.containsKey(playersUUID);
     }
 
+    /**
+     * Gets player's id in database
+     * @param playerUUID - UUID of searched player
+     * @return player' ID, 0 otherwise
+     */
     public int getPlayerIdFromDatabase(UUID playerUUID){
         if (checkUUIDInDatabase(playerUUID)){
             return playersUUIDHashmap.get(playerUUID);
@@ -198,6 +264,23 @@ public class GameLog {
         return 0;
     }
 
+    /**
+     * Inserts Event into database
+     * @param gameId - ID of game
+     * @param eventType - type of event
+     * @param timeTick - tick in which this event occurred
+     * @param playerUUID  - UUID of player that caused that event
+     * @param points - points
+     * @param login - login of player
+     * @param xCoordinate - x position on canvas where this event happened
+     * @param yCoordinate - y position on canvas where this event happened
+     * @param speed - speed in case it was MOVEMENT event
+     * @param heading - heading in case it was MOVEMENT event
+     * @param height- height in case it was MOVEMENT event
+     * @param airplaneUUID - airplane's UUID involved in this event
+     * @param airplanesNum - number of airplanes
+     * @return
+     */
     public boolean insertEvent(int gameId, String eventType, int timeTick, UUID playerUUID, int points,
                                String login, double xCoordinate, double yCoordinate,
                                double speed, double heading, double height,UUID airplaneUUID, int airplanesNum){
@@ -234,6 +317,10 @@ public class GameLog {
         return true;
     }
 
+    /**
+     * Selects all events from database
+     * @return List of events
+     */
     public List<Event> selectAllEvents(){
         List<Event> Events;
         try {
@@ -248,6 +335,10 @@ public class GameLog {
         return Events;
     }
 
+    /**
+     * Selects all players from database
+     * @return List of players
+     */
     public List<Player> selectAllPlayers(){
         List<Player> Players;
         try {
@@ -263,6 +354,10 @@ public class GameLog {
         return Players;
     }
 
+    /**
+     * Selects player's UUID from database
+     * @return Hashmap of UUID's and id's of players in database
+     */
     public HashMap<UUID, Integer> selectPlayerUUIDs(){
         HashMap<UUID, Integer> UUIDs = new HashMap<>();
         try {
@@ -284,6 +379,11 @@ public class GameLog {
         return UUIDs;
     }
 
+    /**
+     * Helper method to nicely process data from database
+     * @param result result set of query in database
+     * @return List of players
+     */
     private List<Player> getPlayersResult(ResultSet result){
         List<Player> Players = new LinkedList<>();
         try{
@@ -304,6 +404,12 @@ public class GameLog {
         }
         return Players;
     }
+
+    /**
+     * Finds player's ID in database
+     * @param playersUUID - UUID of searched player
+     * @return id of player in database
+     */
     private int findPlayerId(UUID playersUUID){
         int playerId;
         try {
@@ -320,6 +426,12 @@ public class GameLog {
         }
         return playerId;
     }
+
+    /**
+     * Selects events from given gameplay
+     * @param gameId - ID of game we want to replay
+     * @return List of events
+     */
     public List<Event> selectGameIdEvents(int gameId){
         List<Event> Events;
         try {
@@ -337,6 +449,11 @@ public class GameLog {
         return Events;
     }
 
+    /**
+     * Selects checkpoints from given gameplay
+     * @param gameId - ID of game we want to replay
+     * @return List of checkpoints
+     */
     public List<Checkpoint> selectCheckpoints(int gameId){
         List<Checkpoint> Checkpoints = new Vector<>();
         UUID checkpointUUID;
@@ -356,7 +473,7 @@ public class GameLog {
                 xPos = result.getDouble("x_pos");
                 radius = result.getDouble("radius");
                 Checkpoints.add(new Checkpoint(checkpointUUID,gameID,points,
-                        xPos, yPos, radius));
+                        xPos, yPos));
             }
             closeConnection();
         } catch (SQLException e) {
@@ -366,6 +483,10 @@ public class GameLog {
         return Checkpoints;
     }
 
+    /**
+     * Selects next gameID from database
+     * @return next game ID
+     */
     public int selectGameId (){
         int numberOfGames;
         try {
@@ -381,6 +502,11 @@ public class GameLog {
         }
         return numberOfGames;
     }
+
+    /**
+     * Selects game's ID that are present in database
+     * @return Vector of gameID's
+     */
     public Vector<Integer> selectAvailableGameId (){
         Vector<Integer> availableGames = new Vector<>();
         try {
@@ -398,6 +524,11 @@ public class GameLog {
         return availableGames;
     }
 
+    /**
+     * Selects player's logins an ID's from given gameplay
+     * @param gameId - game ID
+     * @return Hashmap of Logins and Id's from database
+     */
     public HashMap<Integer, String> selectPlayerLogin(int gameId){
         HashMap<Integer, String> logins = new HashMap<>();
         try {
@@ -420,6 +551,10 @@ public class GameLog {
         return logins;
     }
 
+    /**
+     * Selects all logins from database
+     * @return List of logins
+     */
     public List<Login> selectAllLogins(){
         List<Login> logins = new Vector<>();
         try {
@@ -442,7 +577,11 @@ public class GameLog {
         return logins;
     }
 
-
+    /**
+     * Selects airplanes' callsigns from database
+     * @param gameId - searched game ID
+     * @return hashmap of callsigns and corresponding to them UUID's
+     */
     public HashMap<UUID, String> selectAirplaneCallsigns(int gameId){
         HashMap<UUID, String> callsigns = new HashMap<>();
         try {
@@ -465,7 +604,11 @@ public class GameLog {
         return callsigns;
     }
 
-
+    /**
+     * Helper method to nicely process data from database
+     * @param result - result set of query in database
+     * @return List of events
+     */
     private List<Event> getEventResults(ResultSet result){
         try {
             List<Event> Events = new LinkedList<>();
@@ -496,7 +639,11 @@ public class GameLog {
         }
     }
 
-    public void deleteFromEvents(int game_id, int timeTick){
+    /**
+     * Deletes events from the database from given gameplay
+     * @param game_id - ID of game
+     */
+    public void deleteFromEvents(int game_id){
         try {
             connect();
             PreparedStatement prepStmt = con.prepareStatement(
@@ -509,6 +656,10 @@ public class GameLog {
         }
     }
 
+    /**
+     * Deletes player of given ID
+     * @param player_id - player's ID
+     */
     public void deleteFromPlayers(int player_id){
         try {
             connect();
@@ -522,6 +673,9 @@ public class GameLog {
         }
     }
 
+    /**
+     * Deletes all data from the database - only for purpose of testing!!!
+     */
     public void cleanDatabase(){
         try {
             connect();
@@ -543,7 +697,9 @@ public class GameLog {
     }
 
 
-
+    /**
+     * Closes connection with database
+     */
     public void closeConnection() {
         try {
             con.close();
@@ -553,10 +709,14 @@ public class GameLog {
         }
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /// THIS IS WORK OF jeffjohnson9046
-    /// LINK TO REPOSITORY https://gist.github.com/jeffjohnson9046/c663dd22bbe6bb0b3f5e
-    /////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Helper method to transform UUID into table of bytes
+     * @author jeffjohnson9046
+     * @link https://gist.github.com/jeffjohnson9046/c663dd22bbe6bb0b3f5e
+     * @param uuid
+     * @return
+     */
 
     public static byte[] getBytesFromUUID(UUID uuid) {
         ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
@@ -565,7 +725,13 @@ public class GameLog {
 
         return bb.array();
     }
-
+    /**
+     * Helper method to transform table of bytes into UUID
+     * @author jeffjohnson9046
+     * @link https://gist.github.com/jeffjohnson9046/c663dd22bbe6bb0b3f5e
+     * @param bytes
+     * @return
+     */
     public static UUID getUUIDFromBytes(byte[] bytes) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         long high = byteBuffer.getLong();
