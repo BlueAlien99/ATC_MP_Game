@@ -1,11 +1,11 @@
-package com.atc.server;
+package com.atc.server.model;
 
 import com.atc.client.model.Airplane;
 import com.atc.client.model.Checkpoint;
 import com.atc.client.model.GameSettings;
-import com.atc.server.model.Event;
-import com.atc.server.model.Login;
-import com.atc.server.model.Player;
+import com.atc.server.dao.model.Event;
+import com.atc.server.dao.model.Login;
+import com.atc.server.dao.model.Player;
 import javafx.util.Pair;
 
 import java.io.Serializable;

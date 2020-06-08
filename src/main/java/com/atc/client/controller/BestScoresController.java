@@ -1,8 +1,8 @@
 package com.atc.client.controller;
 
-import com.atc.client.model.ClientStreamHandler;
-import com.atc.server.model.Login;
-import com.atc.server.model.Player;
+import com.atc.client.thread.ClientStreamHandler;
+import com.atc.server.dao.model.Login;
+import com.atc.server.dao.model.Player;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -134,7 +134,7 @@ public class BestScoresController extends GenericController{
 
     /**
      * Searches for a login corresponding to given playerID in the database.
-     * @param playerId
+     * @param playerId id to search for
      * @return login or null, whether a search is successful or not.
      */
     private Login searchForLogin(int playerId){

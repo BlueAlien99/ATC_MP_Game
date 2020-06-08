@@ -1,13 +1,11 @@
 package test.com.atc.client.model;
 
-import com.atc.client.Dimensions;
+import com.atc.client.GlobalConsts;
 import com.atc.client.model.Airplane;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Random;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class AirplaneTest {
 
@@ -32,8 +30,8 @@ class AirplaneTest {
 	@Test
 	void setPosXY() {
 		for(int i = 0; i < 1000; ++i) {
-			double x = new Random().nextDouble() % Dimensions.CANVAS_WIDTH*10 - Dimensions.CANVAS_WIDTH*5;
-			double y = new Random().nextDouble() % Dimensions.CANVAS_HEIGHT*10 - Dimensions.CANVAS_HEIGHT*5;
+			double x = new Random().nextDouble() % GlobalConsts.CANVAS_WIDTH*10 - GlobalConsts.CANVAS_WIDTH*5;
+			double y = new Random().nextDouble() % GlobalConsts.CANVAS_HEIGHT*10 - GlobalConsts.CANVAS_HEIGHT*5;
 			Airplane a = new Airplane(null, 0, 0, 5000, 180, 200);
 			a.setPosX(x);
 			a.setPosY(y);
@@ -59,13 +57,13 @@ class AirplaneTest {
 	@Test
 	void targetAltitude() {
 		for(int i = 0; i < 1000; ++i) {
-			double alt = new Random().nextInt((int)Dimensions.AIRPLANE_MAX_ALTITUDE*2);
+			double alt = new Random().nextInt((int) GlobalConsts.AIRPLANE_MAX_ALTITUDE*2);
 			Airplane a = new Airplane(null, 0, 0, 5000, 180, 200);
 			a.setTargetAltitude(alt);
 			double aAlt = a.getTargetAltitude();
-			Assertions.assertTrue((alt < Dimensions.AIRPLANE_MIN_ALTITUDE && aAlt == Dimensions.AIRPLANE_MIN_ALTITUDE) ||
-					(alt > Dimensions.AIRPLANE_MAX_ALTITUDE && aAlt == Dimensions.AIRPLANE_MAX_ALTITUDE) ||
-					(alt >= Dimensions.AIRPLANE_MIN_ALTITUDE && alt <= Dimensions.AIRPLANE_MAX_ALTITUDE && aAlt == alt));
+			Assertions.assertTrue((alt < GlobalConsts.AIRPLANE_MIN_ALTITUDE && aAlt == GlobalConsts.AIRPLANE_MIN_ALTITUDE) ||
+					(alt > GlobalConsts.AIRPLANE_MAX_ALTITUDE && aAlt == GlobalConsts.AIRPLANE_MAX_ALTITUDE) ||
+					(alt >= GlobalConsts.AIRPLANE_MIN_ALTITUDE && alt <= GlobalConsts.AIRPLANE_MAX_ALTITUDE && aAlt == alt));
 		}
 	}
 
@@ -83,13 +81,13 @@ class AirplaneTest {
 	@Test
 	void targetSpeed() {
 		for(int i = 0; i < 1000; ++i) {
-			double speed = new Random().nextInt((int)Dimensions.DEFAULT_MAX_SPEED*2);
+			double speed = new Random().nextInt((int) GlobalConsts.DEFAULT_MAX_SPEED*2);
 			Airplane a = new Airplane(null, 0, 0, 5000, 180, 200);
 			a.setTargetSpeed(speed);
 			double aSpeed = a.getTargetSpeed();
-			Assertions.assertTrue((speed < Dimensions.DEFAULT_MIN_SPEED && aSpeed == Dimensions.DEFAULT_MIN_SPEED) ||
-					(speed > Dimensions.DEFAULT_MAX_SPEED && aSpeed == Dimensions.DEFAULT_MAX_SPEED) ||
-					(speed >= Dimensions.DEFAULT_MIN_SPEED && speed <= Dimensions.DEFAULT_MAX_SPEED && aSpeed == speed));
+			Assertions.assertTrue((speed < GlobalConsts.DEFAULT_MIN_SPEED && aSpeed == GlobalConsts.DEFAULT_MIN_SPEED) ||
+					(speed > GlobalConsts.DEFAULT_MAX_SPEED && aSpeed == GlobalConsts.DEFAULT_MAX_SPEED) ||
+					(speed >= GlobalConsts.DEFAULT_MIN_SPEED && speed <= GlobalConsts.DEFAULT_MAX_SPEED && aSpeed == speed));
 		}
 	}
 }

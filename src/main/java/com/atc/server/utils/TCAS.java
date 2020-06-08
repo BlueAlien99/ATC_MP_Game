@@ -1,10 +1,12 @@
-package com.atc.client.model;
+package com.atc.server.utils;
+
+import com.atc.client.model.Airplane;
 
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.atc.client.Dimensions.*;
+import static com.atc.client.GlobalConsts.*;
 
 /**
  * Traffic Collision Avoidance System

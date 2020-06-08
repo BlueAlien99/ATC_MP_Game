@@ -1,10 +1,13 @@
-package com.atc.client.model;
+package com.atc.client.thread;
 
 import com.atc.client.controller.GameCreatorController;
-import com.atc.server.Message;
-import com.atc.server.model.Event;
-import com.atc.server.model.Login;
-import com.atc.server.model.Player;
+import com.atc.client.model.Checkpoint;
+import com.atc.client.model.GameActivity;
+import com.atc.client.model.GameSettings;
+import com.atc.server.model.Message;
+import com.atc.server.dao.model.Event;
+import com.atc.server.dao.model.Login;
+import com.atc.server.dao.model.Player;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -21,7 +24,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
-import static com.atc.server.Message.msgTypes.*;
+import static com.atc.server.model.Message.msgTypes.*;
 
 /**
  * Class that enables communication between the server, client and database.
@@ -491,7 +494,7 @@ public class ClientStreamHandler implements Runnable {
      */
     public void updateIP() throws IOException {
         System.out.println("UpdateIP" + streamState);
-        if(ipAddress.equals(GameSettings.getInstance().ipAddress))
+        if(ipAddress.equals(GameSettings.getInstance().getIpAddress()))
             return;
         System.out.println("UpdateIP continued");
         setStreamState(StreamStates.STREAM_IDLE);

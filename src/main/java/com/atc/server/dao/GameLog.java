@@ -1,9 +1,9 @@
-package com.atc.server.gamelog;
+package com.atc.server.dao;
 
 import com.atc.client.model.Checkpoint;
-import com.atc.server.model.Event;
-import com.atc.server.model.Login;
-import com.atc.server.model.Player;
+import com.atc.server.dao.model.Event;
+import com.atc.server.dao.model.Login;
+import com.atc.server.dao.model.Player;
 
 
 import java.nio.ByteBuffer;
@@ -228,7 +228,7 @@ public class GameLog {
      * @param points - points
      * @param airplanesNum - number of airplanes
      * @param timeInGame - time spent in game
-     * @return
+     * @return boolean whether completed successfully
      */
     public boolean insertPlayer(int gameId, UUID playerUUID, int points, int airplanesNum, double timeInGame){
         try{
@@ -287,7 +287,7 @@ public class GameLog {
      * @param height- height in case it was MOVEMENT event
      * @param airplaneUUID - airplane's UUID involved in this event
      * @param airplanesNum - number of airplanes
-     * @return
+     * @return boolean whether completed successfully
      */
     public boolean insertEvent(int gameId, String eventType, int timeTick, UUID playerUUID, int points,
                                String login, double xCoordinate, double yCoordinate,
@@ -724,8 +724,8 @@ public class GameLog {
      * Helper method to transform UUID into table of bytes
      * @author jeffjohnson9046
      * @link https://gist.github.com/jeffjohnson9046/c663dd22bbe6bb0b3f5e
-     * @param uuid
-     * @return
+     * @param uuid uuid
+     * @return byte array
      */
 
     public static byte[] getBytesFromUUID(UUID uuid) {
@@ -739,8 +739,8 @@ public class GameLog {
      * Helper method to transform table of bytes into UUID
      * @author jeffjohnson9046
      * @link https://gist.github.com/jeffjohnson9046/c663dd22bbe6bb0b3f5e
-     * @param bytes
-     * @return
+     * @param bytes byte array
+     * @return uuid
      */
     public static UUID getUUIDFromBytes(byte[] bytes) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);

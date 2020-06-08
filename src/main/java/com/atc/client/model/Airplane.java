@@ -1,6 +1,6 @@
 package com.atc.client.model;
 
-import com.atc.client.Dimensions;
+import com.atc.client.GlobalConsts;
 
 import java.io.InputStream;
 import java.io.Serializable;
@@ -8,7 +8,7 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.UUID;
 
-import static com.atc.client.Dimensions.SIM_TICK_DELAY;
+import static com.atc.client.GlobalConsts.SIM_TICK_DELAY;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
@@ -55,7 +55,7 @@ public class Airplane implements Cloneable, Serializable {
 
 	static{
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-		InputStream is = classLoader.getResourceAsStream(Dimensions.AIRLINES_FILE);
+		InputStream is = classLoader.getResourceAsStream(GlobalConsts.AIRLINES_FILE);
 		assert is != null;
 		Scanner sc = new Scanner(is);
 
@@ -80,8 +80,8 @@ public class Airplane implements Cloneable, Serializable {
 		registerAircraft();
 		this.owner = owner;
 
-		this.minSpeed = Dimensions.DEFAULT_MIN_SPEED;
-		this.maxSpeed = Dimensions.DEFAULT_MAX_SPEED;
+		this.minSpeed = GlobalConsts.DEFAULT_MIN_SPEED;
+		this.maxSpeed = GlobalConsts.DEFAULT_MAX_SPEED;
 
 		this.posX = posX;
 		this.posY = posY;
@@ -141,7 +141,7 @@ public class Airplane implements Cloneable, Serializable {
 
 		collisionCourse = false;
 
-		if(Dimensions.DEBUGGING_MODE){
+		if(GlobalConsts.DEBUGGING_MODE){
 			altitude = targetAltitude;
 			heading = targetHeading;
 			speed = targetSpeed;
@@ -334,10 +334,10 @@ public class Airplane implements Cloneable, Serializable {
 	 * @param altitude the altitude
 	 */
 	public void setTargetAltitude(double altitude){
-		if(altitude < Dimensions.AIRPLANE_MIN_ALTITUDE){
-			targetAltitude = Dimensions.AIRPLANE_MIN_ALTITUDE;
+		if(altitude < GlobalConsts.AIRPLANE_MIN_ALTITUDE){
+			targetAltitude = GlobalConsts.AIRPLANE_MIN_ALTITUDE;
 		} else{
-			targetAltitude = Math.min(altitude, Dimensions.AIRPLANE_MAX_ALTITUDE);
+			targetAltitude = Math.min(altitude, GlobalConsts.AIRPLANE_MAX_ALTITUDE);
 		}
 	}
 
@@ -438,7 +438,7 @@ public class Airplane implements Cloneable, Serializable {
 		altitudeAcceleration = Math.abs(altitudeAcceleration);
 
 		altitudeAcceleration = Math.min(altitudeAcceleration + climbAccStep * SIM_TICK_DELAY/1000, absDiff);
-		altitudeAcceleration = Math.min(altitudeAcceleration, Dimensions.AIRPLANE_MAX_CLIMB_RATE * SIM_TICK_DELAY/1000);
+		altitudeAcceleration = Math.min(altitudeAcceleration, GlobalConsts.AIRPLANE_MAX_CLIMB_RATE * SIM_TICK_DELAY/1000);
 		altitudeAcceleration *= diff / absDiff;
 
 		altitude += altitudeAcceleration;
@@ -459,7 +459,7 @@ public class Airplane implements Cloneable, Serializable {
 		speedAcceleration = Math.abs(speedAcceleration);
 
 		speedAcceleration = Math.min(speedAcceleration + speedAccStep * SIM_TICK_DELAY/1000, absDiff);
-		speedAcceleration = Math.min(speedAcceleration, Dimensions.AIRPLANE_MAX_ACCELERATION * SIM_TICK_DELAY/1000);
+		speedAcceleration = Math.min(speedAcceleration, GlobalConsts.AIRPLANE_MAX_ACCELERATION * SIM_TICK_DELAY/1000);
 		speedAcceleration *= diff / absDiff;
 
 		speed += speedAcceleration;
@@ -487,7 +487,7 @@ public class Airplane implements Cloneable, Serializable {
 		headingAcceleration = Math.abs(headingAcceleration);
 
 		headingAcceleration = Math.min(headingAcceleration + turnAccStep * SIM_TICK_DELAY/1000, absDiff);
-		headingAcceleration = Math.min(headingAcceleration, Dimensions.AIRPLANE_MAX_TURN_RATE * SIM_TICK_DELAY/1000);
+		headingAcceleration = Math.min(headingAcceleration, GlobalConsts.AIRPLANE_MAX_TURN_RATE * SIM_TICK_DELAY/1000);
 		headingAcceleration *= diff / absDiff;
 
 		heading += headingAcceleration;
@@ -505,7 +505,7 @@ public class Airplane implements Cloneable, Serializable {
 	 */
 	private void registerAircraft() {
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-		InputStream is = classLoader.getResourceAsStream(Dimensions.AIRLINES_FILE);
+		InputStream is = classLoader.getResourceAsStream(GlobalConsts.AIRLINES_FILE);
 		assert is != null;
 		Scanner sc = new Scanner(is);
 

@@ -1,7 +1,8 @@
 package com.atc.client.controller;
 
 import com.atc.client.model.*;
-import com.atc.server.model.Event;
+import com.atc.client.thread.ClientStreamHandler;
+import com.atc.server.dao.model.Event;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

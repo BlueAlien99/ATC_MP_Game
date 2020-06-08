@@ -1,4 +1,4 @@
-package com.atc.server;
+package com.atc.server.utils;
 
 import com.atc.client.model.Airplane;
 

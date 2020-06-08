@@ -1,6 +1,6 @@
 package com.atc.client.model;
 
-import com.atc.server.model.Event;
+import com.atc.server.dao.model.Event;
 
 import java.util.HashMap;
 import java.util.List;

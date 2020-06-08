@@ -8,7 +8,7 @@ import javafx.scene.paint.Paint;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import static com.atc.client.Dimensions.*;
+import static com.atc.client.GlobalConsts.*;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
