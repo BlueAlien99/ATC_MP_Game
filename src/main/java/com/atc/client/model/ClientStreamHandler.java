@@ -195,7 +195,7 @@ public class ClientStreamHandler implements Runnable {
                 System.out.println(og);
                 msg = (Message) og;
             } catch (IOException e) {
-                resetConnection();
+                //resetConnection();
             }
             catch (ClassNotFoundException e){
                 e.printStackTrace();
@@ -209,7 +209,7 @@ public class ClientStreamHandler implements Runnable {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                return;
+                //return;
             }
             try {
                 switch (streamState) {
@@ -495,8 +495,14 @@ public class ClientStreamHandler implements Runnable {
             return;
         System.out.println("UpdateIP continued");
         setStreamState(StreamStates.STREAM_IDLE);
-        out.writeObject(new Message(Message.msgTypes.DISCONNECT));
-        socket.close();
+        try {
+            out.writeObject(new Message(Message.msgTypes.DISCONNECT));
+        }
+        catch (IOException ignored) {}
+        try {
+            socket.close();
+        }
+        catch (IOException ignored){}
         socket = new Socket(GameSettings.getInstance().getIpAddress(), 2137);
         in = new ObjectInputStream(socket.getInputStream());
         out = new ObjectOutputStream(socket.getOutputStream());
