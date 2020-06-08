@@ -434,6 +434,11 @@ public class GameState {
                 playersLogins.get(happyAirplane.getOwner()), happyAirplane.getPosX(),
                 happyAirplane.getPosY(), happyAirplane.getSpeed(), happyAirplane.getHeading(),
                 happyAirplane.getAltitude(), happyAirplane.getUuid(),findAirplanesByPlayer(happyAirplane.getOwner()));
+    if(checkForGameOver()){
+        simulationPauseResume();
+        sendMessageToAll("GAME IS OVER! CONGRATULATIONS!");
+    }
+
     }
 
     /**
@@ -588,5 +593,20 @@ public class GameState {
     public void removeAiPlane(UUID uuid){
         airplanes.remove(uuid);
         --aiPlanes;
+    }
+
+    /**
+     * Checks if all airplanes passed checkpoints
+     * @return true if so, false otherwise
+     */
+    public boolean checkForGameOver(){
+        for(Checkpoint checkpoint : checkpoints.values()){
+            for(Airplane airplane: airplanes.values()){
+                if(airplane.getOwner()!=null && !checkpoint.airplanes.get(airplane.getUuid())){
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

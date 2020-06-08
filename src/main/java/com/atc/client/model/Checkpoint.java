@@ -23,7 +23,7 @@ public class Checkpoint implements Serializable, Cloneable {
     /**
      * Every checkpoint has his own checkpoint with airplanes to check whether it passed it or not.
      */
-    private ConcurrentHashMap<UUID, Boolean> airplanes = new ConcurrentHashMap<>();
+    public ConcurrentHashMap<UUID, Boolean> airplanes = new ConcurrentHashMap<>();
 
     /**
      * Instantiates a new Checkpoint - used only to make tests.
