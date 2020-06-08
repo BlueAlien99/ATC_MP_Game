@@ -91,7 +91,7 @@ public class ClientStreamHandler implements Runnable {
     private HashMap<Integer, String> Logins;
     private List<Login> bestScoresLoginsList;
     private int searchedGameId;
-    private Semaphore dataSemaphore = new Semaphore(0,true);
+    public Semaphore dataSemaphore = new Semaphore(0,true);
     private Semaphore initializeSemaphore = new Semaphore(0, true);
 
     /**
@@ -191,7 +191,9 @@ public class ClientStreamHandler implements Runnable {
         while (connected && !Thread.currentThread().isInterrupted()) {
             Message msg = null;
             try {
-                msg = (Message) in.readObject();
+                Object og = in.readObject();
+                System.out.println(og);
+                msg = (Message) og;
             } catch (IOException e) {
                 resetConnection();
             }
@@ -284,17 +286,20 @@ public class ClientStreamHandler implements Runnable {
                     Logins = msg.getLogins();
                     checkpoints = msg.getDbCheckpoints();
                     dataSemaphore.release();
+                    System.out.println("dataSemaphore released1!");
                 }
                 else{
                     //System.out.println("Received available replays from server!");
                     availableGames = msg.getAvailableGameId();
                     dataSemaphore.release();
+                    System.out.println("dataSemaphore released2!");
                 }
                 break;
             case PLAYERS_LIST:
                 playersList = msg.getPlayersList();
                 bestScoresLoginsList = msg.getBestScoresLoginList();
                 dataSemaphore.release();
+                System.out.println("dataSemaphore released3!");
                 break;
             case GAME_HISTORY_END:
                 //System.out.println("End of exchanging data with server");
@@ -361,6 +366,7 @@ public class ClientStreamHandler implements Runnable {
         //System.out.println("Requested data!");
         initializeSemaphore.release();
         dataSemaphore.acquire();
+        System.out.println("dataSemaphore acquired1!");
     }
 
     /**
@@ -373,9 +379,10 @@ public class ClientStreamHandler implements Runnable {
         initializeSemaphore.acquire();
         Message message = new Message(searchedGameId);
         out.writeObject(message);
-        //System.out.println("Requested data!");
+        System.out.println("Requested data!");
         initializeSemaphore.release();
         dataSemaphore.acquire();
+        System.out.println("dataSemaphore acquired2!");
     }
 
     /**
@@ -401,11 +408,12 @@ public class ClientStreamHandler implements Runnable {
      * @throws IOException exception
      */
     public void setStreamState(StreamStates newState) throws IOException {
+        System.out.println("setStreamState "+streamState+" to "+newState);
         if(streamState==newState)
             return;
         switch (streamState){
             case STREAM_HISTORY:
-                sayGoodbye();
+                out.writeObject(new Message(Message.msgTypes.CLIENT_GOODBYE));
                 break;
             case STREAM_GAME:
                 out.writeObject(new Message(Message.msgTypes.CLIENT_GOODBYE));
@@ -464,6 +472,7 @@ public class ClientStreamHandler implements Runnable {
         out.writeObject(message);
         initializeSemaphore.release();
         dataSemaphore.release();
+        System.out.println("dataSemaphore released4!");
     }
 
     /**
@@ -481,8 +490,10 @@ public class ClientStreamHandler implements Runnable {
      * @throws IOException exception
      */
     public void updateIP() throws IOException {
+        System.out.println("UpdateIP" + streamState);
         if(ipAddress.equals(GameSettings.getInstance().ipAddress))
             return;
+        System.out.println("UpdateIP continued");
         setStreamState(StreamStates.STREAM_IDLE);
         out.writeObject(new Message(Message.msgTypes.DISCONNECT));
         socket.close();

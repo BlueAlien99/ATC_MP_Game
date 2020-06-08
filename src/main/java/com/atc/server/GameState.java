@@ -283,7 +283,7 @@ public class GameState {
     }
 
     /**
-     * Gets an update hashmap of airplanes from current tick
+     * Gets an updated hashmap of airplanes from current tick
      * @return hashmap of airplanes
      */
     public ConcurrentHashMap<UUID, Airplane> getAirplanesList() {
@@ -454,6 +454,23 @@ public class GameState {
      */
     public ConcurrentHashMap<UUID, Checkpoint> getCheckpoints() {
         return checkpoints;
+    }
+
+
+    /**
+     * Gets an updated hashmap of checkpoints from current tick
+     * @return hashmap of checkpoints
+     */
+    public ConcurrentHashMap<UUID, Checkpoint> getCheckpointsList() {
+        ConcurrentHashMap<UUID, Checkpoint>out = new ConcurrentHashMap<>();
+        checkpoints.forEach((k, v) -> {
+            try {
+                out.put(k, (Checkpoint) v.clone());
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+        });
+        return out;
     }
 
     /**

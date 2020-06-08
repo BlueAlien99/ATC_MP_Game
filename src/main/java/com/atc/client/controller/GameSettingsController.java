@@ -44,6 +44,7 @@ public class GameSettingsController extends GenericController{
             try {
                 ClientStreamHandler.getInstance().updateIP();
             } catch (IOException ex) {
+                ex.printStackTrace();
                 gameSettings.setIpAddress("localhost");
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Invalid IP");

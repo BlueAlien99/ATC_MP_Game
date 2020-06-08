@@ -166,6 +166,7 @@ public class GameHistoryController  extends GenericController {
             createAlert("Server message",
                     "Cannot connect to server. Please check IP address in your settings");
         }
+        System.out.println("Exiting handleDataTransaction");
     }
 
     @FXML

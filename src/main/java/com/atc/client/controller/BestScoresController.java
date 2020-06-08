@@ -3,6 +3,7 @@ package com.atc.client.controller;
 import com.atc.client.model.ClientStreamHandler;
 import com.atc.server.model.Login;
 import com.atc.server.model.Player;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -14,6 +15,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 /**
  * Class controlling exchange of data about players with the database.
@@ -26,6 +28,7 @@ public class BestScoresController extends GenericController{
     @FXML TableColumn gameIDCol;
     List<Player> players;
     List <Login> logins;
+    Semaphore dataSemaphore = new Semaphore(0);
     @FXML TableView playersTableView = new TableView();
 
     /**
@@ -95,7 +98,14 @@ public class BestScoresController extends GenericController{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        createColumns();
+        Platform.runLater(()->{
+            try {
+                dataSemaphore.acquire();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            createColumns();
+        });
         mainMenuButton.setOnAction(e-> windowController.loadAndSetScene("/fxml/MainActivity.fxml", gameSettings));
     }
 
@@ -114,9 +124,11 @@ public class BestScoresController extends GenericController{
             alert.setHeaderText(null);
             alert.setContentText("Unexpected error occurred.");
             alert.showAndWait();
+            dataSemaphore.release();
         }
         players = ClientStreamHandler.getInstance().getPlayersList();
         logins = ClientStreamHandler.getInstance().getBestScoresLoginsList();
+        dataSemaphore.release();
         ClientStreamHandler.getInstance().setStreamState(ClientStreamHandler.StreamStates.STREAM_IDLE);
     }
 

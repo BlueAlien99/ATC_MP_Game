@@ -202,6 +202,7 @@ public class ClientConnection implements Runnable{
                         break;
                     }
                     message = (Message) inputStream.readObject();
+                    System.out.println("Connection mode: "+connectionMode);
                 }
                 catch (EOFException ignored) {}
                 catch(SocketException sex){
@@ -216,6 +217,7 @@ public class ClientConnection implements Runnable{
                     break;
                 }
                 catch(Exception e){
+                    gameState.removeConnection(socket.toString());
                     e.printStackTrace();
                     break;
                 }
@@ -279,7 +281,7 @@ public class ClientConnection implements Runnable{
                     }
                     if(lastMsgType == FETCH_CHECKPOINTS){
                         Message outMsg = new Message(CHECKPOINTS_LIST);
-                        outMsg.setCheckpoints(gameState.getCheckpoints());
+                        outMsg.setCheckpoints(gameState.getCheckpointsList());
                         outMsg.setCheckpointsAirplanesMapping(gameState.getCheckpointsAirplanesMapping());
                         try {
                             outputStream.writeObject(outMsg);
@@ -307,7 +309,7 @@ public class ClientConnection implements Runnable{
                             gameHistoryMessage = sendDataAboutGame(searchedGameId);
                         try {
                             outputStream.writeObject(gameHistoryMessage);
-                            //System.out.println("Sent data to client!");
+                            System.out.println("Sent data to client!");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -331,6 +333,11 @@ public class ClientConnection implements Runnable{
                         }
                         searchedGameId=0;
                         connectionMode=CONNECTION_IDLE;
+                        continue;
+                    }
+                    if(lastMsgType == CLIENT_GOODBYE){
+                        connectionMode=CONNECTION_IDLE;
+                        continue;
                     }
                 }
             }

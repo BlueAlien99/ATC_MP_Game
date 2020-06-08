@@ -1,9 +1,6 @@
 package com.atc.client.controller;
 
-import com.atc.client.model.Airplane;
-import com.atc.client.model.Checkpoint;
-import com.atc.client.model.GameCanvas;
-import com.atc.client.model.GameSettings;
+import com.atc.client.model.*;
 import com.atc.server.Message;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -16,7 +13,7 @@ import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,7 +46,12 @@ public class GameCreatorController extends GenericController{
     private double spawnRatio = 10;
 
     public void initialize(){
-        GameSettings.getInstance().setIpAddress("127.0.0.1");
+        GameSettings.getInstance().setIpAddress("localhost");
+        try {
+            ClientStreamHandler.getInstance().updateIP();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         addGraphicToButtons("images/airplaneicon.png",
                 "images/yellowballicon.png",
                 "images/undoairplaneicon.png",
@@ -298,7 +300,7 @@ public class GameCreatorController extends GenericController{
     }
 
     /**
-     * Class that permits player to pass his game scenario to server and helps to differentiate single player game (that has been built by player) and multiplayer (generated based on gameSettings).
+     * Class that allows the player to pass his game scenario to server and helps to differentiate single player game (that has been built by player) and multiplayer (generated based on gameSettings).
      */
     public static class creatorMessage{
         public static boolean msgSet = false;
