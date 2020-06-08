@@ -63,6 +63,11 @@ public class Dimensions {
     public static final int AI_GENERATION_FREQUENCY = 12;
     public static final int MAX_AI_PLANES = 6;
 
+    public static final int MAX_CHECKPOINT = 5;
+    public static final int MINIMUM_CHECKPOINTS_POINTS = 3;
+    public static final int MAXIMUM_CHECKPOINTS_POINTS = 3;
+
+
     public static final int COLLISION_PENALTY = -10;
 
     public static final String AIRLINES_FILE = "csv/airlines.csv";

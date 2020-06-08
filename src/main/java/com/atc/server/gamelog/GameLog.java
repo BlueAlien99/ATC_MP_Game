@@ -473,7 +473,7 @@ public class GameLog {
                 xPos = result.getDouble("x_pos");
                 radius = result.getDouble("radius");
                 Checkpoints.add(new Checkpoint(checkpointUUID,gameID,points,
-                        xPos, yPos, radius));
+                        xPos, yPos));
             }
             closeConnection();
         } catch (SQLException e) {
