@@ -1,9 +1,9 @@
 package com.atc.client;
 
 import com.atc.client.controller.WindowController;
-import com.atc.client.model.ClientStreamHandler;
+import com.atc.client.thread.ClientStreamHandler;
 import com.atc.client.model.GameSettings;
-import com.atc.server.ServerMain;
+import com.atc.server.thread.ServerMain;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.image.Image;

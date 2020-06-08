@@ -1,6 +1,6 @@
 package test.com.atc.client.model;
 
-import com.atc.server.gamelog.GameLog;
+import com.atc.server.dao.GameLog;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

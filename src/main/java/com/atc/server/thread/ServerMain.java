@@ -1,4 +1,6 @@
-package com.atc.server;
+package com.atc.server.thread;
+
+import com.atc.server.model.GameState;
 
 import java.io.IOException;
 import java.net.ServerSocket;

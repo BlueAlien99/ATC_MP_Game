@@ -6,7 +6,7 @@ import javafx.scene.paint.Paint;
 /**
  * Container class with all the constants used in application
  */
-public class Dimensions {
+public class GlobalConsts {
 
     public static final boolean DEBUGGING_MODE = true;
 

@@ -1,7 +1,8 @@
 package com.atc.client.controller;
 
 import com.atc.client.model.*;
-import com.atc.server.Message;
+import com.atc.client.thread.ClientStreamHandler;
+import com.atc.server.model.Message;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;

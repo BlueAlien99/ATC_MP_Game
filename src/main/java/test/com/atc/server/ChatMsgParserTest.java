@@ -1,11 +1,9 @@
 package test.com.atc.server;
 
 import com.atc.client.model.Airplane;
-import com.atc.server.ChatMsgParser;
+import com.atc.server.utils.ChatMsgParser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class ChatMsgParserTest {
 

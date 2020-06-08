@@ -1,4 +1,4 @@
-package com.atc.server.model;
+package com.atc.server.dao.model;
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -24,10 +24,6 @@ public class Event implements Serializable {
         return points;
     }
 
-    public void setPoints(int points) {
-        this.points = points;
-    }
-
     public double getSpeed() {
         return speed;
     }
@@ -48,73 +44,29 @@ public class Event implements Serializable {
         return height;
     }
 
-    public void setHeight(double height) {
-        this.height = height;
-    }
-
-    public int getGameId() {
-        return gameId;
-    }
-
-    public void setGameId(int gameId) {
-        this.gameId = gameId;
-    }
-
-    public int getEventId() {
-        return eventId;
-    }
-
-    public void setEventId(int eventId) {
-        this.eventId = eventId;
-    }
-
 
     public eventType getType() {
         return type;
-    }
-
-    public void setType(eventType type) {
-        this.type = type;
     }
 
     public int getTimeTick() {
         return timeTick;
     }
 
-    public void setTimeTick(int timeTick) {
-        this.timeTick = timeTick;
-    }
-
     public int getPlayerId() {
         return playerId;
-    }
-
-    public void setPlayerId(int playerId) {
-        this.playerId = playerId;
     }
 
     public double getxCoordinate() {
         return xCoordinate;
     }
 
-    public void setxCoordinate(double xCoordinate) {
-        this.xCoordinate = xCoordinate;
-    }
-
     public double getyCoordinate() {
         return yCoordinate;
     }
 
-    public void setyCoordinate(double yCoordinate) {
-        this.yCoordinate = yCoordinate;
-    }
-
     public UUID getAirplaneUUID() {
         return airplaneUUID;
-    }
-
-    public void setAirplaneUUID(UUID airplaneUUID) {
-        this.airplaneUUID = airplaneUUID;
     }
 
     public Event( int eventId, int gameId, eventType type, int timeTick, int playerId, int points,
@@ -136,7 +88,7 @@ public class Event implements Serializable {
     @Override
     public String toString() {
         String message = "GAME: " + gameId+ ' ' + eventId + " ";
-        message += "TICK: "+ String.valueOf(timeTick);
+        message += "TICK: "+ timeTick;
         message += " " + type;
         message += "["+ xCoordinate+"," + yCoordinate + "] ";
         message += "Speed: " + speed + ", Heading: " + heading + ", Height: " + height;

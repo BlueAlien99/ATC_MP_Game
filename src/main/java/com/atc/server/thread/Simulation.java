@@ -1,16 +1,16 @@
-package com.atc.server;
+package com.atc.server.thread;
 
-import com.atc.client.Dimensions;
 import com.atc.client.model.Airplane;
 import com.atc.client.model.Checkpoint;
-import com.atc.client.model.TCAS;
-import com.atc.server.model.Event;
+import com.atc.server.model.GameState;
+import com.atc.server.utils.TCAS;
+import com.atc.server.dao.model.Event;
 
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.atc.client.Dimensions.*;
+import static com.atc.client.GlobalConsts.*;
 
 /**
  * Class with simulation thread which invokes all methods related to plane movement,

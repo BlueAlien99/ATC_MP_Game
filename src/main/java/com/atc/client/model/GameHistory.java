@@ -1,6 +1,6 @@
 package com.atc.client.model;
 
-import com.atc.server.model.Event;
+import com.atc.server.dao.model.Event;
 
 import java.util.HashMap;
 import java.util.List;
@@ -60,15 +60,6 @@ public class GameHistory {
      */
     public void setEvents(List<Event> events) {
         Events = events;
-    }
-
-    /**
-     * Gets current game id.
-     *
-     * @return the current game id
-     */
-    public int getCurrentGameId() {
-        return currentGameId;
     }
 
     /**

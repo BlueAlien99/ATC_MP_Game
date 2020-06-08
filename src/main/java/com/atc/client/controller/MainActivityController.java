@@ -1,7 +1,6 @@
 package com.atc.client.controller;
 
 import com.atc.client.model.ClientStreamHandler;
-import com.atc.client.model.GameSettings;
 import com.atc.server.ServerMain;
 import javafx.application.Platform;
 import javafx.fxml.FXML;

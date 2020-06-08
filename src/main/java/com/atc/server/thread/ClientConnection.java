@@ -1,10 +1,12 @@
-package com.atc.server;
+package com.atc.server.thread;
 
 import com.atc.client.model.Checkpoint;
 import com.atc.client.model.GameSettings;
-import com.atc.server.model.Event;
-import com.atc.server.model.Login;
-import com.atc.server.model.Player;
+import com.atc.server.dao.model.Event;
+import com.atc.server.dao.model.Login;
+import com.atc.server.dao.model.Player;
+import com.atc.server.model.GameState;
+import com.atc.server.model.Message;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -17,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.atc.server.Message.msgTypes.*;
+import static com.atc.server.model.Message.msgTypes.*;
 
 /**
  * Class with a state machine, that allows easier handling of connection client-server.
@@ -337,7 +339,6 @@ public class ClientConnection implements Runnable{
                     }
                     if(lastMsgType == CLIENT_GOODBYE){
                         connectionMode=CONNECTION_IDLE;
-                        continue;
                     }
                 }
             }

@@ -5,7 +5,7 @@ import com.atc.client.controller.GameActivityController;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.atc.client.Dimensions.RADAR_DOTS_HISTORY;
+import static com.atc.client.GlobalConsts.RADAR_DOTS_HISTORY;
 import static java.lang.System.currentTimeMillis;
 
 /**

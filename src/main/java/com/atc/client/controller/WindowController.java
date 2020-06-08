@@ -1,9 +1,8 @@
 package com.atc.client.controller;
 
-import com.atc.client.Dimensions;
+import com.atc.client.GlobalConsts;
 import com.atc.client.model.GameSettings;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
@@ -28,14 +27,14 @@ public class WindowController {
 
     public void setScene(Pane pane, int width, int height){
         Font.loadFont(this.getClass().getResource("/fonts/Orbitron-VariableFont_wght.ttf").toExternalForm(), 10);
-        Font.loadFont(this.getClass().getResource("/fonts/PressStart2P-Regular.ttf").toExternalForm(), 10).getFamily();
+        Font.loadFont(this.getClass().getResource("/fonts/PressStart2P-Regular.ttf").toExternalForm(), 10);
         Scene scene = new Scene(pane, width, height);
         scene.getStylesheets().add(this.getClass().getResource("/style/style.css").toExternalForm());
         setScene(scene);
     }
 
     public void setScene(Pane pane){
-        setScene(pane, Dimensions.WINDOW_WIDTH, Dimensions.WINDOW_HEIGHT);
+        setScene(pane, GlobalConsts.WINDOW_WIDTH, GlobalConsts.WINDOW_HEIGHT);
     }
 
     public GenericController loadAndSetScene(String layout, int width, int height, GameSettings gameSettings){
@@ -55,14 +54,10 @@ public class WindowController {
 
     public GenericController loadAndSetScene(String layout){
         GameSettings gameSettings = GameSettings.getInstance();
-        return loadAndSetScene(layout, Dimensions.WINDOW_WIDTH, Dimensions.WINDOW_HEIGHT, gameSettings);
+        return loadAndSetScene(layout, GlobalConsts.WINDOW_WIDTH, GlobalConsts.WINDOW_HEIGHT, gameSettings);
     }
 
     public GenericController loadAndSetScene(String layout, GameSettings gameSettings){
-        return loadAndSetScene(layout, Dimensions.WINDOW_WIDTH, Dimensions.WINDOW_HEIGHT, gameSettings);
-    }
-
-    public void changeCursor(Cursor cursor){
-        window.getScene().setCursor(cursor);
+        return loadAndSetScene(layout, GlobalConsts.WINDOW_WIDTH, GlobalConsts.WINDOW_HEIGHT, gameSettings);
     }
 }

@@ -1,10 +1,13 @@
-package com.atc.server;
+package com.atc.server.model;
 
 import com.atc.client.model.Airplane;
 import com.atc.client.model.Checkpoint;
-import com.atc.client.model.TCAS;
-import com.atc.server.gamelog.GameLog;
-import com.atc.server.model.Event;
+import com.atc.server.thread.ClientConnection;
+import com.atc.server.thread.Simulation;
+import com.atc.server.utils.ChatMsgParser;
+import com.atc.server.utils.TCAS;
+import com.atc.server.dao.GameLog;
+import com.atc.server.dao.model.Event;
 import javafx.util.Pair;
 
 import java.io.IOException;
@@ -15,7 +18,7 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
-import static com.atc.client.Dimensions.*;
+import static com.atc.client.GlobalConsts.*;
 
 /**
  * Class responsible for all events occurring in game
@@ -297,7 +300,7 @@ public class GameState {
 
     /**
      * Gets monitor object outputBufferLock - all the players waits there each tick for a new list of airplanes.
-     * @return
+     * @return monitor object
      */
     public Object getOutputBufferLock() {
         return outputBufferLock;
@@ -333,7 +336,7 @@ public class GameState {
 
     /**
      * Gets number of ticks that has passed after beginning of the game.
-     * @return
+     * @return tick count
      */
     public int getTickCount() {
         return tickCount;
@@ -375,7 +378,7 @@ public class GameState {
     /**
      * Searches for player's login given his UUID
      * @param playerUUID - player's UUID
-     * @return
+     * @return player's login
      */
     public String searchPlayerLogin(UUID playerUUID) {
         return playersLogins.get(playerUUID);
@@ -444,7 +447,7 @@ public class GameState {
     /**
      * Counts airplanes that belongs to player of given UUID
      * @param playerUUID - player's UUID
-     * @return
+     * @return number of owned airplanes
      */
     public int findAirplanesByPlayer(UUID playerUUID){
         final int[] planeNum = {0};
@@ -453,7 +456,6 @@ public class GameState {
                 planeNum[0]++;
         });
         return planeNum[0];
-
     }
 
     /**
@@ -517,7 +519,7 @@ public class GameState {
 
     /**
      * Adds airplanes to checkpoint's hashmap and stores information about a new checkpoint to database.
-     * @param checkpoint
+     * @param checkpoint checkpoint
      */
     public void addCheckpoint(Checkpoint checkpoint) {
         airplanes.forEach(((uuid, airplane) -> checkpoint.addAirplane(uuid)));
@@ -537,7 +539,7 @@ public class GameState {
     /**
      * Adds new airplane to game - that means that all checkpoints'
      * lists have to be updated and its callsign has to be inserted to database.
-     * @param airplane
+     * @param airplane airplane
      */
 
     public void addAirplane(Airplane airplane){
@@ -556,7 +558,7 @@ public class GameState {
 
     /**
      * Changes the value of variable checkpointsUpdated that informs server if an event related to checkpoints has happened.
-     * @param checkpointsUpdated
+     * @param checkpointsUpdated boolean
      */
     public void setCheckpointsUpdated(boolean checkpointsUpdated) {
         this.checkpointsUpdated = checkpointsUpdated;
@@ -564,7 +566,7 @@ public class GameState {
 
     /**
      * Gets a vector of pairs airplane-checkpoint
-     * @return
+     * @return vector of airplane-checkpoint mapping
      */
     public Vector<Pair<UUID, UUID>> getCheckpointsAirplanesMapping() {
         return checkpointsAirplanesMapping;
@@ -588,7 +590,7 @@ public class GameState {
 
     /**
      * Removes AI airplane from game
-     * @param uuid
+     * @param uuid uuid to remove
      */
     public void removeAiPlane(UUID uuid){
         airplanes.remove(uuid);
