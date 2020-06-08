@@ -519,10 +519,26 @@ public class GameState {
         return checkpointsAirplanesMapping;
     }
 
+    /**
+     * Gets hashmap of players logins
+     * @return hashmap of players logins
+     */
+    public ConcurrentHashMap<UUID, String> getPlayersLogins() {
+        return playersLogins;
+    }
+
+    /**
+     * Returns number of AI airplanes
+     * @return number of AI airplanes
+     */
     public int getAiPlanes() {
         return aiPlanes;
     }
 
+    /**
+     * Removes AI airplane from game
+     * @param uuid
+     */
     public void removeAiPlane(UUID uuid){
         airplanes.remove(uuid);
         --aiPlanes;
