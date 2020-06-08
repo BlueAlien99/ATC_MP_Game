@@ -63,15 +63,6 @@ public class GameHistory {
     }
 
     /**
-     * Gets current game id.
-     *
-     * @return the current game id
-     */
-    public int getCurrentGameId() {
-        return currentGameId;
-    }
-
-    /**
      * Sets current game id.
      *
      * @param currentGameId the current game id

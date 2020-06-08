@@ -12,8 +12,6 @@ public class GameSettings implements Serializable {
 
     private static GameSettings singleton;
     public static final int SINGLE_PLAYER = 0;
-    public static final int MULTI_NONPC = 1;
-    public static final int MULTI_WNPC = 2;
 
     String ipAddress = "localhost";
     int planeNum = 3;

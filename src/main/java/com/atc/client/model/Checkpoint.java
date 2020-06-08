@@ -1,10 +1,6 @@
 package com.atc.client.model;
 
-import javafx.util.Pair;
-
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -12,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Class representing checkpoints in game.
  */
 public class Checkpoint implements Serializable, Cloneable {
-    private final int standardRadius = 50;
+    private final static int standardRadius = 50;
     private UUID checkpointUUID;
     private int gameID;
     private int points;
@@ -182,30 +178,12 @@ public class Checkpoint implements Serializable, Cloneable {
     }
 
     /**
-     * Sets points.
-     *
-     * @param points the points
-     */
-    public void setPoints(int points) {
-        this.points = points;
-    }
-
-    /**
      * Gets pos.
      *
      * @return the pos
      */
     public double getxPos() {
         return xPos;
-    }
-
-    /**
-     * Sets pos.
-     *
-     * @param xPos the x pos
-     */
-    public void setxPos(double xPos) {
-        this.xPos = xPos;
     }
 
     /**
@@ -218,30 +196,12 @@ public class Checkpoint implements Serializable, Cloneable {
     }
 
     /**
-     * Sets pos.
-     *
-     * @param yPos the y pos
-     */
-    public void setyPos(double yPos) {
-        this.yPos = yPos;
-    }
-
-    /**
      * Gets radius.
      *
      * @return the radius
      */
     public double getRadius() {
         return radius;
-    }
-
-    /**
-     * Sets radius.
-     *
-     * @param radius the radius
-     */
-    public void setRadius(double radius) {
-        this.radius = radius;
     }
 
     /**
@@ -254,30 +214,12 @@ public class Checkpoint implements Serializable, Cloneable {
     }
 
     /**
-     * Sets checkpoint uuid.
-     *
-     * @param checkpointUUID the checkpoint uuid
-     */
-    public void setCheckpointUUID(UUID checkpointUUID) {
-        this.checkpointUUID = checkpointUUID;
-    }
-
-    /**
      * Gets game id.
      *
      * @return the game id
      */
     public int getGameID() {
         return gameID;
-    }
-
-    /**
-     * Sets game id.
-     *
-     * @param gameID the game id
-     */
-    public void setGameID(int gameID) {
-        this.gameID = gameID;
     }
 
     public ConcurrentHashMap<UUID, Boolean> getAirplanes() {
