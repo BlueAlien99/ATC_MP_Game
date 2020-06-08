@@ -39,7 +39,7 @@ class CheckpointTest extends Checkpoint {
         assertEquals(10, checkpoint.getPoints());
         assertEquals(0, checkpoint.getxPos());
         assertEquals(0, checkpoint.getyPos());
-        assertEquals(50, checkpoint.getRadius());
+        assertEquals(checkpoint.calculateRadius(checkpoint.getPoints()), checkpoint.getRadius());
     }
 
 }

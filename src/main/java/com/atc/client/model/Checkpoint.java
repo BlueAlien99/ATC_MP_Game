@@ -168,7 +168,7 @@ public class Checkpoint implements Serializable, Cloneable {
      * @return radius of a checkpoint
      */
 
-    private double calculateRadius(int points) {
+    public double calculateRadius(int points) {
         return 10 * ((double)standardRadius/points);
     }
 

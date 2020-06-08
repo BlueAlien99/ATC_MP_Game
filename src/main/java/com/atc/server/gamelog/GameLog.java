@@ -164,6 +164,8 @@ public class GameLog {
             prepStmt.setDouble(5, yPos);
             prepStmt.setDouble(6, radius);
             prepStmt.execute();
+            prepStmt.clearParameters();
+            prepStmt.close();
             closeConnection();
         }catch (SQLException e){
             System.err.println("ERROR: Cannot add checkpoint for:" + checkpointUUID.toString());
@@ -186,6 +188,8 @@ public class GameLog {
             prepStmt.setInt(2, playerId);
             prepStmt.setString(3,login);
             prepStmt.execute();
+            prepStmt.clearParameters();
+            prepStmt.close();
             closeConnection();
         }catch (SQLException e){
             System.err.println("ERROR: Cannot add login for :" + playerId);
@@ -208,6 +212,8 @@ public class GameLog {
             prepStmt.setBytes(2, getBytesFromUUID(airplaneUUID));
             prepStmt.setString(3,callsign);
             prepStmt.execute();
+            prepStmt.clearParameters();
+            prepStmt.close();
             closeConnection();
         }catch (SQLException e){
             System.err.println("ERROR: Cannot add callsign for:" + airplaneUUID);
@@ -234,6 +240,8 @@ public class GameLog {
             prepStmt.setInt(3, airplanesNum);
             prepStmt.setDouble(4,timeInGame);
             prepStmt.execute();
+            prepStmt.clearParameters();
+            prepStmt.close();
             closeConnection();
         }catch (SQLException e){
             System.err.println("ERROR: Cannot add player:" + playerUUID);
@@ -308,11 +316,13 @@ public class GameLog {
             prepStmt.setDouble(10, height);
             prepStmt.setBytes(11, getBytesFromUUID(airplaneUUID));
             prepStmt.execute();
+            prepStmt.clearParameters();
+            prepStmt.close();
             closeConnection();
         }catch (SQLException e){
-            System.err.println("ERROR: Cannot add event:" + eventType + ":" + timeTick);
-            e.printStackTrace();
-            return false;
+            insertEvent(gameId,eventType,timeTick,playerUUID,points,
+             login,  xCoordinate,  yCoordinate,
+             speed,  heading,  height, airplaneUUID, airplanesNum);
         }
         return true;
     }
