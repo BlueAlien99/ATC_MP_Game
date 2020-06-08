@@ -122,6 +122,8 @@ public class GameState {
      */
 
     public void generateNewAirplanes(int num, UUID owner) {
+        if(airplanes.isEmpty() && checkpoints.isEmpty())
+            generateCheckpoints();
         int generated = 0;
         while(generated < num) {
             double pox = CANVAS_WIDTH / 8 + new Random().nextInt((int) CANVAS_WIDTH * 3 / 4);
@@ -175,6 +177,11 @@ public class GameState {
             log.insertCheckpoints(checkpointUUID, gameCount, newCheckpoint.getPoints(),
                     newCheckpoint.getxPos(), newCheckpoint.getyPos(), newCheckpoint.getRadius());
         }
+        setCheckpointsUpdated(true);
+        synchronized (outputBufferLock){
+            outputBufferLock.notify();
+        }
+        setCheckpointsUpdated(false);
     }
 
 

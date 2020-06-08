@@ -2,9 +2,11 @@ package test.com.atc.client.model;
 
 import com.atc.client.model.Airplane;
 import com.atc.client.model.Checkpoint;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.*;
+
 import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class CheckpointTest extends Checkpoint {
@@ -15,7 +17,7 @@ class CheckpointTest extends Checkpoint {
     @BeforeEach
     void init() {
         checkpoint = new Checkpoint(UUID.fromString("caac8660-f37b-4c49-96bc-e6f4d9ee6152"),
-                0,10,0,0, 50);
+                0,10,0,0);
         airplane = new Airplane(UUID.fromString("3a412e99-598d-4a66-b6ce-57e1526e6797"),
                 "XXXX", "XXXX", 100,100, 100,90, 100);
     }
