@@ -1,5 +1,6 @@
 package com.atc.client.controller;
 
+import com.atc.client.model.GameSettings;
 import com.atc.client.thread.ClientStreamHandler;
 import com.atc.server.thread.ServerMain;
 import javafx.application.Platform;
@@ -68,7 +69,7 @@ public class MainActivityController extends GenericController{
             Optional<ButtonType> result = new MultiPlayerChoice().showAndWait();
             ButtonType buttonType = result.get();
             if (MultiPlayerChoice.bJoin.equals(buttonType)) {
-                if(gameSettings.getIpAddress() != null) {
+                if(GameSettings.getInstance().getIpAddress() != null) {
                     //System.out.println(gameSettings.getClientUUID().toString() + " MainActivityController multiplayer");
                     windowController.loadAndSetScene("/fxml/GameActivity.fxml", gameSettings);
                 }else{
@@ -79,7 +80,7 @@ public class MainActivityController extends GenericController{
                     alert.showAndWait();
                 }
             } else if (MultiPlayerChoice.bHost.equals(buttonType)) {
-                gameSettings.setIpAddress("localhost");
+                GameSettings.getInstance().setIpAddress("localhost");
                 try {
                     ClientStreamHandler.getInstance().updateIP();
                 } catch (IOException ex) {
@@ -95,7 +96,7 @@ public class MainActivityController extends GenericController{
             if (HistoryChoice.bRemote.equals(buttonType)) {
                 windowController.loadAndSetScene("/fxml/GameHistory.fxml", gameSettings);
             } else if (HistoryChoice.bLocal.equals(buttonType)) {
-                gameSettings.setIpAddress("localhost");
+                GameSettings.getInstance().setIpAddress("localhost");
                 try {
                     ClientStreamHandler.getInstance().updateIP();
                 } catch (IOException ex) {
