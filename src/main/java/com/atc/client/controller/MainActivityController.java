@@ -1,7 +1,7 @@
 package com.atc.client.controller;
 
-import com.atc.client.model.ClientStreamHandler;
-import com.atc.server.ServerMain;
+import com.atc.client.thread.ClientStreamHandler;
+import com.atc.server.thread.ServerMain;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -65,6 +65,7 @@ public class MainActivityController extends GenericController{
         }
 
         multiPlayerGameButton.setOnAction(e -> {
+            /*
             Optional<ButtonType> result = new MultiPlayerChoice().showAndWait();
             ButtonType buttonType = result.get();
             if (MultiPlayerChoice.bJoin.equals(buttonType)) {
@@ -87,9 +88,12 @@ public class MainActivityController extends GenericController{
                 }
                 windowController.loadAndSetScene("/fxml/GameActivity.fxml", gameSettings);
             }
+            */
+            windowController.loadAndSetScene("/fxml/GameActivity.fxml", gameSettings);
         });
 
         gameHistoryButton.setOnAction(e ->{
+            /*
             Optional<ButtonType> result = new HistoryChoice().showAndWait();
             ButtonType buttonType = result.get();
             if (HistoryChoice.bRemote.equals(buttonType)) {
@@ -103,6 +107,8 @@ public class MainActivityController extends GenericController{
                 }
                 windowController.loadAndSetScene("/fxml/GameHistory.fxml", gameSettings);
             }
+            */
+            windowController.loadAndSetScene("/fxml/GameHistory.fxml", gameSettings);
         });
         bestScoresButton.setOnAction(e->
                 windowController.loadAndSetScene("/fxml/BestScores.fxml", gameSettings));

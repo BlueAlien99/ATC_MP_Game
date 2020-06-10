@@ -5,7 +5,6 @@ import com.atc.server.dao.model.Event;
 import com.atc.server.dao.model.Login;
 import com.atc.server.dao.model.Player;
 
-
 import java.nio.ByteBuffer;
 import java.sql.*;
 import java.util.*;
@@ -721,9 +720,8 @@ public class GameLog {
 
 
     /**
-     * Helper method to transform UUID into table of bytes
+     * Helper method to transform UUID into table of bytes https://gist.github.com/jeffjohnson9046/c663dd22bbe6bb0b3f5e
      * @author jeffjohnson9046
-     * @link https://gist.github.com/jeffjohnson9046/c663dd22bbe6bb0b3f5e
      * @param uuid uuid
      * @return byte array
      */
@@ -736,9 +734,8 @@ public class GameLog {
         return bb.array();
     }
     /**
-     * Helper method to transform table of bytes into UUID
+     * Helper method to transform table of bytes into UUID https://gist.github.com/jeffjohnson9046/c663dd22bbe6bb0b3f5e
      * @author jeffjohnson9046
-     * @link https://gist.github.com/jeffjohnson9046/c663dd22bbe6bb0b3f5e
      * @param bytes byte array
      * @return uuid
      */

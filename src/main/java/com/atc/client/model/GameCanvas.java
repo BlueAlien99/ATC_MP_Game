@@ -81,8 +81,8 @@ public class GameCanvas extends StackPane {
     /**
      * Prints user airplane on GameCanvas with its trailing dots, radarsign and symbols indicating whether it is increasing
      * or decreasing its altitude.
-     * ACTIVE COLOUR -> Blue
-     * NONACTIVE COLOUR -> Green
+     * ACTIVE COLOUR - Blue
+     * NONACTIVE COLOUR - Green
      *
      * @param airplane  the airplane
      * @param active    the active
