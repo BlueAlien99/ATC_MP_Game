@@ -4,10 +4,10 @@ import com.atc.client.controller.GameCreatorController;
 import com.atc.client.model.Checkpoint;
 import com.atc.client.model.GameActivity;
 import com.atc.client.model.GameSettings;
-import com.atc.server.model.Message;
 import com.atc.server.dao.model.Event;
 import com.atc.server.dao.model.Login;
 import com.atc.server.dao.model.Player;
+import com.atc.server.model.Message;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -270,7 +270,7 @@ public class ClientStreamHandler implements Runnable {
     /**
      * Manages stream operation when server is in history state.
      * <br>
-     *     GAME_HISTORY - searchedGameID>=0 client asks for events about corresponding game from the database, otherwise he asks about available replays
+     *     GAME_HISTORY - searchedGameID greater than or equal 0 client asks for events about corresponding game from the database, otherwise he asks about available replays
      *<br>
      *     PLAYERS_LIST - client wants to know best scores of players
      * <br>
