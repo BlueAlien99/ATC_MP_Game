@@ -19,7 +19,7 @@ public class Checkpoint implements Serializable, Cloneable {
     /**
      * Every checkpoint has his own checkpoint with airplanes to check whether it passed it or not.
      */
-    public ConcurrentHashMap<UUID, Boolean> airplanes = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<UUID, Boolean> airplanes = new ConcurrentHashMap<>();
 
     /**
      * Instantiates a new Checkpoint - used only to make tests.
@@ -167,6 +167,7 @@ public class Checkpoint implements Serializable, Cloneable {
     public double calculateRadius(int points) {
         return 10 * ((double)standardRadius/points);
     }
+
 
     /**
      * Gets points.

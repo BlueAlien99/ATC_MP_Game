@@ -8,7 +8,7 @@ import javafx.scene.paint.Paint;
  */
 public class GlobalConsts {
 
-    public static final boolean DEBUGGING_MODE = true;
+    public static final boolean DEBUGGING_MODE = false;
 
     public static final int SIM_TICK_DELAY = 1000;
 

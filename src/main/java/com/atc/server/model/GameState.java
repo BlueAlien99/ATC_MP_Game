@@ -604,8 +604,7 @@ public class GameState {
     public boolean checkForGameOver(){
         for(Checkpoint checkpoint : checkpoints.values()){
             for(Airplane airplane: airplanes.values()){
-                if(airplane.getOwner()!=null && checkpoint.airplanes.get(airplane.getUuid()) != null &&
-                        !checkpoint.airplanes.get(airplane.getUuid())){
+                if(airplane.getOwner()!=null && checkpoint.getAirplanes().get(airplane.getUuid()) != null){
                     return false;
                 }
             }

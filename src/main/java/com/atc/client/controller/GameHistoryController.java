@@ -79,6 +79,10 @@ public class GameHistoryController  extends GenericController {
                     eventLabel.setText(createCollisionString(event, gameHistory.getLogins(),
                             gameHistory.getCallsigns()));
                     setTextFill(Color.RED);
+                } else if(event.getType() == Event.eventType.OFFTHEBOARD){
+                    eventLabel.setText(createOffTheBoardString(event, gameHistory.getLogins(),
+                            gameHistory.getCallsigns()));
+                    setTextFill(Color.RED);
                 }
                 timeTick = event.getTimeTick();
                 setText(eventLabel.getText());
@@ -401,7 +405,7 @@ public class GameHistoryController  extends GenericController {
 
         for (Event event : Events) {
             if (event.getType() == Event.eventType.MOVEMENT || event.getType()== Event.eventType.CHECKPOINT
-            || event.getType() == Event.eventType.COLLISION) {
+            || event.getType() == Event.eventType.COLLISION || event.getType() == Event.eventType.OFFTHEBOARD) {
                 eventsObservableList.add(event);
             } else {
                 commandsObservableList.add(event);
@@ -472,6 +476,18 @@ public class GameHistoryController  extends GenericController {
                 + " gains " + event.getPoints() + " points!";
     }
 
+    /**
+     * Simple method to create a label for airplane getting off the board event
+     * @param event event
+     * @param Logins logins
+     * @param Callsigns callsings
+     * @return checkpoint string
+     */
+    private String createOffTheBoardString(Event event, HashMap<Integer, String> Logins,
+                                           HashMap<UUID, String> Callsigns ){
+        return Callsigns.get(event.getAirplaneUUID()) + "(" + Logins.get(event.getPlayerId()) +")"
+                + " is off the board! ";
+    }
     /**
      * Align radar to new dimensions of the window.
      */

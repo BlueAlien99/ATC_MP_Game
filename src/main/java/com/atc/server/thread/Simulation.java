@@ -42,10 +42,16 @@ public class Simulation extends TimerTask {
         airplanes.forEach((k, v) -> {
             if(v.getPosX() > CANVAS_WIDTH * 3 / 2 || v.getPosX() < -CANVAS_WIDTH / 2 ||
                     v.getPosY() > CANVAS_HEIGHT * 3 / 2 || v.getPosY() < -CANVAS_HEIGHT / 2){
-                if(v.getOwner() != null){
-                    gameState.generateNewAirplanes(1, v.getOwner());
+                if(v.getOwner() != null && !checkIfPassedAllCheckpoints(v)){
+                    v.setPosY(CANVAS_WIDTH/2);
+                    v.setPosX(CANVAS_HEIGHT/2);
+                    gameState.getLog().insertEvent(gameState.getGameCount(), Event.eventType.OFFTHEBOARD.toString(),
+                            gameState.getTickCount(),v.getOwner(), 0, gameState.getPlayersLogins().get(v.getOwner()),
+                            v.getPosX(), v.getPosY(), v.getSpeed(), v.getHeading(),v.getAltitude(), v.getUuid(),
+                            gameState.findAirplanesByPlayer(v.getOwner()));
+                } else if(v.getOwner() != null && checkIfPassedAllCheckpoints(v)){
                     airplanes.remove(k);
-                } else {
+                }else{
                     gameState.removeAiPlane(k);
                 }
                 return;
@@ -102,5 +108,19 @@ public class Simulation extends TimerTask {
         gameState.setNewAirplanesOutput();
         //System.out.println("1s has passed");
         gameState.simulationResume();
+    }
+
+    /**
+     * Checks if airplane passed all checkpoints - this method prevents spawning a new airplane
+     * for player if
+     * @param airplane
+     * @return
+     */
+    private boolean checkIfPassedAllCheckpoints(Airplane airplane){
+        for(Checkpoint checkpoint: checkpoints.values()){
+            if(!checkpoint.getAirplanes().get(airplane.getUuid()))
+                return false;
+        }
+        return true;
     }
 }

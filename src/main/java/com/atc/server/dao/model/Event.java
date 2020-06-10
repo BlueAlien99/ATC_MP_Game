@@ -5,7 +5,7 @@ import java.util.UUID;
 public class Event implements Serializable {
     public enum eventType {
         COLLISION, COMMAND,
-        CHECKPOINT, MOVEMENT
+        CHECKPOINT, MOVEMENT, OFFTHEBOARD
     }
     private int gameId;
     private int eventId;

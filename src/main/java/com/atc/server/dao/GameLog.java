@@ -120,6 +120,11 @@ public class GameLog {
                 "BEGIN\n" +
                 "UPDATE PLAYERS SET POINTS = (SELECT POINTS FROM PLAYERS WHERE PLAYER_ID = NEW.PLAYER_ID) -2;\n" +
                 "END;";
+        String createTrigger4 = "CREATE TRIGGER IF NOT EXISTS OFFTHEBOARD\n" +
+                "BEFORE INSERT ON EVENTS WHEN NEW.EVENT_TYPE == \"OFFTHEBOARD\"\n" +
+                "BEGIN\n" +
+                "UPDATE PLAYERS SET POINTS = (SELECT POINTS FROM PLAYERS WHERE PLAYER_ID = NEW.PLAYER_ID) -5;\n" +
+                "END;";
         String aiPlayer = "insert or ignore into players(player_id, player_uuid) values(-1, null)";
         try {
             connect();
@@ -131,6 +136,7 @@ public class GameLog {
             stat.execute(createTrigger1);
             stat.execute(createTrigger2);
             stat.execute(createTrigger3);
+            stat.execute(createTrigger4);
             stat.execute(aiPlayer);
             closeConnection();
         } catch (SQLException e) {
