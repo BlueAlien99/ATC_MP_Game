@@ -51,6 +51,7 @@ public class Simulation extends TimerTask {
                             gameState.findAirplanesByPlayer(v.getOwner()));
                 } else if(v.getOwner() != null && checkIfPassedAllCheckpoints(v)){
                     airplanes.remove(k);
+                    removeAirplaneFromCheckpoints(k);
                 }else{
                     gameState.removeAiPlane(k);
                 }
@@ -64,6 +65,8 @@ public class Simulation extends TimerTask {
                             v.getSpeed(), v.getHeading(), v.getAltitude(), v.getUuid(), gameState.findAirplanesByPlayer(v.getOwner()));
                     gameState.generateNewAirplanes(1, v.getOwner());
                     airplanes.remove(k);
+                    removeAirplaneFromCheckpoints(k);
+
                 } else {
                     gameState.removeAiPlane(k);
                 }
@@ -122,5 +125,15 @@ public class Simulation extends TimerTask {
                 return false;
         }
         return true;
+    }
+
+    /**
+     * Removes airplane from hashmaps to avoid bugs with game not being able to finish.
+     * @param airplaneUUID - UUID of airplane to be removed
+     */
+    private void removeAirplaneFromCheckpoints(UUID airplaneUUID){
+        for (Checkpoint checkpoint : checkpoints.values()){
+            checkpoint.getAirplanes().remove(airplaneUUID);
+        }
     }
 }

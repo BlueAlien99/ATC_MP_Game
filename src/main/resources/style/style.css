@@ -65,6 +65,7 @@ Label{
 }
 .table-row-cell:focused{
     -fx-background-color: #233f5c;
+    -fx-text-fill: WHITE;
 }
 .table-view .column-header .label{
     -fx-text-fill: #52677A;

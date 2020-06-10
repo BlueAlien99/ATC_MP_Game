@@ -64,9 +64,9 @@ public class GlobalConsts {
     public static final int MAX_AI_PLANES = 6;
 
     public static final int MAX_CHECKPOINT = 5;
-    public static final int MINIMUM_CHECKPOINTS_POINTS = 3;
-    public static final int MAXIMUM_CHECKPOINTS_POINTS = 3;
-
+    public static final int MINIMUM_CHECKPOINTS_POINTS = 30;
+    public static final int MAXIMUM_CHECKPOINTS_POINTS = 30;
+    public static final double POINTS_MULTIPLIER = 10.0;
 
     public static final int COLLISION_PENALTY = -10;
 

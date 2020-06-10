@@ -3,6 +3,7 @@ package com.atc.client.model;
 import java.io.Serializable;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import static com.atc.client.GlobalConsts.*;
 
 /**
  * Class representing checkpoints in game.
@@ -165,7 +166,8 @@ public class Checkpoint implements Serializable, Cloneable {
      */
 
     public double calculateRadius(int points) {
-        return 10 * ((double)standardRadius/points);
+
+        return 10 * ((double)standardRadius*POINTS_MULTIPLIER/points);
     }
 
 
