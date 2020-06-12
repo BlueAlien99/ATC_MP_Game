@@ -84,7 +84,7 @@ public class TCAS {
 			return;
 		}
 
-		if(!DEBUGGING_MODE && verticalSeparation < warningVertical){
+		if(!DEBUGGING_MODE && verticalSeparation > warningVertical){
 			return;
 		}
 
